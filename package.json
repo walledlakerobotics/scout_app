@@ -2,7 +2,8 @@
   "name": "scout_app",
   "version": "1.0.0",
   "description": "- serviceWorker.js and manifest.json are required to stay in the base folder.",
-  "main": "serviceWorker.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "express": "^4.21.2"
   }
 }
