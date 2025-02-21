@@ -1,7 +1,7 @@
 const headerDiv = document.getElementById('header');
 const template = document.createElement('template');
 
-template.innerHTML = '<a href='/'><h1>Scout App</h1></a>';
+template.innerHTML = '<a href="/"><h1>Scout App</h1></a>';
 
 headerDiv.appendChild(template.content);
 
