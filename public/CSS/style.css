@@ -1,7 +1,3 @@
-.header {
-    
-}
-
 #footer {
     /* this is color*/
     background-color: rgb(255, 0, 0);
@@ -10,12 +6,4 @@
     /* this is sizes*/
     font-size: 10px;
     margin-left: auto; margin-right: auto;
-
-
-    
-
 }
-
-
-
-
