@@ -85,7 +85,7 @@ app.post('/leave/group', requireLogin, async (req, res) => {
     return res.sendStatus(200);
 });
 
-app.post('/login/group', requireLogin, async (req, res) => {
+app.post('/join/group', requireLogin, async (req, res) => {
     let group = data.getGroup(req.body.name);
     if (!group) return res.sendStatus(404);
 

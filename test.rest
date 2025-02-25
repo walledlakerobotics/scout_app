@@ -31,7 +31,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:80/login/group
+POST http://localhost:80/join/group
 Content-Type: application/json
 
 {
