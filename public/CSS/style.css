@@ -1,9 +1,13 @@
-#footer {
-    /* this is color*/
-    background-color: rgb(255, 0, 0);
-    color: white;
+body {
+    background-color: rgb(42, 53, 36);
+}
 
-    /* this is sizes*/
-    font-size: 10px;
-    margin-left: auto; margin-right: auto;
+#footer {
+    /*This took way too long to figure out for some reason.
+    CHECK templates.js for footer*/
+    color: rgb(74, 102, 56);
+    background-color: rgb(155, 224, 85);
+
+    margin-top: 105%;
+    height: 110%;    
 }
