@@ -76,7 +76,7 @@ app.post('/register', async (req, res) => {
     return res.sendStatus(201);
 });
 
-app.post('/leave/group', async (req, res) => {
+app.post('/leave/group', requireLogin, async (req, res) => {
     let group = data.getGroup(req.body.groupName);
     if (!group || !req.session.user.groups.some(g => g.name == group.name)) return res.sendStatus(404);
 
@@ -85,7 +85,7 @@ app.post('/leave/group', async (req, res) => {
     return res.sendStatus(200);
 });
 
-app.post('/login/group', async (req, res) => {
+app.post('/login/group', requireLogin, async (req, res) => {
     let group = data.getGroup(req.body.name);
     if (!group) return res.sendStatus(404);
 
