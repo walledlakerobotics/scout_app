@@ -48,7 +48,7 @@ function requireLogin(req, res, next) {
 }
 
 app.use(express.json());
-app.use(express.urlencoded());
+
 app.use(express.static(path.resolve('public')));
 
 app.post('/logout', requireLogin, (req, res) => {
