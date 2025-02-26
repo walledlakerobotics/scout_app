@@ -4,69 +4,11 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <link rel="stylesheet" href="CSS/style.css" />
+        <link rel="stylesheet" href="CSS/formStyle.css" />
         <link rel="manifest" href="manifest.webmanifest"/>
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
         <script defer src="JS/templates.js"></script>
         <title>Form - Scouting App</title>
-
-        <style>
-            .form-field {
-                display: flex;
-                flex-direction: row;
-                border-style: solid;
-                border-color: rgb(155, 224, 85);
-                background-color: rgb(74, 102, 56);
-                max-width: 500px;
-                margin-inline: auto;
-                padding: 20px;
-                justify-content: space-between;
-
-                scale: 100%;
-                border-radius: 5px;
-                color: rgb(245, 241, 196);
-                transition: 0.2s;
-                margin-block: 5px;
-            }
-
-            .form-field:hover {
-                scale: 105%;
-                background-color: rgb(155, 224, 85);
-                border-color: rgb(141, 60%, 33%);
-                border-radius: 10px;
-                color: #144a27;
-            }
-
-            .field-data { 
-                display: flex;
-                flex-direction: row;
-
-                background-color: rgb(165, 0, 30);
-            }
-            .button-holder {
-                display: flex;
-                flex-direction: column;
-
-                background-color: rgb(165, 0, 30);
-            }
-            .button-holder button {
-            
-            }
-
-            input {
-                max-width: 100px;
-            }
-
-            .number-increment {
-                
-            }
-
-            .number-increment input[type="number"]::-webkit-inner-spin-button,
-            .number-increment input[type="number"]::-webkit-outer-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-            }
-        </style>
 
     </head>
     <body>
@@ -76,58 +18,30 @@
             </div>
         </nav>
 
-        <div class="form-field">
-            <div class="field-name">
-                Text Box
-            </div>
-            <div class="field-data">
-                <input type="text">
-            </div>
-        </div>
-
-        <div class="form-field">
-            <div class="field-name">
-                Text Box (numbers only)
-            </div>
-            <div class="field-data">
-                <input type="number">
-            </div>
-        </div>
-
-        <div class="form-field">
-            <div class="field-name">
-                Text Box (incrementing numbers)
-            </div>
-            <div class="field-data number-increment">
-                <input type="number">
-                <div class="button-holder">
-                    <button>+1</button>
-                    <button>-1</button>
+        <main>
+            <form class="form">
+                <div class="form-field">
+                    <label for="teamNumber">Team Number</label>
+                    <input id="teamNumber" type="number"></input>
                 </div>
-                
-            </div>
-        </div>
-
-        <div class="form-field">
-            <div class="field-name">
-                Checkmark
-            </div>
-            <div class="field-data">
-                <input type="checkbox">
-            </div>
-        </div>
-
-        <div class="form-field">
-            <div class="field-name">
-                Dropdown menu
-            </div>
-            <div class="field-data">
-                <select>
-                    <option value="option1">Option 1</option>
-                    <option value="option2">Option 2</option>
-                </select>
-            </div>
-        </div>
+                <div class="form-field">
+                    <label for="matchNumber">Match Number</label>
+                    <input id="matchNumber" type="number"></input>
+                </div>
+                <div class="form-field">
+                    <label for="moved">Moved Auton</label>
+                    <input id="moved" type="checkbox"></input>
+                </div>
+                <div class="form-field">
+                    <label for="coralAuton">Coral Auton</label>
+                    <input id="coralAuton" type="checkbox"></input>
+                </div>
+                <div class="form-field">
+                    <label for="submit">Moved</label>
+                    <button id="submit" type="submit">Apply</button>
+                </div>
+            </form>
+        </main>
 
         <footer>
             <div id="footer"></div>

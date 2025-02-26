@@ -1,0 +1,75 @@
+POST http://localhost:80/logout
+
+###
+
+POST http://localhost:80/login
+Content-Type: application/json
+
+{
+    "username": "Test",
+    "password": "password123"
+}
+
+###
+
+POST http://localhost:80/register
+Content-Type: application/json
+
+{
+    "username": "Test",
+    "password": "password123"
+}
+
+###
+
+POST http://localhost:80/leave/group
+Content-Type: application/json
+
+{
+    "groupName": "test"
+}
+
+###
+
+POST http://localhost:80/join/group
+Content-Type: application/json
+
+{
+    "name": "test",
+    "password": "password123"
+}
+
+###
+
+POST http://localhost:80/register/group
+Content-Type: application/json
+
+{
+    "displayName": "Test Group",
+    "name": "test",
+    "password": "password123"
+}
+
+###
+
+POST http://localhost:80/scouting/data
+Content-Type: application/json
+
+{
+    "groupName": "test",
+    "teamNumber": "308",
+    "matchNumber": 11,
+    "data": {
+        "moved": true,
+        "coral": false
+    }
+}
+
+###
+
+GET http://localhost:80/scouting/data
+Content-Type: application/json
+
+{
+    "groupName": "test"
+}
