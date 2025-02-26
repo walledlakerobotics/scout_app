@@ -1,7 +1,3 @@
-body {
-    background-color: rgb(42, 53, 36);
-}
-
 #footer {
     /*This took way too long to figure out for some reason.
     CHECK templates.js for footer*/
@@ -11,8 +7,3 @@ body {
     margin-top: 105%;
     height: 110%;    
 }
-
-
-
-
-
