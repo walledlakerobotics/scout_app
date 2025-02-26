@@ -1,29 +1,75 @@
-body {
-    background-color:rgb(44, 44, 69);
-    --front_color: rgb(79, 74, 168)
+@font-face {
+    font-family: 'default_Roboto';
+    src: url(fonts/Roboto_Condensed-Bold.ttf);
 }
 
-#footer {
+
+body {
+    /*this is where Im putting all the vars*/
+    --text_color: rgb(187, 185, 215);
+    --front_color: rgb(79, 74, 168);
+    --shadow_color: rgb(28, 8, 53);
+    --inner_color: rgb(47, 44, 98);
+
+    --hover_color: rgb(187, 185, 215);
+    --select_color: rgb(163, 180, 255);
+
+    --background_color: rgb(45, 31, 56);
+
+
+    background-color: var(--background_color);
+    
+
+}
+
+footer {
+    font-family: 'default_Roboto';
     color: rgb(101, 87, 136);
-    text-shadow: 0.5rem 1rem 2rem rgb(28, 8, 53);
+    text-shadow: 0.5rem 1rem 2rem var(--shadow_color);
+
+    margin-left: auto; margin-right: auto;
+
+    transition: 1s;
+}
+
+footer:hover {
+    color: rgb(111, 91, 163);
+    text-shadow: 0.5rem 1rem 2rem rgba(128, 109, 177, 0.562);
+}
+
+#header {
+    font-family: 'default_Roboto';
+    background-color: var(--front_color);
+
+    border-radius: 20px;
+
+    padding-left: 5%;
+    padding-top: 0%;
+
+}
+
+#header:hover {
+    height: 102%;
 }
 
 .form {
     border-style: solid;
-    border-color: rgb(79, 74, 168);
-    background-color: rgb(79, 74, 168);
-    box-shadow: 0.5rem 1rem 1.1rem rgb(28, 8, 53);
+    border-color: var(--front_color);
+    background-color: var(--front_color);
+    box-shadow: 0.5rem 1rem 1.1rem var(--shadow_color);
     max-width: 50rem;
     margin-inline: auto;
     padding: 1rem;
 
     scale: 100%;
     border-radius: 1.2rem;
-    color: rgb(187, 185, 215);
+    font-family: 'default_Roboto';
+    color: var(--text_color);
     transition: 0.2s;
 }
 
 .form-field {
+    font-family: 'default_Roboto';
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -32,11 +78,12 @@ body {
 }
 
 input {
-    background-color: rgb(47, 44, 98);
+    font-family: 'default_Roboto';
+    background-color: var(--inner_color);
     /* box-shadow: 0.5rem 1rem 1.1rem rgba(28, 8, 53, 0); */
     border: 0;
     outline: 0;
-    color: rgb(187, 185, 215);
+    color: var(--text_color);
     
     border-radius: 5px;
     transition: 0.1s ease;
@@ -44,17 +91,17 @@ input {
 
     scale: 100%;
 
-    max-width: 3rem;
+    max-width: 5rem;
 }
 
 input:hover {
-    outline: 3px solid rgb(187, 185, 215);
+    outline: 3px solid var(--hover_color);
 }
 
 input:focus {
-    outline: 3px solid rgb(163, 180, 255);
+    outline: 1px solid var(--select_color);
 
-    scale: 102%;
-    box-shadow: 0.2rem 0.2rem 0.2rem rgb(28, 8, 53);
+    scale: 105%;
+    box-shadow: 0.3rem 0.3rem 0.3rem var(--shadow_color);
     border-radius: 1px;
 }
