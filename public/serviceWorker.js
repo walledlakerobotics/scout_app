@@ -18,18 +18,8 @@ async function createCache() {
 }
 
 async function processRequest(req) {
-    const res = await caches.match(req);
-    return res || await fetch(req);
-}
-
-async function clearOldCache() {
-    const keys = await caches.keys();
-    keys.forEach(async key => {
-        if (key != cacheName) {
-            await caches.delete(key);
-        }
-    });
-    await self.clients.claim();
+    const cache = await caches.match(req);
+    return await fetch(req) || cache;
 }
 
 self.addEventListener('install', event => {
@@ -41,5 +31,5 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('activate', event => {
-    event.waitUntil(clearOldCache());
+    event.waitUntil(self.clients.claim);
 });
