@@ -14,7 +14,7 @@ body {
     --hover_color: rgb(187, 185, 215);
     --select_color: rgb(163, 180, 255);
 
-    --background_color: rgb(45, 31, 56);
+    --background_color: rgb(46, 36, 73);
 
 
     background-color: var(--background_color);
@@ -22,19 +22,16 @@ body {
 
 }
 
-footer {
+#footer {
     font-family: 'default_Roboto';
     color: rgb(101, 87, 136);
     text-shadow: 0.5rem 1rem 2rem var(--shadow_color);
 
-    margin-left: auto; margin-right: auto;
-
     transition: 1s;
 }
 
-footer:hover {
-    color: rgb(111, 91, 163);
-    text-shadow: 0.5rem 1rem 2rem rgba(128, 109, 177, 0.562);
+#footer:hover {
+    color: rgb(134, 112, 190);
 }
 
 #header {
@@ -45,6 +42,9 @@ footer:hover {
 
     padding-left: 5%;
     padding-top: 0%;
+
+    max-width: 50rem;
+    margin-left: auto; margin-right: auto; margin-bottom: auto;
 
 }
 
