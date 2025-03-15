@@ -1,0 +1,15 @@
+form, main {
+    max-width: 25rem;
+}
+
+.form-field {
+    flex-direction: column;
+    align-items: left;
+}
+
+input[type="password"],
+input[type="text"] {
+    margin-top: 0.5rem;
+
+    /* max-width: 10rem; */
+}

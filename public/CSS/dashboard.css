@@ -1,0 +1,13 @@
+form {
+    /* box-shadow: 0.5rem 1rem 1.1rem rgb(28, 8, 53); */
+    max-width: 50rem;
+}
+
+.form-field {
+    flex-direction: row;
+    align-items: center;
+}
+
+input {
+    margin-top: 0.5rem;
+}

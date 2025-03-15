@@ -1,0 +1,133 @@
+:root {
+    --background-color: rgb(44, 44, 69);
+    --primary-color: rgb(79, 74, 168);
+    --secondary-color: rgb(119, 114, 218);
+    --tertiary-color: rgb(47, 44, 98);
+    --foreground-primary-color: rgb(187, 185, 215);
+    --foreground-secondary-color: rgb(140, 133, 232);
+
+    font-family: 'Oxanium', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    width: 100%;
+}
+
+#footer {
+    color: rgb(101, 87, 136);
+    text-shadow: 0.5rem 1rem 2rem rgb(28, 8, 53);
+}
+
+form {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    border-style: solid;
+    border-color: var(--secondary-color);
+    background-color: var(--primary-color);
+    /* box-shadow: 0.5rem 1rem 1.1rem rgb(28, 8, 53); */
+    padding: 1rem;
+
+    height: 100%;
+
+    scale: 100%;
+    border-radius: 1.2rem;
+    color: var(--foreground-primary-color);
+    transition: 0.2s;
+}
+
+.form-field {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    width: 95%;
+}
+
+input[type="password"],
+input[type="number"],
+input[type="text"] {
+    background-color: var(--tertiary-color);
+    /* box-shadow: 0.5rem 1rem 1.1rem rgba(28, 8, 53, 0); */
+    border: 0;
+    outline: 0px solid var(--secondary-color);
+    color: var(--foreground-primary-color);
+    
+    border-radius: 10px;
+    transition: 0.1s ease;
+    padding: 0.7rem;
+
+    scale: 100%;
+}
+
+input[type="password"]:hover,
+input[type="number"]:hover,
+input[type="text"]:hover {
+    outline: 3px solid var(--secondary-color);
+}
+
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="text"]:focus {
+    outline: 3px solid var(--foreground-primary-color);
+
+    scale: 101%;
+    box-shadow: 0.2rem 0.2rem 0.2rem rgb(28, 8, 53);
+}
+
+button {
+    background-color: white;
+    color: var(--primary-color);
+    border: none;
+    outline: none;
+    padding: 0.8rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    width: 7rem;
+
+    font-size: 1.2rem;
+    font-family: 'Oxanium', sans-serif;
+
+    transition: 0.1s ease;
+
+    scale: 100%;
+}
+
+button:hover,
+button:focus {
+    cursor: pointer;
+    scale: 104%;
+}
+
+button:focus {
+    outline: solid 3px var(--foreground-secondary-color);
+}
+
+@media (max-width: 26rem) {
+    body {
+        background-color: var(--primary-color);
+        /* align-items: baseline; */
+    }
+
+    form {
+        padding: 0.2rem;
+        border: none;
+    }
+}
+
+.error {
+    color: red;
+}

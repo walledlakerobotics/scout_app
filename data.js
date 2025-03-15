@@ -48,7 +48,6 @@ const getUser = db.transaction(username => {
     const user = getUserStatement.get(username);
     if (!user) return user;
     user.groups = JSON.parse(user.groups == '' ? '[]' : user.groups).map(g => getGroup(g));
-    console.log(user.groups);
     return user;
 });
 
