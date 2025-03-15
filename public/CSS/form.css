@@ -5,6 +5,8 @@
     --tertiary-color: rgb(47, 44, 98);
     --foreground-primary-color: rgb(187, 185, 215);
     --foreground-secondary-color: rgb(140, 133, 232);
+    --input-color: rgb(45, 42, 109);
+    --shadow-color: rgb(28, 8, 53);
 
     font-family: 'Oxanium', sans-serif;
 }
@@ -130,4 +132,9 @@ button:focus {
 
 .error {
     color: red;
+}
+
+.topnav {
+    background-color: var(--primary-color);
+    height: 100%;
 }
