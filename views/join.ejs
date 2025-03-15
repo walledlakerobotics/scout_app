@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <link rel="stylesheet" href="CSS/formStyle.css" />
+        <link rel="manifest" href="manifest.webmanifest"/>
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+        <script defer src="JS/templates.js"></script>
+        <title>Form - Scouting App</title>
+
+    </head>
+    <body>
+        <nav>
+            <div id="header">
+                <p></p>
+            </div>
+        </nav>
+
+        <main>
+            <form class="form" action="/join/group" method="post">
+                <div class="form-field">
+                    <label for="name">Group Name</label>
+                    <input name="name" id="pname" type="text"></input>
+                </div>
+                <div class="form-field">
+                    <label for="password">Password</label>
+                    <input name="password" id="password" type="password"></input>
+                </div>
+                <div class="form-field">
+                    <label for="submit">Moved</label>
+                    <button id="submit" type="submit">Join</button>
+                </div>
+            </form>
+        </main>
+
+        <footer>
+            <div id="footer"></div>
+        </footer>
+        <script src="JS/app.js"></script>
+    </body>
+</html>

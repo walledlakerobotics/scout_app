@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <meta name="apple-mobile-web-app-capable" content="yes"></meta>
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></meta>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="CSS/form.css" />
+        <link rel="stylesheet" href="CSS/accoutForm.css" />
+        <link rel="manifest" href="manifest.webmanifest"/>
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+        <script defer src="JS/templates.js"></script>
+        <title>Form - Scouting App</title>
+
+    </head>
+    <body>
+        <!-- <nav>
+            <div id="header">
+                <p></p>
+            </div>
+        </nav> -->
+
+        <main>
+            <form id="form" action="/login" method="post">
+                <h1>Login</h1>
+                <div class="form-field">
+                    <label for="username">Username</label>
+                    <input name="username" id="username" type="text"></input>
+                </div>
+                <div class="form-field">
+                    <label for="password">Password</label>
+                    <input name="password" id="password" type="password"></input>
+                </div>
+                <button id="submit" type="submit">Login</button>
+            </form>
+        </main>
+
+        <!-- <footer>
+            <div id="footer"></div>
+        </footer> -->
+        <script src="JS/app.js"></script>
+    </body>
+</html>
