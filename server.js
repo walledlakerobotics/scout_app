@@ -1,3 +1,4 @@
+import axios from 'axios';
 import bcrypt from 'bcrypt';
 import data from './data.js';
 import dotenv from 'dotenv';
@@ -6,6 +7,7 @@ import path from 'path';
 import process from 'process';
 import session from 'express-session';
 import sessionStoreFactory from 'better-sqlite3-session-store';
+import { match } from 'assert';
 
 const SqliteStore = sessionStoreFactory(session);
 
@@ -54,12 +56,42 @@ function requireNoLogin(req, res, next) {
     return next();
 }
 
+async function getMatches() {
+    const reposnse = await axios.get('https://www.thebluealliance.com/api/v3/event/2025mimil/matches',
+        {
+            headers: {
+                'X-TBA-Auth-Key': process.env.TBA_API_KEY
+            }
+        }
+    );
+
+    return reposnse.data;
+}
+
+async function getMatch(key) {
+    const reposnse = await axios.get(`https://www.thebluealliance.com/api/v3/match/${key}`,
+        {
+            headers: {
+                'X-TBA-Auth-Key': process.env.TBA_API_KEY
+            }
+        }
+    );
+
+    console.log(reposnse.data);
+
+    return reposnse.data;
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 
 app.use(express.static(path.resolve('public')));
 
-app.get('/dashboard', requireLogin, (_, res) => res.render('dashboard'));
+app.get('/dashboard', requireLogin, async (_, res) => res.render('dashboard', { matches: await getMatches() }));
+
+app.get('/dashboard/:match', requireLogin, async (req, res) => res.render('match', { match: await getMatch(req.params.match), base: req.url }));
+
+app.get('/dashboard/:match/:team', requireLogin, async (req, res) => res.render('form'));
 
 app.post('/logout', requireLogin, (req, res) => {
     req.session.user = undefined;
@@ -126,6 +158,7 @@ app.post('/register/group', requireLogin, async (req, res) => {
 });
 
 app.post('/scouting/data', requireLogin, (req, res) => {
+    console.log(req.body);
     const group = data.getGroup(req.body.groupName);
     if (!group) return res.sendStatus(404);
 
@@ -134,10 +167,20 @@ app.post('/scouting/data', requireLogin, (req, res) => {
     const scoutingData = structuredClone(req.body);
     delete scoutingData.teamNumber;
     delete scoutingData.matchNumber;
+    delete scoutingData.groupName;
 
     data.addData(group, req.body.teamNumber, req.body.matchNumber, scoutingData);
 
     return res.sendStatus(201);
+});
+
+app.get('/scouting/data', requireLogin, (req, res) => {
+    const group = data.getGroup(req.body.groupName);
+    if (!group) return res.sendStatus(404);
+
+    if (!req.session.user.groups.some(g => g.name == group.name)) return res.sendStatus(403);
+
+    return res.json(data.getData(group));
 });
 
 app.listen(port);

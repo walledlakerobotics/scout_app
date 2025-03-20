@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('templates/head') %>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <form name="form" action="/scouting/data" method="post">
+            <input name="groupName" type="hidden" value="monsters"></input>
+            <div class="form-field">
+                <label for="teamNumber">Team Number</label>
+                <input name="teamNumber" type="number"></input>
+            </div>
+            <div class="form-field">
+                <label for="matchNumber">Match Number</label>
+                <input name="matchNumber" type="number"></input>
+            </div>
+            <div class="form-field">
+                <label for="moved">Moved Auton</label>
+                <input name="moved" type="checkbox"></input>
+            </div>
+            <div class="form-field">
+                <label for="coralAuton">Coral Auton</label>
+                <input name="coralAuton" type="checkbox"></input>
+            </div>
+            <button type="submit">Apply</button>
+        </form>
+    </body>
+</html>

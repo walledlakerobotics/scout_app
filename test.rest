@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
     "username": "Test",
-    "password": "password123"
+    "password": "password"
 }
 
 ###
@@ -17,7 +17,7 @@ Content-Type: application/json
 
 {
     "username": "Test",
-    "password": "password123"
+    "password": "password"
 }
 
 ###
@@ -35,8 +35,8 @@ POST http://localhost:80/join/group
 Content-Type: application/json
 
 {
-    "name": "test",
-    "password": "password123"
+    "name": "monsters",
+    "password": "monsters308"
 }
 
 ###
@@ -45,9 +45,9 @@ POST http://localhost:80/register/group
 Content-Type: application/json
 
 {
-    "displayName": "Test Group",
-    "name": "test",
-    "password": "password123"
+    "displayName": "308 Monsters",
+    "name": "monsters",
+    "password": "monsters308"
 }
 
 ###
@@ -71,5 +71,5 @@ GET http://localhost:80/scouting/data
 Content-Type: application/json
 
 {
-    "groupName": "test"
+    "groupName": "monsters"
 }

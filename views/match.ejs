@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('templates/head') %>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <% match.alliances.blue.team_keys.concat(match.alliances.red.team_keys).forEach(team => { %>
+            <ul class="teams">
+                <li id="<%= team %>">
+                    <a href="<%= new URL(team, base).toString() %>"><%= team %></a>
+                </li>
+            </ul>
+        <% }); %>
+    </body>
+</html>

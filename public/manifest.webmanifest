@@ -4,8 +4,8 @@
     "short_name": "Scout App",
     "start_url": "/dashboard",
     "display": "standalone",
-    "background_color": "rgb(44, 44, 69)",
-    "theme_color": "rgb(79, 74, 168)",
+    "background_color": "rgb(79, 74, 168)",
+    "theme_color": "rgb(47, 44, 98)",
     "orientation": "portrait-primary",
     "icons": [
         {

@@ -1,54 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, user-scalable=no" />
-        <meta name="apple-mobile-web-app-capable" content="yes"></meta>
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></meta>
-        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <link rel="stylesheet" href="CSS/form.css" />
-        <link rel="stylesheet" href="CSS/dashboard.css" />
-        <link rel="manifest" href="manifest.webmanifest"/>
+        <%- include('templates/head') %>
+        <link rel="stylesheet" href="CSS/dashboard.css">
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
         <script defer src="JS/templates.js"></script>
         <title>Form - Scouting App</title>
-
     </head>
     <body>
-        <!-- <nav>
-            <div id="header">
-                <p></p>
-            </div>
-        </nav> -->
-
-        <nav class="topnav">
-            <div class="NAV">
-                <a href="index.ejs" class="href-align-right">Walled Lake Robotics</a>
-                <a href="index.ejs" class="href-align-right">Home</a>
-            </div>
+        <nav>
+            <ul class="tabs">
+                <li id="data-tab">
+                    <i class="fa-solid fa-database"></i>
+                </li>
+                <li id="export-tab">
+                    <i class="fa-solid fa-database"></i>
+                </li>
+                <li id="settings-tab">
+                    <i class="fa-solid fa-database"></i>
+                </li>
+            </ul>
         </nav>
 
         <main>
-            <form class="form" action="/scouting/data" method="post">
-                <input name="groupName" style="display: none;" value="test"></input>
-                <div class="form-field">
-                    <label for="teamNumber">Team Number</label>
-                    <input id="teamNumber" type="number"></input>
-                </div>
-                <div class="form-field">
-                    <label for="matchNumber">Match Number</label>
-                    <input id="matchNumber" type="number"></input>
-                </div>
-                <div class="form-field">
-                    <label for="moved">Moved Auton</label>
-                    <input id="moved" type="checkbox"></input>
-                </div>
-                <div class="form-field">
-                    <label for="coralAuton">Coral Auton</label>
-                    <input id="coralAuton" type="checkbox"></input>
-                </div>
-                <button id="submit" type="submit">Apply</button>
-            </form>
+            <ul id="matches">
+                <% matches.forEach(match => { %>
+                    <li class="match">
+                        <a href="/dashboard/<%= match.key %>"><%= match.comp_level %> Match #<%= match.match_number %></a>
+                    </li>
+                <% }); %>
+            </ul>
         </main>
 
         <!-- <footer>
