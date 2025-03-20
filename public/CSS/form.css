@@ -199,7 +199,43 @@ nav {
     color: rgb(255, 255, 255);
 }
 
+.match {
+    color: var(--tertiary-color);
+    padding: 4px;
+}
+
+a:link {
+    color: var(--foreground-primary-color);
+    background-color: var(--tertiary-color);
+    text-decoration: none;
+    border-radius: 10px;
+
+    padding: 5px;
+
+    transition: 0.4s;
+}
+
+a:link:hover {
+    border-radius: 5px;
+    padding: 6px;
+}
+
+a:visited {
+    color: rgb(51, 179, 92);
+}
+
+a:hover {
+    color: var(--foreground-secondary-color);
+}
+
 li {
+    font-size: 20px;
     margin: 0;
     padding: 0;
+}
+
+ul {
+    list-style: none;
+    padding: 2%;
+    margin: 0;
 }
