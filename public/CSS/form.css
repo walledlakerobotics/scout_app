@@ -116,7 +116,7 @@ nav {
     bottom: 0;
     background-color: var(--tertiary-color);
     border-color: var(--primary-color);
-    box-shadow: 0.2rem 0rem 0.2rem var(--shadow-color);
+    box-shadow: 0.5rem 0rem 0.8rem var(--shadow-color);
     height: 100vh;
     width: fit-content;
 
@@ -159,6 +159,7 @@ nav {
     .tabs > * {
         width: 1em;
     }
+
 }
 
 @media (max-height: 30rem) {
@@ -201,7 +202,7 @@ nav {
 
 .match {
     color: var(--tertiary-color);
-    padding: 4px;
+    padding: 8px;
 }
 
 a:link {
@@ -210,14 +211,14 @@ a:link {
     text-decoration: none;
     border-radius: 10px;
 
-    padding: 5px;
+    padding: 8px;
 
     transition: 0.3s;
 }
 
 a:link:hover {
     border-radius: 5px;
-    padding: 6px;
+    padding: 10px;
     margin-left: 1%;
 }
 
