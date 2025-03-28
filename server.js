@@ -89,6 +89,9 @@ app.use(express.static(path.resolve('public')));
 
 app.get('/dashboard', requireLogin, async (_, res) => res.render('dashboard', { matches: await getMatches() }));
 
+// app.get('/form', requireLogin, async (_, res) => res.render('form', { matches: await getMatches() }));
+
+
 app.get('/dashboard/:match', requireLogin, async (req, res) => res.render('match', { match: await getMatch(req.params.match), base: req.url }));
 
 app.get('/dashboard/:match/:team', requireLogin, async (req, res) => res.render('form'));

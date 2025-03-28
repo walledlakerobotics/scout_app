@@ -1,14 +1,15 @@
 :root {
     --background-color: rgb(53, 32, 88);
     --primary-color: rgb(79, 74, 168);
-    --secondary-color: rgb(73, 69, 133);
+    --secondary-color: rgb(128, 105, 197);
     --tertiary-color: rgb(47, 44, 98);
     --foreground-primary-color: rgb(187, 185, 215);
     --foreground-secondary-color: rgb(140, 133, 232);
     --input-color: rgb(45, 42, 109);
     --shadow-color: rgb(28, 8, 53);
 
-    font-family: 'Oxanium', sans-serif;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 18px;
 }
 
 body {
@@ -17,7 +18,7 @@ body {
     /* width: 100vw;
     height: 100vh; */
     margin: 0;
-    padding: 0;
+    padding: 0px;
     width: 100vw;
     height: 100vh;
 }
@@ -37,7 +38,6 @@ form {
     align-items: center;
     flex-direction: column;
     justify-content: center;
-
     scale: 100%;
     border-radius: 1.2rem;
     color: var(--foreground-primary-color);
@@ -47,21 +47,22 @@ form {
 .form-field {
     display: flex;
     justify-content: space-between;
-    padding: 1rem;
-    width: 95%;
+    width: 50%;
+    padding: 20px;
 }
 
 input[type="password"],
 input[type="number"],
 input[type="text"] {
     background-color: var(--tertiary-color);
+
     box-shadow: 0.5rem 1rem 1.1rem rgba(28, 8, 53, 0);
     border: 0;
     outline: 0px solid var(--secondary-color);
     color: var(--foreground-primary-color);
     
     border-radius: 10px;
-    transition: 0.1s ease;
+    transition: 0.3s ease;
     padding: 0.7rem;
 
     scale: 100%;
@@ -121,6 +122,8 @@ nav {
     width: fit-content;
 
     transition: 0.2s;
+
+    z-index: 5;
 }
 
 @media (max-width: 30rem) {
@@ -150,6 +153,11 @@ nav {
         
         padding-bottom: 0.7rem;
     }
+
+    .form-field {
+        width: 90%;
+    }
+
 
     .tabs {
         flex-direction: row !important;
@@ -240,4 +248,14 @@ ul {
     list-style: none;
     padding: 0%;
     margin: 0;
+}
+
+select {
+    color: var(--foreground-primary-color);
+    background-color: var(--tertiary-color);
+    border-color: var(--tertiary-color);
+    border-radius: 5px;
+    scale: 120%;
+
+    transition: 1s;
 }

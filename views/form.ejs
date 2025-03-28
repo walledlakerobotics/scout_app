@@ -7,6 +7,20 @@
         <title>Document</title>
     </head>
     <body>
+
+        <nav>
+            <ul class="tabs">
+                <li id="data-tab">
+                    <i class="fa-solid fa-database"></i>
+                </li>
+                <li id="export-tab">
+                    <i class="fa-solid fa-database"></i>
+                </li>
+                <li id="settings-tab">
+                    <i class="fa-solid fa-database"></i>
+                </li>
+            </ul>
+        </nav>
         <form name="form" action="/scouting/data" method="post">
             <input name="groupName" type="hidden" value="monsters"></input>
             <div class="form-field">
@@ -25,7 +39,67 @@
                 <label for="coralAuton">Coral Auton</label>
                 <input name="coralAuton" type="checkbox"></input>
             </div>
+
+            <div class="form-field">
+                <label for="coralTelop">Coral Teleop L1 TotalCount</label>
+                <input name="coralTelop" type="number"></input>
+            </div>
+            <div class="form-field">
+                <label for="coralTelop">Coral Teleop L2 TotalCount</label>
+                <input name="coralTelop" type="number"></input>
+            </div>
+            <div class="form-field">
+                <label for="coralTelop">Coral Teleop L3 TotalCount</label>
+                <input name="coralTelop" type="number"></input>
+            </div>
+            <div class="form-field">
+                <label for="coralTelop">Coral Teleop L4 TotalCount</label>
+                <input name="coralTelop" type="number"></input>
+            </div>
+
+            <div class="form-field">
+                <label for="algaeTelopTrough">Algae Teleop Trough Count</label>
+                <input name="algaeTelopTrough" type="number"></input>
+            </div>
+            <div class="form-field">
+                <label for="algaeTelopProcessor">Algae Teleo Processor Count</label>
+                <input name="algaeTelopProcessor" type="number"></input>
+            </div>
+
+            <div class="form-field">
+                <label for="endGameHang">End Game Hang Result</label>
+                <select name="endGameHang" id="endHang">
+                    <option value="ShallowHang">Shallow Hang</option>
+                    <option value="DeepHang">Deep Hang</option>
+                    <option value="Park">Park</option>
+                    <option value="None">None</option>
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label for="endGameResults">Results</label>
+                <select name="endGameResults" id="endGame">
+                    <option value="win">Won</option>
+                    <option value="loss">Lossed</option>
+                    <option value="draw">Draw</option>
+                    <option value="none">None Determined</option>
+
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label for="red">Red Score</label>
+                <input name="RedScore" type="number"></input>
+            </div>
+
+            <div class="form-field">
+                <label for="red">Blue Score</label>
+                <input name="BlueScore" type="number"></input>
+            </div>
+
             <button type="submit">Apply</button>
+            <div style="margin-top: 250px;"></div>
+
         </form>
     </body>
 </html>
