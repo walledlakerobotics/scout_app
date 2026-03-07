@@ -1,0 +1,423 @@
+import { TBA_GET } from "../utils.js";
+import { getDB } from "../DB.js";
+
+const urlParams = new URLSearchParams(window.location.search);
+const eventKey = urlParams.get("eventKey");
+
+const useOnlineLeaderboardLayout = true;
+
+export const LEADERBOARD_COLUMNS_OFFLINE = [
+  { id: "total-rp", label: "Total RP" },
+  { id: "winrate", label: "Winrate" },
+  { id: "avg-score", label: "Avg Score" },
+  { id: "ap-potential", label: "AP Potential" },
+];
+
+export const LEADERBOARD_COLUMNS_SCOUTED = [];
+export let LEADERBOARD_COLUMNS = useOnlineLeaderboardLayout ? [] : [...LEADERBOARD_COLUMNS_OFFLINE];
+
+async function initLeaderboard() {
+  //check for stale data in the api, ask to fallback to scouted data only if last valid match is over 30m ago or there is no matches completed at all
+  //TODO finish this
+  const eventData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
+  const matches = eventData?.mData || [];
+  const now = new Date().getTime();
+  const lastUpdated = eventData?.lastUpdated || now;
+
+  const lastMatchTime = matches.reduce((latest, m) => {
+    const t = new Date(m.time * 1000);
+    return t > latest ? t : latest;
+  }, new Date(0)); // fooey!
+  const seconds = Math.floor(Math.abs(lastUpdated - now) / 1000);
+  if (seconds > 60 * 30) {
+    confirm("A failsafe detected this data may be stale (30+ minutes old). It is recommended to refetch data.");
+  }
+  console.log(`Last fetched data ${seconds}s ago`);
+}
+
+initLeaderboard();
+
+async function reorganizeLeaderboardData() {
+  if (useOnlineLeaderboardLayout) {
+    const raw = await TBA_GET(`/event/${eventKey}/rankings`);
+    if (!raw || !raw.rankings) return { columns: [], rows: [] };
+
+    // Build column list from what FIRST actually defines for this season
+    const sortCols = (raw.sort_order_info ?? []).map((info, i) => ({
+      id: `sort-${i}`,
+      label: info.name,
+      precision: info.precision ?? 0,
+      source: "sort_orders",
+      index: i,
+    }));
+
+    const extraCols = (raw.extra_stats_info ?? []).map((info, i) => ({
+      id: `extra-${i}`,
+      label: info.name,
+      precision: info.precision ?? 0,
+      source: "extra_stats",
+      index: i,
+    }));
+    // Scouted columns come last — you populate stats[col.id] yourself
+    const columns = [...sortCols, ...extraCols, ...LEADERBOARD_COLUMNS_SCOUTED];
+
+    // Build a flat stats object per team
+    const rows = raw.rankings.map((entry) => {
+      const stats = { rank: entry.rank };
+      sortCols.forEach((col) => {
+        const val = entry.sort_orders?.[col.index];
+        stats[col.id] = val != null ? +val.toFixed(col.precision) : "-";
+      });
+      extraCols.forEach((col) => {
+        const val = entry.extra_stats?.[col.index];
+        stats[col.id] = val != null ? +val.toFixed(col.precision) : "-";
+      });
+      LEADERBOARD_COLUMNS_SCOUTED.forEach((col) => {
+        stats[col.id] = "-"; // TODO: fill from your scouted DB
+      });
+      return { teamKey: entry.team_key, stats };
+    });
+
+    return { columns, rows };
+  } else {
+    const raw = await getDB(`/db?eventKey=2026mimil`) //  TODO: make this ${eventKey}
+      .then((res) => res.ok && res.json())
+      .catch(() => null);
+
+    const scoutedData = raw?.data;
+    const questionLayout = raw?.questions; // to get the names of the categories n stuff
+    return { columns: LEADERBOARD_COLUMNS_OFFLINE, rows: [] };
+  }
+}
+
+//relative coloring of stat cells, only applies to numeric stats
+function colorStatCellsRelative(columns) {
+  // find min/max
+  const colStats = columns.map((_, colIndex) => {
+    let min = Infinity,
+      max = -Infinity;
+    document.querySelectorAll(".team:not(.template) .team-stat").forEach((stat, i) => {
+      if (i % columns.length !== colIndex) return;
+      const val = parseFloat(stat.textContent);
+      if (isNaN(val)) return;
+      if (val < min) min = val;
+      if (val > max) max = val;
+    });
+    return { min, max };
+  });
+
+  document.querySelectorAll(".team:not(.template)").forEach((teamEl) => {
+    Array.from(teamEl.querySelectorAll(".team-stat")).forEach((stat, colIndex) => {
+      const val = parseFloat(stat.textContent);
+      const { min, max } = colStats[colIndex];
+
+      stat.classList.remove("match-low");
+      stat.classList.remove("match-high");
+
+      if (isNaN(val) || min === max) return;
+
+      const ratio = (val - min) / (max - min);
+      const hue = ratio * 120;
+      stat.style.backgroundColor = `hsla(${hue}, 80%, 45%, var(--stat-bg-opacity))`;
+
+      if (val == max) {
+        stat.classList.add("match-high");
+      } else if (val == min) {
+        stat.classList.add("match-low");
+      }
+    });
+  });
+}
+
+var inspectedTeam = null;
+
+export async function loadLeaderboard() {
+  const teamList = document.getElementById("team-list");
+  const template = document.getElementById("lb-team-template");
+
+  function createTeam(teamNumber, stats, columns) {
+    const el = template.cloneNode(true);
+    el.querySelector(".team-id").textContent = teamNumber;
+    el.querySelector(".team-logo").src = `https://www.thebluealliance.com/avatar/2026/frc${teamNumber}.png`;
+    el.querySelector(".team-rank").textContent = stats.rank ?? "N/A";
+
+    const statElTemplate = el.querySelector(".team-stat");
+    if (statElTemplate !== undefined) {
+      columns.forEach((col, i) => {
+        const thisElement = statElTemplate.cloneNode(true);
+        thisElement.textContent = stats[col.id] ?? "-";
+        const filterBtn = document.querySelectorAll("#lb-filter .filter-option")[i];
+        if (filterBtn?.classList.contains("col-hidden")) {
+          thisElement.classList.add("col-hidden");
+        }
+        statElTemplate.parentNode.appendChild(thisElement);
+      });
+    }
+    statElTemplate.remove();
+
+    if (stats.rank === 1) el.classList.add("first");
+    if (stats.rank === 2) el.classList.add("second");
+    if (stats.rank === 3) el.classList.add("third");
+
+    el.id = `team-${teamNumber}`;
+    el.classList.remove("hidden", "template");
+    teamList.appendChild(el);
+
+    colorStatCellsRelative(columns);
+
+    const actionBtn = el.querySelector("#action-btn");
+
+    actionBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!actionBtn.classList.contains("hidden")) {
+        location.href = `/HTML/inspect.html?type=team&key=${teamNumber}`;
+      }
+    });
+
+    el.addEventListener("click", () => {
+      if (inspectedTeam && inspectedTeam !== teamNumber) {
+        document.getElementById(`team-${inspectedTeam}`)?.querySelector("#action-btn").classList.add("hidden");
+      }
+      actionBtn.classList.toggle("hidden");
+      actionBtn.innerHTML = `<ion-icon class="ionicon" name="open-outline"></ion-icon> View Team Data`;
+      inspectedTeam = teamNumber;
+    });
+
+    return el;
+  }
+
+  const matchData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData;
+  if (!matchData) {
+    console.warn("No matchMatches in localStorage — leaderboard skipped.");
+    template.classList.add("hidden");
+    return;
+  }
+
+  const { columns, rows } = await reorganizeLeaderboardData();
+
+  document.getElementById("lb-header").textContent = `${rows.length || "0"} Teams`;
+
+  LEADERBOARD_COLUMNS.length = 0;
+  columns.forEach((c) => LEADERBOARD_COLUMNS.push(c));
+
+  // trigger UI to rebuild with the real column list
+  document.dispatchEvent(new CustomEvent("lb-columns-ready"));
+
+  // render rows in rank order (TBA already sorts them, but just in case)
+  rows
+    .sort((a, b) => (a.stats.rank ?? 0) - (b.stats.rank ?? 0))
+    .forEach(({ teamKey, stats }) => {
+      const number = teamKey.replace("frc", "");
+      createTeam(number, stats, columns);
+    });
+
+  template.classList.add("hidden");
+  console.warn("Leaderboard successfully populated:", columns, rows);
+}
+
+document.addEventListener("lb-sort-change", ({ detail }) => {
+  const teamList = document.getElementById("team-list");
+  const teams = Array.from(teamList.querySelectorAll(".team:not(.template)"));
+
+  if (detail.col === null) {
+    teams
+      .sort((a, b) => {
+        const ra = parseInt(a.querySelector(".team-rank").textContent) || 9999;
+        const rb = parseInt(b.querySelector(".team-rank").textContent) || 9999;
+        return ra - rb;
+      })
+      .forEach((el) => teamList.appendChild(el));
+    return;
+  }
+
+  const colId = detail.id;
+  const dir = detail.dir === "asc" ? 1 : -1;
+
+  teams
+    .sort((a, b) => {
+      // only works if each stat is in the right order
+      const statsA = Array.from(a.querySelectorAll(".team-stat"));
+      const statsB = Array.from(b.querySelectorAll(".team-stat"));
+      const valA = parseFloat(statsA[detail.col]?.textContent) ?? -Infinity;
+      const valB = parseFloat(statsB[detail.col]?.textContent) ?? -Infinity;
+      if (isNaN(valA) && isNaN(valB)) return 0;
+      if (isNaN(valA)) return 1;
+      if (isNaN(valB)) return -1;
+      return (valA - valB) * dir;
+    })
+    .forEach((el) => teamList.appendChild(el));
+});
+
+//sort + column paging. entirely claude.
+
+(function () {
+  const ICON_DEFAULT = "chevron-expand-outline";
+  const ICON_ASC = "chevron-up-outline";
+  const ICON_DESC = "chevron-down-outline";
+
+  const isMobile = ("ontouchstart" in window || navigator.maxTouchPoints > 0) && window.innerWidth <= 600;
+  if (isMobile) document.body.classList.add("is-mobile");
+
+  const nextBtn = document.getElementById("lb-next-btn");
+  const lbFilter = document.getElementById("lb-filter");
+
+  // ── Column buttons are built once columns are known ────────────────────────
+  function buildFilterButtons(columns) {
+    lbFilter.innerHTML = "";
+    columns.forEach((col, i) => {
+      const btn = document.createElement("button");
+      btn.className = "filter-option";
+      btn.dataset.col = i;
+      btn.dataset.colId = col.id;
+      btn.textContent = col.label + " ";
+      const icon = document.createElement("ion-icon");
+      icon.setAttribute("name", ICON_DEFAULT);
+      btn.appendChild(icon);
+      lbFilter.appendChild(btn);
+    });
+    return Array.from(lbFilter.querySelectorAll(".filter-option"));
+  }
+
+  let filterBtns = [];
+  let totalCols = 0;
+
+  function initUI(columns) {
+    filterBtns = buildFilterButtons(columns);
+    totalCols = filterBtns.length;
+    attachSortHandlers();
+    layout();
+  }
+
+  // If columns arrive before DOMContentLoaded finishes, wait for the event
+  document.addEventListener("lb-columns-ready", () => {
+    initUI(LEADERBOARD_COLUMNS);
+  });
+
+  // Fallback: if offline mode with static columns, init immediately
+  if (!useOnlineLeaderboardLayout && LEADERBOARD_COLUMNS.length) {
+    document.addEventListener("DOMContentLoaded", () => initUI(LEADERBOARD_COLUMNS));
+  }
+
+  // ── Sort state ─────────────────────────────────────────────────────────────
+  let sortState = { col: null, dir: null };
+
+  function applySort(col, dir) {
+    sortState = { col, dir };
+    filterBtns.forEach((btn, i) => {
+      const icon = btn.querySelector("ion-icon");
+      if (i === col) {
+        btn.classList.add("active");
+        icon.setAttribute("name", dir === "asc" ? ICON_ASC : ICON_DESC);
+      } else {
+        btn.classList.remove("active");
+        icon.setAttribute("name", ICON_DEFAULT);
+      }
+    });
+    document.querySelectorAll(".team-stats-container").forEach((container) => {
+      Array.from(container.querySelectorAll(".team-stat")).forEach((stat, i) => {
+        stat.classList.toggle("active-sort", i === col);
+      });
+    });
+    const id = sortState.col !== null ? LEADERBOARD_COLUMNS[sortState.col]?.id : null;
+    document.dispatchEvent(new CustomEvent("lb-sort-change", { detail: { ...sortState, id } }));
+  }
+
+  function clearSort() {
+    sortState = { col: null, dir: null };
+    filterBtns.forEach((btn) => {
+      btn.classList.remove("active");
+      btn.querySelector("ion-icon").setAttribute("name", ICON_DEFAULT);
+    });
+    document.querySelectorAll(".team-stat").forEach((s) => s.classList.remove("active-sort"));
+    document.dispatchEvent(new CustomEvent("lb-sort-change", { detail: { col: null, dir: null, id: null } }));
+  }
+
+  function attachSortHandlers() {
+    filterBtns.forEach((btn, i) => {
+      btn.addEventListener("click", () => {
+        if (sortState.col !== i) applySort(i, "desc");
+        else if (sortState.dir === "desc") applySort(i, "asc");
+        else clearSort();
+      });
+    });
+  }
+
+  // ── Column paging ──────────────────────────────────────────────────────────
+  let pageStart = 0;
+  let colsPerPage = 0;
+
+  function calcColsPerPage() {
+    filterBtns.forEach((b) => {
+      b.classList.remove("col-hidden");
+      b.style.flex = "0 0 auto";
+    });
+    lbFilter.style.overflow = "visible";
+    const naturalWidths = filterBtns.map((b) => b.getBoundingClientRect().width);
+    lbFilter.style.overflow = "";
+    filterBtns.forEach((b) => {
+      b.style.flex = "";
+    });
+
+    const available = lbFilter.getBoundingClientRect().width;
+    if (available <= 0) return Math.min(totalCols, totalCols);
+
+    let count = 0,
+      sum = 0;
+    for (let i = 0; i < totalCols; i++) {
+      sum += naturalWidths[i];
+      if (sum > available + 0.5) break;
+      count++;
+    }
+    return Math.max(1, count);
+  }
+
+  let dotsEl = null;
+  function buildDots(numPages, currentPage) {
+    if (!dotsEl) {
+      dotsEl = document.createElement("div");
+      dotsEl.className = "page-dots";
+      nextBtn.appendChild(dotsEl);
+    }
+    dotsEl.innerHTML = "";
+    if (numPages <= 1) return;
+    for (let i = 0; i < numPages; i++) {
+      const d = document.createElement("span");
+      d.className = "page-dot" + (i === currentPage ? " active" : "");
+      dotsEl.appendChild(d);
+    }
+  }
+
+  function layout() {
+    if (!totalCols) return;
+    colsPerPage = calcColsPerPage();
+    const needsPaging = colsPerPage < totalCols;
+    const numPages = needsPaging ? Math.ceil(totalCols / colsPerPage) : 1;
+    const currentPage = Math.min(Math.floor(pageStart / colsPerPage), numPages - 1);
+    pageStart = currentPage * colsPerPage;
+    const pageEnd = Math.min(pageStart + colsPerPage, totalCols);
+
+    filterBtns.forEach((btn, i) => {
+      btn.classList.toggle("col-hidden", needsPaging && (i < pageStart || i >= pageEnd));
+    });
+    document.querySelectorAll(".team-stats-container").forEach((container) => {
+      Array.from(container.querySelectorAll(".team-stat")).forEach((stat, i) => {
+        stat.classList.toggle("col-hidden", needsPaging && (i < pageStart || i >= pageEnd));
+      });
+    });
+
+    const filterContainer = lbFilter.closest(".filter-container");
+    filterContainer.classList.toggle("no-paging", !needsPaging);
+    buildDots(numPages, currentPage);
+  }
+
+  nextBtn.addEventListener("click", () => {
+    if (!totalCols) return;
+    const numPages = Math.ceil(totalCols / colsPerPage);
+    const currentPage = Math.floor(pageStart / colsPerPage);
+    pageStart = ((currentPage + 1) % numPages) * colsPerPage;
+    layout();
+  });
+
+  const ro = new ResizeObserver(() => layout());
+  ro.observe(lbFilter);
+})();

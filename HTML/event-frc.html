@@ -1,0 +1,216 @@
+<!doctype html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="../CSS/global.css" />
+  <link rel="stylesheet" type="text/css" href="../CSS/event-frc/event-frc.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+
+<body>
+  <div class="main">
+    <div class="header">
+      <div class="left">
+        <img src="../Img/FIRST_mono.png" />
+        <h1 class="event-title tc-formatted" id="eventNameHeader">Fetching Event Name...</h1>
+      </div>
+      <div class="right">
+        <div class="header-text">
+          <h2 class="tc-sub-formatted" id="eventCodeHeader">Event Code</h2>
+          <h2 class="tc-sub-formatted" style="text-wrap-mode: nowrap">Tap to <b>refetch</b></h2>
+        </div>
+        <button class="mini-btn" onclick="reloadPage()">
+          <ion-icon name="refresh"></ion-icon>
+        </button>
+        <button class="mini-btn" id="nextPageBtn">
+          <ion-icon name="trophy-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+    <div class="text-container">
+      <div class="body-section body-left">
+        <div class="descriptor">
+          <h1 id="lb-header">- Teams</h1>
+          <div class="filter-container">
+            <div class="lb-filter" id="lb-filter">
+              <!-- Filter buttons are injected by leaderboard.js from LEADERBOARD_COLUMNS -->
+            </div>
+            <button class="lb-next-btn" id="lb-next-btn" title="Next sort column">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="team-list" id="team-list">
+          <div class="team template hidden" id="lb-team-template">
+            <div class="team-left">
+              <h1 class="team-rank">-</h1>
+              <div class="team-logo-wrapper">
+                <img
+                  class="team-logo"
+                  src="https://www.thebluealliance.com/avatar/2026/frc254.png"
+                  onerror="
+                    this.onerror = null;
+                    this.classList.add('no-logo');
+                    this.src = '../Img/Noicon_mono.png';
+                  "
+                />
+                <h2 class="team-id">N/A</h2>
+              </div>
+            </div>
+            <div class="team-right">
+              <div class="team-stats-container">
+                <div class="team-stat">...</div>
+              </div>
+            </div>
+            <button class="action-btn hidden" id="action-btn">
+              <ion-icon class="ionicon" name="open-outline"></ion-icon>
+              View Match Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="body-section body-right">
+        <div class="bsr bsr-top">
+          <div class="descriptor" style="gap: 10px">
+            <h1 style="white-space: nowrap">Match Data</h1>
+            <div style="display: flex; gap: 5px">
+              <button class="main-button scroll-btn">
+                <ion-icon name="arrow-down-outline"></ion-icon>
+                Scroll to Live Match
+              </button>
+              <button class="mini-btn btn-disabled" id="filter-btn" disabled>
+                <ion-icon name="filter-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+          <div class="match-list">
+            <h2 class="ls-divider tc-sub-formatted hidden" id="ls-divider">- Qualifiers -</h2>
+
+            <div class="match" id="ml-template">
+              <div class="match-left">
+                <h2 id="match-id">00</h2>
+                <ion-icon name="hourglass-outline" id="match-status"></ion-icon>
+              </div>
+              <div class="match-scores">
+                <h2 id="match-blue-score" class="mb-score">N/A</h2>
+                <h2 id="match-red-score" class="mr-score">N/A</h2>
+              </div>
+              <table id="teams-table" class="match-teams-table">
+                <tr class="m-blue" id="m-blue">
+                  <th id="team1">7178</th>
+                  <th id="team2">308</th>
+                  <th id="team3">7553</th>
+                </tr>
+                <tr class="m-red" id="m-red">
+                  <th id="team1">7553</th>
+                  <th id="team2">7178</th>
+                  <th id="team3">308</th>
+                </tr>
+              </table>
+              <button class="action-btn hidden" id="action-btn">
+                <ion-icon class="ionicon" name="open-outline"></ion-icon>
+                View Match Data
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="bsr bsr-bottom">
+          <div class="descriptor">
+            <h1>For Scouters:</h1>
+            <h1 id="slot-text">SLOT HERE</h1>
+          </div>
+          <div class="scout-btns">
+            <button id="scanBtn">
+              <ion-icon name="qr-code-outline"></ion-icon>
+              Upload Data: Scan QR Codes
+            </button>
+            <button id="btn-offline">
+              <ion-icon name="clipboard-outline"></ion-icon>
+              Go to General Scouting Form
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scan-popup themed-frosted popup-hidden" id="scan-popup">
+      <div class="video-container themed-frosted" id="vid-container">
+        <video id="webcam-feed" autoplay playsinline muted></video>
+        <button class="mini-btn" id="close-scan" style="position: absolute; right: 10px; top: 10px">
+          <ion-icon name="exit-outline"></ion-icon>
+        </button>
+        <h2 style="opacity: 0" id="qr-notification">Already Scanned</h2>
+      </div>
+
+      <div class="scan-graphic">
+        <div style="display: flex; flex-direction: column">
+          <h2 id="scanned-match-id">Teams 0</h2>
+        </div>
+        <div class="divider"></div>
+        <table id="teams-table" class="qr-table">
+          <tbody>
+            <tr>
+              <th id="team1">1</th>
+              <th id="team2">2</th>
+              <th id="team3">3</th>
+              <th id="team4">4</th>
+              <th id="team5">5</th>
+              <th id="team6">6</th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <canvas id="qr-canvas" style="display: none"></canvas>
+      <div class="popup-bottom">
+        <button class="main-button themed-frosted" id="undo-scan-btn" disabled>
+          <ion-icon name="arrow-undo-outline"></ion-icon>
+          Undo Previous Scan
+        </button>
+        <button class="main-button themed-frosted" id="upload-scan-btn" disabled>
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+          Upload to Cloud
+        </button>
+      </div>
+    </div>
+    <div class="footer">
+      <a href="../HTML/index.html">
+        <button class="mini-btn">
+          <ion-icon name="home"></ion-icon>
+        </button>
+      </a>
+      <a href="https://github.com/walledlakerobotics/walledlakerobotics.github.io">
+        <button class="mini-btn">
+          <ion-icon name="logo-github"></ion-icon>
+        </button>
+      </a>
+      <button class="mini-btn" onclick="toggleTheme()">
+        <ion-icon name="sunny"></ion-icon>
+      </button>
+      <button class="mini-btn" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
+        <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
+      </button>
+      <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013" onclick="logout()">
+        <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
+      </button>
+    </div>
+  </div>
+  <script type="module" src="../JS/DB.js"></script>
+  <script type="module" src="../JS/utils.js"></script>
+
+  <script type="module" src="../JS/event/event-frc.js"></script>
+  <script type="module" src="../JS/event/leaderboard.js"></script>
+  <script type="module" src="../JS/event/scan-qr.js"></script>
+
+  <script src="../JS/theme.js"></script>
+  <script src="../JS/check-auth.js"></script>
+</body>

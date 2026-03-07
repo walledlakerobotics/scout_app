@@ -1,0 +1,69 @@
+<!doctype html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="../CSS/global.css" />
+  <link rel="stylesheet" type="text/css" href="../CSS/Index-login.css" />
+  <link rel="stylesheet" type="text/css" href="../CSS/admin.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+  <div class="main">
+    <div class="text-container">
+      <h1 class="tc-formatted" id="header">Head Scout Panel</h1>
+      <div class="main-buttons">
+        <button class="mainBtn" id="editJsonBtn">
+          <ion-icon name="code-slash-outline"></ion-icon>
+          Edit Question JSON
+        </button>
+      </div>
+      <div class="json-edit hidden">
+        <h2 class="tc-formatted" id="jsonHeader">Question JSON</h2>
+        <textarea autocorrect="off" id="jsonInput" placeholder="LOADING..."></textarea>
+        <h3 class="tc-formatted">If you have any questions about what is happening here or how to use this, ask Bryce.</h3>
+        <button id="saveJsonBtn" class="mainBtn">
+          <ion-icon name="save-outline"></ion-icon>
+          Save + Upload
+        </button>
+        <button id="cancelJsonBtn" class="mainBtn">
+          <ion-icon name="exit-outline"></ion-icon>
+          Cancel + Exit
+        </button>
+      </div>
+      <div class="error blue hidden" style="filter: hue-rotate(13deg)" id="errMsg"></div>
+    </div>
+
+    <footer>
+      <div class="footer">
+        <button class="mini-btn" onclick="history.back()">
+          <ion-icon name="arrow-back-circle-outline"></ion-icon>
+        </button>
+        <a href="https://github.com/walledlakerobotics/walledlakerobotics.github.io">
+          <button class="mini-btn">
+            <ion-icon name="logo-github"></ion-icon>
+          </button>
+        </a>
+        <button class="mini-btn" onclick="toggleTheme()">
+          <ion-icon name="sunny"></ion-icon>
+        </button>
+        <button class="mini-btn" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
+          <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
+        </button>
+        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013" onclick="logout()">
+          <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
+        </button>
+      </div>
+      <p class="tc-formatted">© 2026 Walled Lake Robotics</p>
+    </footer>
+  </div>
+  <script type="module" src="../JS/admin.js"></script>
+  <script type="module" src="../JS/utils.js"></script>
+  <script src="../JS/theme.js"></script>
+  <script src="../JS/check-auth.js"></script>
+</body>

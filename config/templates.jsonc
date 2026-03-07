@@ -1,0 +1,112 @@
+{
+  /* 
+    This file contains templates for all input types.
+    Each template shows the structure needed to create questions of that type.
+  */
+
+  // CATEGORY TITLES AND IDS SHOULD NOT BE CHANGED MID SEASON!!!!!!!!!!!
+  // CATEGORY TITLES AND IDS SHOULD NOT BE CHANGED MID SEASON!!!!!!!!!!!
+  
+  //*/*/*/ "required": true means that the form will only submit if the state changed from the default
+
+// integrate this into the website eventually
+
+  "prematch": [
+    // pre-match questions
+    {
+      // TOGGLE - A checkbox input for true/false questions
+      "type": "toggle",
+      "header": "Toggle Question",
+      "state": false, // default value: true or false
+      "text": "Optional body text. Leave blank to center the checkbox.",
+      "info": {
+        // optional info, remove if not needed
+        "header": "Toggle Information",
+        "body": "Additional information about this toggle question"
+      }
+    },
+    {
+      // DROPDOWN - A select menu with predefined options
+      "type": "dropdown",
+      "header": "Dropdown Question",
+      "state": "...", // default value; any placeholder string
+      "dropdown-options": [
+        "Outpost",
+        "Center",
+        "Depot"
+      ],
+      "info": {
+        // optional info, remove if not needed
+        "header": "Dropdown Information",
+        "body": "Additional information about this dropdown question"
+      },
+      "required": true
+    },
+    {
+      // TEXT - short text input
+      "type": "text",
+      "header": "Short Text Input",
+      "state": "", // default empty string
+      "placeholder": "Enter text here...",
+      "info": {
+        // optional info, remove if not needed
+        "header": "Text Input Information",
+        "body": "Additional information about this text field"
+      }
+    },
+    {
+      // TEXTAREA - text input for longer responses
+      "type": "textarea",
+      "header": "Long Text Input",
+      "state": "", // default value: empty string
+      "placeholder": "Enter longer text here...",
+      "info": {
+        // optional info, remove if not needed
+        "header": "Textarea Information",
+        "body": "Additional information about this textarea"
+      }
+    }
+  ],
+
+  "autonomous": [
+    // separated for auton questions
+    {
+      // COUNTER - increment/decrement counter
+      "type": "counter",
+      "header": "Counter Question",
+      "state": 0, // default number value
+      "info": {
+        // optional info, remove if not needed
+        "header": "Counter Information",
+        "body": "Additional information about this counter"
+      }
+    },
+    {
+      // SLIDER - A range
+      "type": "slider",
+      "header": "Slider Question",
+      "state": 5, // default value within range
+      "min": 0, // minimum value
+      "max": 10, // maximum value
+      "step": 1, // increment step
+      "label-min": "Blind", // label on the minimum value
+      "label-max": "Pro", // label on the maximum value
+      "info": {
+        // optional info, remove if not needed
+        "header": "Slider Information",
+        "body": "Additional information about this slider"
+      }
+    },
+    {
+      // TIMER - measures time in seconds (for cycle time usually)
+      "type": "timer",
+      "header": "Timer Question",
+      "state": 0.00, // default value
+      "info": {
+        // optional info, remove if not needed
+        "header": "Timer Information",
+        "body": "Additional information about this timer. The timer has play and reset buttons."
+      }
+    }
+  ]
+}

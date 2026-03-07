@@ -1,0 +1,63 @@
+<!doctype html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="../CSS/global.css" />
+  <link rel="stylesheet" type="text/css" href="../CSS/event-frc/event-frc.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+  <div class="main">
+    <div class="header">
+      <div class="left">
+        <img src="../Img/FIRST_mono.png" />
+        <h1 class="event-title tc-formatted" id="eventNameHeader">Fetching Event Name...</h1>
+      </div>
+      <div class="right">
+        <div class="header-text">
+          <h2 class="tc-sub-formatted" id="eventCodeHeader">Key</h2>
+          <h2 class="tc-sub-formatted" style="text-wrap-mode: nowrap">Tap to <b>Reload</b></h2>
+        </div>
+        <button class="mini-btn" onclick="reloadPage()">
+          <ion-icon name="refresh"></ion-icon>
+        </button>
+      </div>
+    </div>
+    <div class="text-container"></div>
+
+    <footer>
+      <div class="footer">
+        <a href="https://walledlakerobotics.com">
+          <button class="mini-btn">
+            <ion-icon name="arrow-back-circle-outline"></ion-icon>
+          </button>
+        </a>
+        <a href="https://github.com/walledlakerobotics/walledlakerobotics.github.io">
+          <button class="mini-btn">
+            <ion-icon name="logo-github"></ion-icon>
+          </button>
+        </a>
+        <button class="mini-btn" onclick="toggleTheme()">
+          <ion-icon name="sunny"></ion-icon>
+        </button>
+        <button class="mini-btn" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
+          <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
+        </button>
+        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013" onclick="logout()">
+          <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
+        </button>
+      </div>
+      <p class="tc-formatted">© 2026 Walled Lake Robotics</p>
+    </footer>
+  </div>
+  <script type="module" src="../JS/utils.js"></script>
+  <script type="module" src="../JS/event/inspect.js"></script>
+  <script src="../JS/theme.js"></script>
+  <script src="../JS/check-auth.js"></script>
+</body>

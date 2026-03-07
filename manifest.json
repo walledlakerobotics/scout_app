@@ -1,0 +1,9 @@
+{
+  "name": "FRC Scouting Questionnaire",
+  "short_name": "Scout",
+  "start_url": "/HTML/scout.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#89bafa",
+  "icons": [{ "src": "/Img/icon-512.png", "sizes": "512x512", "type": "image/png" }]
+}

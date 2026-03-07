@@ -1,0 +1,4 @@
+delete me
+
+- logout when on questionnaire page
+- make the pwa the entire website and not jsut the questionnaire

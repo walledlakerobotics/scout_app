@@ -1,0 +1,297 @@
+<!doctype html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="../CSS/global.css" />
+  <link rel="stylesheet" type="text/css" href="../CSS/event-frc/event-frc.css" />
+  <link rel="stylesheet" type="text/css" href="../CSS/event-frc/scout.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+
+  <link rel="manifest" href="../manifest.json" />
+  <script>
+    <!-- NOT type="module" -->
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((r) => console.log("SW registered", r))
+        .catch((e) => console.error("SW failed", e));
+    } else {
+      console.warn("Service workers aren't working properly.");
+    }
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+  <div class="main">
+    <div class="header">
+      <div class="left">
+        <img src="../Img/FIRST_mono.png" />
+      </div>
+      <div class="right">
+        <div class="left">
+          <button id="offline-btn" class="mini-btn">
+            <ion-icon name="wifi-outline"></ion-icon>
+          </button>
+          <button id="reloadBtn" class="mini-btn" title="Check for updated questions">
+            <ion-icon name="refresh"></ion-icon>
+          </button>
+        </div>
+        <div class="right">
+          <button class="mini-btn" onclick="prevPage()">
+            <ion-icon name="caret-back-outline"></ion-icon>
+          </button>
+          <button class="mini-btn" onclick="nextPage()">
+            <ion-icon name="caret-forward-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="text-container">
+      <div class="category-container">
+        <div class="category" id="prematch">
+          <div class="descriptor">
+            <h2>Prematch</h2>
+          </div>
+          <div class="form-wrapper">
+            <div class="form">
+              <div class="form-input form-template" id="toggle">
+                <div class="descriptor">
+                  <h2 id="question-header">TEMPLATE: Toggle</h2>
+                  <button class="infobtn">
+                    <ion-icon name="help-circle"></ion-icon>
+                  </button>
+                </div>
+                <div class="body row" style="justify-content: center">
+                  <input type="checkbox" />
+                  <h2 id="question-text">Deleting this text centers the button</h2>
+                </div>
+              </div>
+
+              <div class="form-input form-template" id="dropdown">
+                <div class="descriptor">
+                  <h2 id="question-header">TEMPLATE: Dropdown</h2>
+                  <button class="infobtn">
+                    <ion-icon name="help-circle"></ion-icon>
+                  </button>
+                </div>
+                <div class="body column">
+                  <select id="select-performance">
+                    <option id="option-placeholder">placeholder</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-input form-template" id="text">
+                <div class="descriptor">
+                  <h2 id="question-header">TEMPLATE: Short Text Input</h2>
+                  <button class="infobtn">
+                    <ion-icon name="help-circle"></ion-icon>
+                  </button>
+                </div>
+                <div class="body column">
+                  <input type="text" id="text" placeholder="You could probably add a few things here" maxlength="25" />
+                </div>
+              </div>
+
+              <div class="form-input form-template" id="textarea">
+                <div class="descriptor">
+                  <h2 id="question-header">TEMPLATE: Long Textarea Input</h2>
+                  <button class="infobtn">
+                    <ion-icon name="help-circle"></ion-icon>
+                  </button>
+                </div>
+                <div class="body column">
+                  <textarea id="text" placeholder="You could probably add a lot of things here" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="category" id="autonomous">
+          <div class="descriptor">
+            <h2>Autonomous</h2>
+          </div>
+          <div class="form-wrapper">
+            <div class="form">
+              <div class="form-input form-template" id="counter">
+                <div class="descriptor">
+                  <h2 id="question-header">TEMPLATE: Counter</h2>
+                  <button class="infobtn">
+                    <ion-icon name="help-circle"></ion-icon>
+                  </button>
+                </div>
+                <div class="body row">
+                  <button class="mini-btn" onclick="decrementCounter('counter-test1')">
+                    <ion-icon name="remove"></ion-icon>
+                  </button>
+                  <div class="counter-display">
+                    <input type="text" id="count" value="0" inputmode="numeric" />
+                  </div>
+                  <button class="mini-btn" onclick="incrementCounter('counter-test1')">
+                    <ion-icon name="add"></ion-icon>
+                  </button>
+                </div>
+              </div>
+              <div class="form-input form-template" id="slider">
+                <div class="descriptor">
+                  <h2 id="question-header">TEMPLATE: Slider</h2>
+                  <button class="infobtn">
+                    <ion-icon name="help-circle"></ion-icon>
+                  </button>
+                </div>
+                <div class="body column">
+                  <div class="slider-container">
+                    <input type="range" id="range" min="0" max="10" value="5" step="1" />
+                    <div class="slider-value">
+                      <h2 id="min-label">Blind</h2>
+                      <div class="spacer"></div>
+                      <span id="slider-value">5</span>
+                      <div class="spacer"></div>
+                      <h2 id="max-label">Pro</h2>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-input form-template" id="timer">
+                <div class="descriptor">
+                  <h2 id="question-header">TEMPLATE: Timer</h2>
+                  <button class="infobtn">
+                    <ion-icon name="help-circle"></ion-icon>
+                  </button>
+                </div>
+                <div class="body row">
+                  <button id="play-pause-btn" class="mini-btn">
+                    <ion-icon name="play"></ion-icon>
+                  </button>
+                  <div>
+                    <h1><input type="text" id="time" value="12.34" inputmode="decimal" /></h1>
+                    <h2>
+                      Seconds
+                      <ion-icon name="time"></ion-icon>
+                    </h2>
+                  </div>
+                  <button id="restart-btn" class="mini-btn">
+                    <ion-icon name="arrow-undo"></ion-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="category" id="teleop">
+          <div class="descriptor">
+            <h2>Teleop</h2>
+          </div>
+          <div class="form-wrapper">
+            <div class="form"></div>
+          </div>
+        </div>
+        <div class="category" id="endgame">
+          <div class="descriptor">
+            <h2>Endgame</h2>
+          </div>
+          <div class="form-wrapper">
+            <div class="form"></div>
+          </div>
+        </div>
+        <div class="category" id="postmatch">
+          <div class="descriptor">
+            <h2>Postmatch</h2>
+          </div>
+          <div class="form-wrapper">
+            <div class="form"></div>
+          </div>
+        </div>
+        <div class="category" id="submit">
+          <div class="descriptor">
+            <h2>Submit</h2>
+          </div>
+          <div class="form-wrapper">
+            <div class="form" style="gap: 10px">
+              <!-- DON'T PLACE QUESTIONS HERE PLEASE!!!-->
+              <button id="uploadBtn" class="form-btn">
+                <ion-icon name="cloud-upload-outline"></ion-icon>
+                Upload To Cloud
+              </button>
+              <button id="qrBtn" class="form-btn">
+                <ion-icon name="qr-code-outline"></ion-icon>
+                Upload Via QR Code
+              </button>
+              <button id="resetBtn" disabled class="form-btn">
+                <ion-icon name="reload"></ion-icon>
+                Reset Form
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-popup themed-frosted popup-hidden" id="popup">
+        <div class="descriptor">
+          <h2 id="popup-header">Popup</h2>
+          <button class="infobtn">
+            <ion-icon name="close-circle" onclick="showPopup(false)"></ion-icon>
+          </button>
+        </div>
+        <div class="body">
+          <pre id="popup-text">text</pre>
+          <div class="form-input hidden" id="toggle">
+            <div class="descriptor">
+              <h2 id="question-header">Offline Questions</h2>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+            </div>
+            <div class="body row" style="justify-content: center">
+              <input type="checkbox" />
+              <h2 id="question-text">Show questions that only need to be answered if offline</h2>
+            </div>
+          </div>
+          <h2 class="btm">. . .</h2>
+        </div>
+      </div>
+      <div class="themed-frosted popup-hidden" id="qr-popup">
+        <div id="qr-placeholder">
+          <!-- TODO: FORMAT THIS-->
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="mini-btn fb" onclick="history.back()">
+        <ion-icon name="arrow-back-circle-outline"></ion-icon>
+      </button>
+      <a href="https://github.com/walledlakerobotics/walledlakerobotics.github.io">
+        <button class="mini-btn fb">
+          <ion-icon name="logo-github"></ion-icon>
+        </button>
+      </a>
+      <button class="mini-btn fb" onclick="toggleTheme()">
+        <ion-icon name="sunny"></ion-icon>
+      </button>
+      <button class="mini-btn fb" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
+        <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
+      </button>
+      <button class="mini-btn fb" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013" onclick="logout()">
+        <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
+      </button>
+    </div>
+  </div>
+  <ion-icon name="cloud-offline-outline" style="display: none"></ion-icon>
+  <!-- Just to save the icon for offline -->
+  <script src="/JS/theme.js"></script>
+  <script type="module" src="/JS/DB.js"></script>
+  <script type="module" src="/JS/event/scout-questions.js"></script>
+  <script type="module" src="/JS/utils.js"></script>
+  <script type="module" src="/JS/event/scout.js"></script>
+
+  <script type="text/javascript" src="/JS/event/qrcode.js"></script>
+</body>

@@ -1,0 +1,36 @@
+.json-edit {
+  display: flex;
+  gap: 10px;
+  height: fit-content;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  width: 600px;
+  padding: 20px;
+  box-sizing: border-box;
+  border: var(--theme-main-border);
+  border-radius: 15px;
+  overflow: hidden;
+  max-height: 80dvh;
+  background-color: rgba(var(--theme-main-rgb-inverted), 0.05);
+}
+
+.json-edit textarea {
+  width: 600px;
+  max-width: 100%;
+  min-height: 100px;
+  height: 300px;
+  max-height: 60%;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 14px;
+  border: var(--theme-main-border);
+  background-color: rgba(var(--theme-main-rgb-inverted), 0.1);
+  resize: none;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: var(--theme-main-text);
+}
+.json-edit h3 {
+  width: 100%;
+}

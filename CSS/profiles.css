@@ -1,0 +1,9 @@
+.profileBtn {
+  margin: 0;
+  opacity: 1;
+}
+
+.invisible {
+  opacity: 0;
+  margin: -31px;
+}
