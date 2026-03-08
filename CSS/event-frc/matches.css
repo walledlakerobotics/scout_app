@@ -235,6 +235,7 @@
 .action-btn.hidden {
   display: inline-flex !important;
   opacity: 0;
+  pointer-events: none;
 }
 
 .mr-score {

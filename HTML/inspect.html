@@ -3,6 +3,7 @@
 <head>
   <link rel="stylesheet" type="text/css" href="../CSS/global.css" />
   <link rel="stylesheet" type="text/css" href="../CSS/event-frc/event-frc.css" />
+  <link rel="stylesheet" type="text/css" href="../CSS/event-frc/inspect.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -32,7 +33,70 @@
         </button>
       </div>
     </div>
-    <div class="text-container"></div>
+    <div class="text-container">
+      <div class="inspect-panel">
+        <div class="inspect-team">
+          <div class="team-hero">
+            <div class="hero-team-id" style="flex-direction: row; gap: 15px;">
+              <img class="team-logo" src="https://www.thebluealliance.com/avatar/2026/frc254.png" onerror="
+                                this.onerror = null;
+                                this.classList.add('no-logo');
+                                this.src = '../Img/Noicon_mono.png';
+                              " />
+              <div>
+                <p class="hero-team-number">1234</p>
+                <p class="hero-team-name">Template</p>
+              </div>
+
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <p class="hero-stat-val">1st</p>
+                <p class="hero-stat-lbl">Rank</p>
+              </div>
+              <div class="hero-stat">
+                <p class="hero-stat-val green">100%</p>
+                <p class="hero-stat-lbl">Winrate</p>
+              </div>
+              <div class="hero-stat">
+                <p class="hero-stat-val blue">Center</p>
+                <p class="hero-stat-lbl">Usual Start</p>
+              </div>
+            </div>
+          </div>
+          <div class="team-sections">
+            <div class="section-card">
+              <div class="section-header">
+                <ion-icon name="flash-outline"></ion-icon>
+                Autonomous
+              </div>
+              <div class="section-stats">
+
+                <div class="stat-row">
+                  <span class="stat-label">Moved</span>
+                  <div class="stat-bar-wrap">
+                    <div class="stat-bar-label-row">
+                      <span>89%</span>
+                      <span style="opacity:0.4">8/9</span>
+                    </div>
+                    <div class="stat-bar">
+                      <div class="stat-bar-fill high" style="width:89%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stat-row">
+                  <span class="stat-label">Usual Refuel</span>
+                  <span class="stat-pill neutral">Depot · 56%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <pre class="inspect-footer-note">Based on scouted data from N/A entries · <u>Edit Responses</u></pre>
+      </div>
+    </div>
 
     <footer>
       <div class="footer">
@@ -55,7 +119,6 @@
           <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
         </button>
       </div>
-      <p class="tc-formatted">© 2026 Walled Lake Robotics</p>
     </footer>
   </div>
   <script type="module" src="../JS/utils.js"></script>

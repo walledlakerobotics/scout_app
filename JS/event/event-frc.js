@@ -93,10 +93,14 @@ async function renderMatches(mData) {
 
     const actionBtn = matchEl.querySelector("#action-btn");
 
-    actionBtn.addEventListener("click", () => {
+    actionBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       if (!actionBtn.classList.contains("hidden")) {
-        //&& !isCompleted
-        location.href = `../HTML/scout.html?eventKey=${eventKey}&matchKey=${match.key}`;
+        if (isCompleted) {
+          location.href = `/HTML/inspect.html?type=match&key=${match.key}`;
+        } else {
+          location.href = `../HTML/scout.html?eventKey=${eventKey}&matchKey=${match.key}`;
+        }
       }
     });
 
@@ -115,7 +119,6 @@ async function renderMatches(mData) {
         actionBtn.innerHTML = `
         <ion-icon class="ionicon" name="open-outline"></ion-icon> Inspect This Match`;
       } else {
-        location.href = `/HTML/inspect.html?type=match&key=${match.key}`;
         actionBtn.innerHTML = `
         <ion-icon class="ionicon" name="open-outline"></ion-icon> Review this match`;
       }

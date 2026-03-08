@@ -59,6 +59,7 @@
   background-color: rgba(var(--theme-main-rgb), 0.03);
   border-radius: 15px;
   overflow: hidden;
+  max-width: 700px;
 }
 
 .body-right {

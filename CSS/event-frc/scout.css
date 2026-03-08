@@ -92,6 +92,11 @@
   text-overflow: ellipsis;
 }
 
+.category-title {
+  font-weight: 800 !important;
+  text-transform: uppercase;
+}
+
 .form-wrapper {
   overflow-y: scroll;
   height: 100%;
