@@ -11,7 +11,7 @@ if (!eventKey) {
   location.href = "/HTML/index.html?msg=Yeahhh%20idk%20either";
 }
 
-// if its a match, determine if it happened yet
+//OK.
 
 document.addEventListener("DOMContentLoaded", () => {
   eventTitle.textContent = `${eventDetails.year} ${eventDetails.district?.abbreviation?.toUpperCase() || eventDetails.short_name} ${eventDetails.short_name} Event`; //.textContent = `${inspectType} ${inspectKey}`;

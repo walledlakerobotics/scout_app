@@ -31,7 +31,8 @@ export async function getDB(param) {
 
 export async function submitQuestionsOnline(answers, scoutID) {
   // miiiight want to make this check for auth tokens sometime. but not now. i don't care
-  const thisEvent = await isActiveEvent();
+  const evCache = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`));
+  const thisEvent = evCache?.eventDetails || (await isActiveEvent().event);
 
   if (!thisEvent && !navigator.onLine) {
     popupError("You seem to be offline. try uploading with QR.");
@@ -41,7 +42,7 @@ export async function submitQuestionsOnline(answers, scoutID) {
     try {
       const res = await fetch("https://data.bheitz780.workers.dev/db", {
         method: "POST",
-        body: JSON.stringify({ data: answers, event: thisEvent.event.key, scouter: scoutID || JSON.parse(localStorage.getItem("userProfile"))?.id || "Unknown" }),
+        body: JSON.stringify({ data: answers, event: thisEvent.key, scouter: scoutID || JSON.parse(localStorage.getItem("userProfile"))?.id || "Unknown" }),
       });
       console.log(res);
       return res;

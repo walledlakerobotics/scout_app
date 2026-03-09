@@ -1,4 +1,7 @@
 delete me
 
+- only allow uploading to database when matches are active, so no idiot can mess up the data
+- make users unable to modify questions mid tournament
+- make some other metrics for the leaderboard (startpos) be retrieved by tba
 - logout when on questionnaire page
 - make the pwa the entire website and not jsut the questionnaire

@@ -1,7 +1,10 @@
-import { TBA_GET, getUserTeam, isActiveEvent } from "./utils.js";
+import { TBA_GET, getUserTeam, isActiveEvent, newEventCache } from "./utils.js";
+
+const userProfile = JSON.parse(localStorage.getItem("userProfile")) || {};
 
 const urlParams = new URLSearchParams(window.location.search);
 const setupBtn = document.getElementById("setupBtn");
+const adminBtn = document.getElementById("adminBtn");
 
 const msg = urlParams.get("msg");
 if (msg) {
@@ -12,6 +15,11 @@ if (msg) {
 
 const eventBtn = document.getElementById("eventBtn");
 eventBtn.classList.add("eventBtn");
+
+if (userProfile.role == "admin") {
+  //worst way of doing this ever. literally no other auth checks. just this.
+  adminBtn.classList.remove("hidden");
+}
 
 var validEvent = false;
 var nextValidEvent = null;
@@ -57,5 +65,8 @@ eventBtn.addEventListener("click", () => {
 });
 
 setupBtn.addEventListener("click", () => {
-  const success = false;
+  setupBtn.disabled = true;
+  console.log(validEvent);
+  setupBtn.innerHTML = `<ion-icon class="ionicon" name="cloud-download-outline"></ion-icon> Please Wait...`;
+  location.href = `/HTML/scout.html?eventKey=${validEvent.key}&setupComplete=true`;
 });

@@ -1,5 +1,7 @@
-// offline usage w/ qr codes: https://qr.15c.me/qr.html
 // ONCE PUBLISHED TO WEBSITE ALL CLOUDFLARE WORKERS MUST BE MOVED TO AN OFFICIAL ACCOUNT
+
+import { questionDB } from "/JS/DB.js";
+import { getDB } from "/JS/DB.js";
 
 export async function TBA_GET(endpoint) {
   // fetch the blue alliance with cloudflare auth worker
@@ -112,11 +114,7 @@ export function retagResponses(untaggedResponses, questions) {
 }
 
 export async function newEventCache(eventKey, questionsFetcher) {
-  let [mData, eventDetails, questionsData] = await Promise.all([
-    TBA_GET(`/event/${eventKey}/matches`),
-    TBA_GET(`/event/${eventKey}`),
-    questionsFetcher ? questionsFetcher() : Promise.resolve(null),
-  ]);
+  let [mData, eventDetails, questionsData, scoutedData] = await Promise.all([TBA_GET(`/event/${eventKey}/matches`), TBA_GET(`/event/${eventKey}`), questionsFetcher ? questionsFetcher() : questionDB("GET"), getDB("/db")]);
 
   if (mData && mData.length !== 0) {
     mData.sort((a, b) => {
@@ -132,11 +130,11 @@ export async function newEventCache(eventKey, questionsFetcher) {
   }
 
   const lastUpdated = new Date().getTime();
-  const cache = { mData, eventDetails, lastUpdated, questionsData };
+  const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData };
   localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
   return cache;
 }
-//logout saved to window for access in HTML
+
 window.logout = () => {
   localStorage.removeItem("scoutingAuthToken");
   localStorage.removeItem("userProfile");

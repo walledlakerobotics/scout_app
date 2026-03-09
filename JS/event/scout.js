@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-function showPopup(state, title, msg, autoSize) {
+export function showPopup(state, title, msg, autoSize) {
   autoSize = false; // keep this off
   if (autoSize) {
     popupElipsis.style.display = "none";

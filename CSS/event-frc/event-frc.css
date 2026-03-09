@@ -170,11 +170,6 @@
   letter-spacing: 1px;
 }
 
-button:disabled {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
-}
-
 /* qr popup? im so sorry lmao */
 
 .scan-popup button {

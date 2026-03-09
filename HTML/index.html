@@ -5,9 +5,12 @@
   <link rel="stylesheet" type="text/css" href="../CSS/Index-login.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+    rel="stylesheet" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -19,7 +22,7 @@
       <h2 class="tc-formatted">Match Data & Tournament Standings</h2>
       <div class="main-buttons">
         <button class="mainBtn" id="eventBtn">Loading Event Details..</button>
-        <button class="mainBtn" onclick="location.pathname = '/HTML/admin.html'">
+        <button class="mainBtn hidden" onclick="location.pathname = '/HTML/admin.html'" id="adminBtn">
           <ion-icon class="ionicon" name="shield-half-outline"></ion-icon>
           For Head Scouts →
         </button>
@@ -48,7 +51,8 @@
         <button class="mini-btn" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
           <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
         </button>
-        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013" onclick="logout()">
+        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013"
+          onclick="logout()">
           <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
         </button>
       </div>
