@@ -114,7 +114,7 @@ export function retagResponses(untaggedResponses, questions) {
 }
 
 export async function newEventCache(eventKey, questionsFetcher) {
-  let [mData, eventDetails, questionsData, scoutedData] = await Promise.all([TBA_GET(`/event/${eventKey}/matches`), TBA_GET(`/event/${eventKey}`), questionsFetcher ? questionsFetcher() : questionDB("GET"), getDB("/db")]);
+  let [mData, eventDetails, questionsData, scoutedData] = await Promise.all([TBA_GET(`/event/${eventKey}/matches`), TBA_GET(`/event/${eventKey}`), questionsFetcher ? questionsFetcher() : questionDB("GET"), getDB(`/db?eventKey=${eventKey}`)]);
 
   if (mData && mData.length !== 0) {
     mData.sort((a, b) => {
@@ -132,6 +132,7 @@ export async function newEventCache(eventKey, questionsFetcher) {
   const lastUpdated = new Date().getTime();
   const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData };
   localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
+  localStorage.setItem("currentEventKey", eventKey);
   return cache;
 }
 

@@ -80,7 +80,7 @@ async function reorganizeLeaderboardData() {
 
     return { columns, rows };
   } else {
-    const raw = await getDB(`/db?eventKey=2026mimil`) //  TODO: make this ${eventKey}
+    const raw = await getDB(`/db?eventKey=${eventKey}`)
       .then((res) => res.ok && res.json())
       .catch(() => null);
 

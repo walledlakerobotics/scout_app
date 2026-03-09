@@ -514,13 +514,13 @@
 
 /* media */
 
-@media (max-width: 1050px) {
+@media (max-width: 1150px) {
   .category-container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 700px) {
   .category-container {
     grid-template-columns: 1fr;
   }

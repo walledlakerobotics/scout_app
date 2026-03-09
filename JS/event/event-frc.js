@@ -11,6 +11,7 @@ const nextPageBtn = document.getElementById("nextPageBtn");
 const bodyLeft = document.querySelector(".body-left");
 const bodyRight = document.querySelector(".body-right");
 
+const noDice = document.querySelector(".noInfoPopup");
 const scrollBtn = document.querySelector(".scroll-btn");
 
 var inspectedMatch = null;
@@ -180,6 +181,10 @@ document.addEventListener("DOMContentLoaded", () => {
       slot.textContent = userData.slot;
     } else {
       slot.textContent = "No Position";
+    }
+
+    if (!mData || mData.length === 0) {
+      noDice.classList.remove("hidden");
     }
 
     renderMatches(mData);

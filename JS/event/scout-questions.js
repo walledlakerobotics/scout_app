@@ -220,7 +220,7 @@ resetBtn.addEventListener("click", () => {
   }
 });
 
-async function init(params) {
+async function init() {
   const categories = document.querySelectorAll(".category");
   const offlineQuestions = localStorage.getItem("offlineQuestions");
   // if you don't like nested if's then you may want to avert your eyes
@@ -247,7 +247,9 @@ async function init(params) {
     return;
   }
   if (!failed && showSetupNotif) {
-    showPopup(true, "Ready for Offline", "You're all set! Add this page to your home screen to be ready for game day (share > more > add to home screen). In the mean time, get used to the questions shown here.");
+    URLSP.delete("setupComplete");
+    history.replaceState(null, "", `${location.pathname}?${URLSP}`);
+    showPopup(true, "Ready for Offline", "You're all set!\nAdd this page to your home screen to be ready for game day <b>(share > more > add to home screen)</b>.\n\nIn the mean time, get used to the questions shown here. This prompt won't be shown again.");
   }
 
   const data = cache.questionsData.data;
@@ -458,6 +460,10 @@ if (document.readyState === "loading") {
 } else {
   init();
 }
+
+window.back = function () {
+  location.href = `/HTML/event-frc.html?eventKey=${localStorage.getItem("currentEventKey")}`;
+};
 
 window.addEventListener("beforeunload", saveResponses);
 
