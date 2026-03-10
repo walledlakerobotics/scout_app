@@ -1,5 +1,7 @@
 delete me
 
+go through and edit all lines of code with TODO on them
+
 - only allow uploading to database when matches are active, so no idiot can mess up the data
 - make users unable to modify questions mid tournament
 - make some other metrics for the leaderboard (startpos) be retrieved by tba

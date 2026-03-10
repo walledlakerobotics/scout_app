@@ -91,9 +91,9 @@ function handleResize() {
 
 function updateItemsPerPage() {
   const width = window.innerWidth;
-  if (width <= 640) {
+  if (width <= 700) {
     itemsPerPage = 1;
-  } else if (width <= 960) {
+  } else if (width <= 1150) {
     itemsPerPage = 2;
   } else {
     itemsPerPage = 3;
