@@ -130,7 +130,7 @@ export async function newEventCache(eventKey, questionsFetcher) {
   }
 
   const lastUpdated = new Date().getTime();
-  const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData };
+  const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData: scoutedData.data };
   localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
   localStorage.setItem("currentEventKey", eventKey);
   return cache;

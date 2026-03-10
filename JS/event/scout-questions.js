@@ -253,6 +253,7 @@ async function init() {
   }
 
   const data = cache.questionsData.data;
+  questionsVersion = cache.questionsData.version;
   questions = structuredClone(data); // long story on why this needs structuredclone.
 
   const categoryKeys = Object.keys(data);

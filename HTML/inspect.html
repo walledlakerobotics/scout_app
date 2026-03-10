@@ -6,12 +6,9 @@
   <link rel="stylesheet" type="text/css" href="../CSS/event-frc/inspect.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
 
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -37,17 +34,20 @@
       <div class="inspect-panel">
         <div class="inspect-team">
           <div class="team-hero">
-            <div class="hero-team-id" style="flex-direction: row; gap: 15px;">
-              <img class="team-logo" src="https://www.thebluealliance.com/avatar/2026/frc254.png" onerror="
-                                this.onerror = null;
-                                this.classList.add('no-logo');
-                                this.src = '../Img/Noicon_mono.png';
-                              " />
+            <div class="hero-team-id" style="flex-direction: row; gap: 15px">
+              <img
+                class="team-logo"
+                src="https://www.thebluealliance.com/avatar/2026/frc254.png"
+                onerror="
+                  this.onerror = null;
+                  this.classList.add('no-logo');
+                  this.src = '../Img/Noicon_mono.png';
+                "
+              />
               <div>
-                <p class="hero-team-number">1234</p>
-                <p class="hero-team-name">Template</p>
+                <p class="hero-team-number" id="team-number">1234</p>
+                <p class="hero-team-name" id="team-name">Template</p>
               </div>
-
             </div>
             <div class="hero-stats">
               <div class="hero-stat">
@@ -65,22 +65,21 @@
             </div>
           </div>
           <div class="team-sections">
-            <div class="section-card">
+            <div class="section-card template" id="section-card">
               <div class="section-header">
                 <ion-icon name="flash-outline"></ion-icon>
                 Autonomous
               </div>
               <div class="section-stats">
-
                 <div class="stat-row">
                   <span class="stat-label">Moved</span>
                   <div class="stat-bar-wrap">
                     <div class="stat-bar-label-row">
                       <span>89%</span>
-                      <span style="opacity:0.4">8/9</span>
+                      <span style="opacity: 0.4">8/9</span>
                     </div>
                     <div class="stat-bar">
-                      <div class="stat-bar-fill high" style="width:89%"></div>
+                      <div class="stat-bar-fill high" style="width: 89%"></div>
                     </div>
                   </div>
                 </div>
@@ -114,8 +113,7 @@
         <button class="mini-btn" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
           <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
         </button>
-        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013"
-          onclick="logout()">
+        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013" onclick="logout()">
           <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
         </button>
       </div>

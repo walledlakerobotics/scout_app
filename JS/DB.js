@@ -26,7 +26,7 @@ export async function getDB(param) {
   const res = await fetch(`https://data.bheitz780.workers.dev${param}`, {
     method: "GET",
   });
-  return res;
+  return res.json();
 }
 
 export async function submitQuestionsOnline(answers, scoutID) {
