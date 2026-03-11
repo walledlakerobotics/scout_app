@@ -154,6 +154,10 @@ function prevPage() {
   }
 }
 
+window.back = function () {
+  location.href = `/HTML/event-frc.html?eventKey=${localStorage.getItem("currentEventKey")}`;
+};
+
 //stupid stupid stupid
 document.addEventListener(
   "dblclick",

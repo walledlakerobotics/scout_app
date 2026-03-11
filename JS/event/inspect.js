@@ -79,13 +79,18 @@ async function getTeamData(teamKey, matchID = null) {
       const values = collected[category][questionID];
       const isNumericOrBool = values.every((v) => typeof v === "number" || typeof v === "boolean");
       if (isNumericOrBool) {
-        result[category][questionID] = Math.round((values.reduce((acc, v) => acc + Number(v), 0) / values.length) * 100) / 100;
+        const avg = Math.round((values.reduce((acc, v) => acc + Number(v), 0) / values.length) * 100) / 100;
+        result[category][questionID] = { value: avg };
       } else {
         const freq = {};
         for (const v of values) freq[v] = (freq[v] || 0) + 1;
         const maxFreq = Math.max(...Object.values(freq));
         const topValues = Object.keys(freq).filter((k) => freq[k] === maxFreq);
-        result[category][questionID] = topValues.length === 1 ? topValues[0] : "Mixed";
+        if (topValues.length === 1) {
+          result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100 };
+        } else {
+          result[category][questionID] = { value: "Mixed" };
+        }
       }
     }
   }
@@ -93,15 +98,17 @@ async function getTeamData(teamKey, matchID = null) {
 }
 
 if (inspectType == "team") {
-  // if a string, need to return each teamData question like this: accuracy: {value: 0.55} (as a number)
-  // or like this: accuracy: {value: "Terrible", frequency: 0.8} (as a string, where frequency is how often that string occurred).
-  // modify getTeamData and it's required functions to do that instead, and modify things that use said functions.
   const teamData = await getTeamData(inspectKey);
   const questionData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).questionsData?.data;
   console.log(teamData);
   for (const categoryID in questionData) {
+    const categoryElement = categoryTemplate.cloneNode(true);
+    categoryTemplate.parentNode.appendChild(categoryElement);
+
     console.log(questionData[categoryID]);
   }
+  categoryTemplate.remove();
+
   //var qCache = {}
 }
 
