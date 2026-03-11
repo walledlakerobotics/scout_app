@@ -9,11 +9,16 @@ async function checkAuth() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
+
       const data = await response.json();
+      console.log(data);
       if (data.success) {
         // update token if new one is provided???
         if (data.token) {
           localStorage.setItem("scoutingAuthToken", data.token);
+        }
+        if (data.isAdmin !== undefined) {
+          localStorage.setItem("isAdmin", data.isAdmin ? "true" : "false");
         }
       } else {
         //kick and let login.js do all the errors n stuff

@@ -381,7 +381,7 @@ async function init() {
 
             slider.addEventListener("input", (e) => {
               value.textContent = e.target.value;
-              updateResponse(e.target.id, e.target.value);
+              updateResponse(e.target.id, Number(e.target.value));
             });
           } else if (qType == "timer") {
             //timer

@@ -1,236 +1,264 @@
 {
-  "prematch": [
-    {
-      "type": "dropdown",
-      "header": "Starting Position",
-      "state": "Choose a side..",
-      "dropdown-options": ["Human Player", "Center", "Depot"],
-      "id": "startpos",
-      "required": true,
-      "leaderboard": {
-        "lb-display-important": false,
-        "individual-lbl": "Start Position",
-        "avg-lbl": "Usual Start"
-      }
-    },
-    {
-      "type": "text",
-      "header": "Team Number",
-      "state": "",
-      "placeholder": "Enter text..",
-      "id": "team",
-      "required": true
-    },
-    {
-      "type": "text",
-      "header": "Match Number",
-      "state": "",
-      "placeholder": "Enter text..",
-      "id": "match",
-      "required": true
-    }
-  ],
-  "autonomous": [
-    {
-      "type": "toggle",
-      "header": "Robot Moved?",
-      "state": false,
-      "text": "Did the robot do anything at all?",
-      "id": "moved"
-    },
-    {
-      "type": "toggle",
-      "header": "Robot Scored?",
-      "state": false,
-      "text": "Fired at the HUB and scored most shots.",
-      "id": "scored"
-    },
-    {
-      "type": "dropdown",
-      "header": "Robot Refueled?",
-      "state": "Did not refuel",
-      "dropdown-options": ["Took from Depot", "Took from Human Player", "Took from Center"],
-      "id": "refuel",
-      "info": {
-        "header": "Refueling during Autonomous",
-        "body": "Sometimes, teams may be able to grab more fuel after scoring once.\n\n<b>The Depot:</b> The side with 24 (6x4) Fuel on the floor, opposite of the Human Player Station."
-      }
-    },
-    {
-      "type": "dropdown",
-      "header": "Robot Climbed?",
-      "state": "Did not climb",
-      "dropdown-options": ["L1: Output Side", "L1: Middle", "L1: Depot Side"],
-      "id": "climb_auto"
-    },
-    {
-      "type": "toggle",
-      "header": "Alliance Won Autonomous?",
-      "state": false,
-      "id": "won_auto",
-      "offline": true
-    }
-  ],
-  "teleop": [
-    {
-      "type": "timer",
-      "header": "Cycle Time",
-      "state": "0.00",
-      "id": "cycletime",
-      "info": {
-        "header": "Cycle Time",
-        "body": "The amount of time, in seconds, it takes for a robot to score in the HUB or Human Player, fuel back up, then re-score."
-      }
-    },
-    {
-      "type": "slider",
-      "header": "Robot Speed",
-      "state": 3,
-      "min": 0,
-      "max": 5,
-      "step": 1,
-      "label-min": "Tank",
-      "label-max": "Fast",
-      "id": "speed"
-    },
-    {
-      "type": "slider",
-      "header": "Estimated Scoring Accuracy (%)",
-      "state": 50,
-      "min": 0,
-      "max": 100,
-      "step": 5,
-      "label-min": "0%",
-      "label-max": "100%",
-      "id": "accuracy",
-      "info": {
-        "header": "Scoring Accuracy",
-        "body": "Give your best guess as to how much fuel this bot successfully scored, as compared to fuel missed."
-      }
-    },
-    {
-      "type": "dropdown",
-      "header": "Main Gameplay Type",
-      "state": "Scoring in HUB",
-      "id": "gameplay",
-      "dropdown-options": ["Defense", "Fuel Passing"]
-    },
-    {
-      "type": "toggle",
-      "header": "Can Fire While Moving?",
-      "state": false,
-      "text": "(Accurately, hitting it's shots)",
-      "id": "moving_fire"
-    },
-    {
-      "type": "dropdown",
-      "header": "Outtake / Shooter Type",
-      "state": "Fixed Direction",
-      "dropdown-options": ["Rotating Turret"],
-      "id": "shootertype",
-      "info": {
-        "header": "Outtake / Shooter Types",
-        "body": "In order to score, teams need a shooter to fire fuel. Obviously.\n\n<b>Fixed Direction:</b> Shooter cannot aim independantly from the direction of the chassis.\n\n<b>Rotating Turret:</b> Shooter can rotate independantly from the chassis."
-      }
-    },
-    {
-      "type": "dropdown",
-      "header": "Ramp / Trench?",
-      "state": "Only Under Trench",
-      "id": "travel",
-      "dropdown-options": ["Only Over Ramp", "Trench AND Ramp"]
-    },
-    {
-      "type": "slider",
-      "header": "Estimated Fuel Capacity",
-      "state": 0,
-      "min": 0,
-      "max": 60,
-      "step": 5,
-      "label-min": "None",
-      "label-max": "60",
-      "id": "capacity",
-      "info": {
-        "header": "Fuel Capacity",
-        "body": "Give your best guess as to how many fuel this bot can hold at a time. <b>None</b> (0) means the bot lacks a hopper."
-      }
-    }
-  ],
-  "endgame": [
-    {
-      "type": "dropdown",
-      "header": "Hang Height",
-      "state": "Did not hang",
-      "dropdown-options": ["Level 1", "Level 2", "Level 3"],
-      "id": "hang_end"
-    },
-    {
-      "type": "dropdown",
-      "header": "Hang Location",
-      "state": "Did not hang",
-      "dropdown-options": ["Output Side", "Middle", "Depot Side"],
-      "id": "hang_end_pos"
-    }
-  ],
-  "postmatch": [
-    {
-      "type": "toggle",
-      "header": "Alliance Won?",
-      "state": false,
-      "offline": true,
-      "id": "won"
-    },
-    {
-      "type": "text",
-      "header": "Teleop Score",
-      "state": "",
-      "placeholder": "Enter number..",
-      "id": "score-teleop",
-      "required": true,
-      "offline": true
-    },
-    {
-      "type": "text",
-      "header": "Autonomous Score",
-      "state": "",
-      "placeholder": "Enter number..",
-      "id": "score-auto",
-      "required": true,
-      "offline": true
-    },
-    {
-      "type": "text",
-      "header": "Alliance Penalties",
-      "state": "",
-      "placeholder": "Enter number..",
-      "id": "penalties",
-      "required": true,
-      "offline": true
-    },
-    {
-      "type": "slider",
-      "header": "Overall Driver Skill",
-      "state": 6,
-      "min": 0,
-      "max": 10,
-      "step": 1,
-      "label-min": "New",
-      "label-max": "Pro",
-      "id": "skill"
-    },
-    {
-      "type": "toggle",
-      "header": "Broke Down?",
-      "state": false,
-      "text": "Did the robot ever stop working?",
-      "id": "broke"
-    },
-    {
-      "type": "textarea",
-      "header": "Match Notes",
-      "state": "",
-      "placeholder": "Enter any important notes here (i.e top-heavy, stutters..)",
-      "id": "notes"
-    }
-  ]
+    "prematch": [
+        {
+            "type": "dropdown",
+            "header": "Starting Position",
+            "state": "Choose a side..",
+            "dropdown-options": [
+                "Human Player",
+                "Center",
+                "Depot"
+            ],
+            "leaderboard": {
+              "title": "Usual Start",
+              "category-override": "prematch",
+              "display": "pill"
+            },
+            "id": "startpos",
+            "required": true
+        },
+        {
+            "type": "text",
+            "header": "Team Number",
+            "state": "",
+            "placeholder": "Enter text..",
+            "id": "team",
+            "required": true
+        },
+        {
+            "type": "text",
+            "header": "Match Number",
+            "state": "",
+            "placeholder": "Enter text..",
+            "id": "match",
+            "required": true
+        }
+    ],
+    "autonomous": [
+        {
+            "type": "toggle",
+            "header": "Robot Moved?",
+            "state": false,
+            "text": "Did the robot do anything at all?",
+            "id": "moved"
+        },
+        {
+            "type": "toggle",
+            "header": "Robot Scored?",
+            "state": false,
+            "text": "Fired at the HUB and scored most shots.",
+            "id": "scored"
+        },
+        {
+            "type": "dropdown",
+            "header": "Robot Refueled?",
+            "state": "Did not refuel",
+            "dropdown-options": [
+                "Took from Depot",
+                "Took from Human Player",
+                "Took from Center"
+            ],
+            "id": "refuel",
+            "info": {
+                "header": "Refueling during Autonomous",
+                "body": "Sometimes, teams may be able to grab more fuel after scoring once.\n\n<b>The Depot:</b> The side with 24 (6x4) Fuel on the floor, opposite of the Human Player Station."
+            }
+        },
+        {
+            "type": "dropdown",
+            "header": "Robot Climbed?",
+            "state": "Did not climb",
+            "dropdown-options": [
+                "L1: Output Side",
+                "L1: Middle",
+                "L1: Depot Side"
+            ],
+            "id": "climb_auto"
+        },
+        {
+            "type": "toggle",
+            "header": "Alliance Won Autonomous?",
+            "state": false,
+            "id": "won_auto",
+            "offline": true
+        }
+    ],
+    "teleop": [
+        {
+            "type": "timer",
+            "header": "Cycle Time",
+            "state": "0.00",
+            "id": "cycletime",
+            "info": {
+                "header": "Cycle Time",
+                "body": "The amount of time, in seconds, it takes for a robot to score in the HUB or Human Player, fuel back up, then re-score."
+            }
+        },
+        {
+            "type": "slider",
+            "header": "Robot Speed",
+            "state": 3,
+            "min": 0,
+            "max": 5,
+            "step": 1,
+            "label-min": "Tank",
+            "label-max": "Fast",
+            "id": "speed"
+        },
+        {
+            "type": "slider",
+            "header": "Estimated Scoring Accuracy (%)",
+            "state": 50,
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "label-min": "0%",
+            "label-max": "100%",
+            "id": "accuracy",
+            "info": {
+                "header": "Scoring Accuracy",
+                "body": "Give your best guess as to how much fuel this bot successfully scored, as compared to fuel missed."
+            }
+        },
+        {
+            "type": "dropdown",
+            "header": "Main Gameplay Type",
+            "state": "Scoring in HUB",
+            "id": "gameplay",
+            "dropdown-options": [
+                "Defense",
+                "Fuel Passing"
+            ]
+        },
+        {
+            "type": "toggle",
+            "header": "Can Fire While Moving?",
+            "state": false,
+            "text": "(Accurately, hitting it's shots)",
+            "id": "moving_fire"
+        },
+        {
+            "type": "dropdown",
+            "header": "Outtake / Shooter Type",
+            "state": "Fixed Direction",
+            "dropdown-options": [
+                "Rotating Turret"
+            ],
+            "id": "shootertype",
+            "info": {
+                "header": "Outtake / Shooter Types",
+                "body": "In order to score, teams need a shooter to fire fuel. Obviously.\n\n<b>Fixed Direction:</b> Shooter cannot aim independantly from the direction of the chassis.\n\n<b>Rotating Turret:</b> Shooter can rotate independantly from the chassis."
+            }
+        },
+        {
+            "type": "dropdown",
+            "header": "Ramp / Trench?",
+            "state": "Only Under Trench",
+            "id": "travel",
+            "dropdown-options": [
+                "Only Over Ramp",
+                "Trench AND Ramp"
+            ]
+        },
+        {
+            "type": "slider",
+            "header": "Estimated Fuel Capacity",
+            "state": 0,
+            "min": 0,
+            "max": 60,
+            "step": 5,
+            "label-min": "None",
+            "label-max": "60",
+            "id": "capacity",
+            "info": {
+                "header": "Fuel Capacity",
+                "body": "Give your best guess as to how many fuel this bot can hold at a time. <b>None</b> (0) means the bot lacks a hopper."
+            }
+        }
+    ],
+    "endgame": [
+        {
+            "type": "dropdown",
+            "header": "Hang Height",
+            "state": "Did not hang",
+            "dropdown-options": [
+                "Level 1",
+                "Level 2",
+                "Level 3"
+            ],
+            "id": "hang_end"
+        },
+        {
+            "type": "dropdown",
+            "header": "Hang Location",
+            "state": "Did not hang",
+            "dropdown-options": [
+                "Output Side",
+                "Middle",
+                "Depot Side"
+            ],
+            "id": "hang_end_pos"
+        }
+    ],
+    "postmatch": [
+        {
+            "type": "toggle",
+            "header": "Alliance Won?",
+            "state": false,
+            "offline": true,
+            "id": "won"
+        },
+        {
+            "type": "text",
+            "header": "Teleop Score",
+            "state": "",
+            "placeholder": "Enter number..",
+            "id": "score-teleop",
+            "required": true,
+            "offline": true
+        },
+        {
+            "type": "text",
+            "header": "Autonomous Score",
+            "state": "",
+            "placeholder": "Enter number..",
+            "id": "score-auto",
+            "required": true,
+            "offline": true
+        },
+        {
+            "type": "text",
+            "header": "Alliance Penalties",
+            "state": "",
+            "placeholder": "Enter number..",
+            "id": "penalties",
+            "required": true,
+            "offline": true
+        },
+        {
+            "type": "slider",
+            "header": "Overall Driver Skill",
+            "state": 6,
+            "min": 0,
+            "max": 10,
+            "step": 1,
+            "label-min": "New",
+            "label-max": "Pro",
+            "id": "skill"
+        },
+        {
+            "type": "toggle",
+            "header": "Broke Down?",
+            "state": false,
+            "text": "Did the robot ever stop working?",
+            "id": "broke"
+        },
+        {
+            "type": "textarea",
+            "header": "Match Notes",
+            "state": "",
+            "placeholder": "Enter any important notes here (i.e top-heavy, stutters..)",
+            "id": "notes"
+        }
+    ]
 }

@@ -1,4 +1,4 @@
-import { getUserTeam } from "./utils.js";
+import { getUserTeam, isAdmin } from "./utils.js";
 import { getUsers } from "./DB.js";
 const teamLabel = document.getElementById("team");
 const profileBtnGuest = document.getElementById("profileBtnGuest");
@@ -19,8 +19,11 @@ if (currentUserData && currentUserData.name) {
 
   var delay = 0;
   console.log(users);
+  //const isAdminSelect = ;
+  const adminMode = isAdmin();
   for (const user of users) {
-    if (user.team === userTeam) {
+    const match = adminMode ? user.role === "admin" : user.team === userTeam && user.role !== "admin";
+    if (match) {
       const thisBtn = profileBtn.cloneNode(true);
       thisBtn.style.display = "flex";
       thisBtn.textContent = `${user.name} →`;
@@ -42,5 +45,5 @@ if (currentUserData && currentUserData.name) {
     console.log(result);
     window.location = `../HTML/index.html`;
   });
-  teamLabel.textContent = `- ${userTeam} Scouters -`;
+  teamLabel.textContent = adminMode ? `- Head Scouts -` : `- ${userTeam} Scouters -`;
 })();

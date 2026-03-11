@@ -16,6 +16,10 @@ export async function TBA_GET(endpoint) {
   }
 }
 
+export function isAdmin() {
+  return localStorage.getItem("isAdmin") === "true";
+}
+
 export function getUserTeam() {
   const token = localStorage.getItem("scoutingAuthToken");
   //if (!token) return false;
