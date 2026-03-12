@@ -196,6 +196,21 @@ scrollBtn.addEventListener("click", () => {
   document.querySelector(".match-theme-active")?.scrollIntoView({ block: "center", behavior: "smooth" });
 });
 
+const teamSearchInput = document.getElementById("team-search");
+teamSearchInput.addEventListener("input", () => {
+  const query = teamSearchInput.value.trim();
+  const matchEls = document.querySelectorAll(".match:not(#ml-template)");
+  matchEls.forEach((matchEl) => {
+    if (!query) {
+      matchEl.style.display = "";
+      return;
+    }
+    const teams = matchEl.querySelectorAll("#m-blue th, #m-red th");
+    const found = Array.from(teams).some((th) => th.textContent.includes(query));
+    matchEl.style.display = found ? "" : "none";
+  });
+});
+
 window.reloadPage = function () {
   localStorage.removeItem(CACHE_KEY);
   location.reload();
