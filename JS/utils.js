@@ -92,7 +92,7 @@ export async function isActiveEvent() {
   };
 }
 
-export function retagResponses(untaggedResponses, questions) {
+export function retagResponses(untaggedResponses, questions, offlineEnabled = true) {
   if (!questions) {
     return null;
   }
@@ -107,9 +107,10 @@ export function retagResponses(untaggedResponses, questions) {
     const categoryQuestions = questions[categoryId];
 
     untaggedResponses[categoryId].forEach((value, index) => {
-      if (categoryQuestions[index] && categoryQuestions[index].id) {
-        const questionId = categoryQuestions[index].id;
-        retaggedResponses[categoryId][questionId] = value;
+      const q = categoryQuestions[index];
+      if (q && q.id) {
+        if (!offlineEnabled && q.offline === true) return;
+        retaggedResponses[categoryId][q.id] = value;
       }
     });
   }

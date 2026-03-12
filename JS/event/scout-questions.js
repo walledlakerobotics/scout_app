@@ -110,9 +110,10 @@ function checkIsFormComplete(responses, questions) {
 }
 
 uploadBtn.addEventListener("click", async () => {
+  const offlineEnabled = localStorage.getItem("offlineQuestions") === "true";
   const finalData = {
     questions: {
-      data: retagResponses(responses, questions),
+      data: retagResponses(responses, questions, offlineEnabled),
       version: questionsVersion,
     },
     scoutID: JSON.parse(localStorage.getItem("userProfile"))?.id || -1,
@@ -150,6 +151,7 @@ qrBtn.addEventListener("click", () => {
   data = JSON.stringify({
     scoutID: userData?.id || -1,
     version: questionsVersion,
+    offlineEnabled: localStorage.getItem("offlineQuestions") === "true",
     data: responses,
   });
 
