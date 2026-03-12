@@ -263,7 +263,7 @@
                 "body": "Give your best guess as to how many fuel this bot can hold at a time. <b>None</b> (0) means the bot lacks a hopper."
             },
             "leaderboard": {
-              "title-avg": "Estimated Capactity",
+              "title-avg": "Estimated Capacity",
               "title-single": "Estimated Capacity",
               "category-override": "Bot & Driver",
               "visibility": "both",
