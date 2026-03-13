@@ -206,7 +206,7 @@ teamSearchInput.addEventListener("input", () => {
       return;
     }
     const teams = matchEl.querySelectorAll("#m-blue th, #m-red th");
-    const found = Array.from(teams).some((th) => th.textContent.includes(query));
+    const found = Array.from(teams).some((th) => th.textContent == query);
     matchEl.style.display = found ? "" : "none";
   });
 });
