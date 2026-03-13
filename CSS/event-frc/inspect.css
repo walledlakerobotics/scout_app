@@ -324,3 +324,13 @@
   padding-bottom: 8px;
   text-align: center;
 }
+@media (max-width: 500px) {
+  .hide1 {
+    display: none;
+  }
+}
+@media (max-width: 359px) {
+  .hide2 {
+    display: none;
+  }
+}

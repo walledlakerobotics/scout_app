@@ -1,9 +1,19 @@
+import { getUsers } from "../DB.js";
 import { TBA_GET, newEventCache } from "/JS/utils.js";
 
 const eventTitle = document.getElementById("eventNameHeader");
 
+const users = await getUsers();
 const eventKey = localStorage.getItem("currentEventKey") || null;
 const eventDetails = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.eventDetails;
+
+function lookupScouter(scoutID) {
+  const scouter = Object.values(users).find((u) => String(u.id) === String(scoutID));
+  console.log(scouter);
+  return scouter || "N/A";
+}
+
+// this is the worst spaghetti code ive ever written. made sloppily and in a rush for comp. fix later.
 
 if (eventDetails == null || eventDetails.length == 0) {
   eventDetails = newEventCache(eventKey);
@@ -29,13 +39,15 @@ const mts = document.querySelector(".match-team-select");
 
 async function getOrganizedScoutedData() {
   const unorganized = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`))?.scoutedData;
+
   const organizedTeams = {};
   for (const i in unorganized) {
+    const g = JSON.parse(unorganized[i].data);
     const submission = JSON.parse(unorganized[i].data)?.questions;
     const data = submission?.data;
     // sort question json into {questionID:{value:questionResponse,category:questionCategory}...}
     // so it can be flattened and compared with other versions
-    const sorted = {};
+    const sorted = { _scoutID: g.scoutID };
     for (const category in data) {
       for (const questionID in data[category]) {
         sorted[questionID] = { value: data[category][questionID], category, version: submission.version || -1 };
@@ -57,18 +69,21 @@ async function getTeamData(teamKey, matchID = null) {
   if (matchID !== null) {
     const match = submissions.find((s) => s.match?.value == matchID);
     if (!match) return null;
+    const scouter = lookupScouter(match._scoutID);
     const result = {};
     for (const questionID in match) {
+      if (questionID === "_scoutID") continue;
       const { value, category } = match[questionID];
       if (!result[category]) result[category] = {};
       const coerced = typeof value === "boolean" ? value : isNaN(Number(value)) || value === "" ? value : Math.round(Number(value) * 100) / 100;
       result[category][questionID] = { value: coerced };
     }
-    return result;
+    return { data: result, scouter };
   }
 
-  const maxVersion = Math.max(...submissions.map((s) => Object.values(s)[0]?.version ?? -1));
-  const layoutRef = submissions.find((s) => Object.values(s)[0]?.version === maxVersion);
+  const getVersion = (s) => Object.entries(s).find(([k]) => k !== "_scoutID")?.[1]?.version ?? -1;
+  const maxVersion = Math.max(...submissions.map(getVersion));
+  const layoutRef = submissions.find((s) => getVersion(s) === maxVersion);
   const validQuestions = new Set(Object.keys(layoutRef ?? {}));
 
   const questionsRaw = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`))?.questionsData?.data ?? {};
@@ -85,6 +100,7 @@ async function getTeamData(teamKey, matchID = null) {
   const collected = {};
   for (const submission of submissions) {
     for (const questionID in submission) {
+      if (questionID === "_scoutID") continue;
       if (!validQuestions.has(questionID)) continue;
       const { value, category } = submission[questionID];
       if (!collected[category]) collected[category] = {};
@@ -118,7 +134,7 @@ async function getTeamData(teamKey, matchID = null) {
       }
     }
   }
-  return result;
+  return { data: result, scouter: "N/A" };
 }
 
 function newStat(type = "pill", parent, label, qData) {
@@ -158,6 +174,7 @@ function newStat(type = "pill", parent, label, qData) {
     clone.querySelector(".stat-label").textContent = label;
     clone.querySelector(".stat-pill").textContent = text;
   } else {
+    console.warn(qData);
     clone = txtTemplate.cloneNode(true);
     clone.querySelector(".stat-label").textContent = label;
     clone.querySelector(".stat-txt").textContent = text;
@@ -168,7 +185,7 @@ function newStat(type = "pill", parent, label, qData) {
   return clone;
 }
 
-async function loadHero(key, teamData) {
+async function loadHero(key, teamData, scouter = "N/A") {
   document.getElementById("team-number").textContent = key;
   document.getElementById("team-logo").src = `https://www.thebluealliance.com/avatar/2026/frc${key}.png`;
 
@@ -187,6 +204,8 @@ async function loadHero(key, teamData) {
       return m.winning_alliance === side;
     }).length;
     document.getElementById("hero-winrate").textContent = `${Math.round((wins / played.length) * 100)}%`;
+
+    document.getElementById("hero-scouter").textContent = scouter;
   }
 
   const [teamInfo, rankings] = await Promise.all([TBA_GET(`/team/frc${key}`), TBA_GET(`/event/${eventKey}/rankings`)]);
@@ -223,7 +242,7 @@ function renderStats(teamData) {
 
       const targetCategory = lb["category-override"] || categoryID;
 
-      const statType = isAvgMode ? lb.type : "pill";
+      const statType = isAvgMode ? lb.type : lb._qType === "textarea" ? "txt" : "pill";
       const label = isAvgMode ? lb["title-avg"] : lb["title-single"];
 
       const qData = teamData[categoryID][questionID];
@@ -238,6 +257,7 @@ function renderStats(teamData) {
     }
   }
 
+  console.log(displayCategories);
   for (const categoryID in displayCategories) {
     const categoryElement = categoryTemplate.cloneNode(true);
     const statContainer = categoryElement.querySelector(".section-stats");
@@ -267,9 +287,9 @@ function clearStats() {
 }
 
 if (inspectType == "team") {
-  const teamData = await getTeamData(inspectKey, matchKey);
+  const { data: teamData, scouter } = await getTeamData(inspectKey, matchKey);
   console.log(teamData);
-  loadHero(inspectKey, teamData);
+  loadHero(inspectKey, teamData, scouter?.name);
   if (teamData) {
     renderStats(teamData);
   }
@@ -284,7 +304,7 @@ if (inspectType == "team") {
 
   let currentIndex = 0;
 
-  async function loadTeamAtIndex(index) {
+  async function loadTeam(index) {
     const { teamNum, label } = teams[index];
     document.getElementById("team-label").textContent = label;
     document.getElementById("hero-rank").textContent = "—";
@@ -292,22 +312,22 @@ if (inspectType == "team") {
     document.getElementById("hero-startpos").textContent = "—";
     document.getElementById("team-name").textContent = "Team";
     clearStats();
-    const teamData = await getTeamData(teamNum, matchNumber);
-    loadHero(teamNum, teamData);
+    const { data: teamData, scouter } = await getTeamData(teamNum, matchNumber);
+    loadHero(teamNum, teamData, scouter?.name);
     if (teamData) renderStats(teamData);
   }
 
   document.getElementById("swap-left").addEventListener("click", () => {
     currentIndex = (currentIndex - 1 + teams.length) % teams.length;
-    loadTeamAtIndex(currentIndex);
+    loadTeam(currentIndex);
   });
 
   document.getElementById("swap-right").addEventListener("click", () => {
     currentIndex = (currentIndex + 1) % teams.length;
-    loadTeamAtIndex(currentIndex);
+    loadTeam(currentIndex);
   });
 
-  loadTeamAtIndex(0);
+  loadTeam(0);
 }
 
 if (!eventKey) {

@@ -10,11 +10,11 @@
                 "Depot"
             ],
             "leaderboard": {
-              "title-avg": "Usual Start",
-              "title-single": "Start Position",
-              "category-override": "prematch",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Usual Start",
+                "title-single": "Start Position",
+                "category-override": "prematch",
+                "visibility": "both",
+                "type": "pill"
             },
             "id": "startpos",
             "required": true
@@ -46,11 +46,11 @@
             "text": "Did the robot do anything at all?",
             "id": "moved",
             "leaderboard": {
-              "title-avg": "Moved",
-              "title-single": "Moved",
-              "category-override": false,
-              "visibility": "both",
-              "type": "bar"
+                "title-avg": "Moved",
+                "title-single": "Moved",
+                "category-override": false,
+                "visibility": "both",
+                "type": "bar"
             }
         },
         {
@@ -60,11 +60,11 @@
             "text": "Fired at the HUB and scored most shots.",
             "id": "scored",
             "leaderboard": {
-              "title-avg": "Scored",
-              "title-single": "Scored",
-              "category-override": false,
-              "visibility": "both",
-              "type": "bar"
+                "title-avg": "Scored",
+                "title-single": "Scored",
+                "category-override": false,
+                "visibility": "both",
+                "type": "bar"
             }
         },
         {
@@ -72,9 +72,9 @@
             "header": "Robot Refueled?",
             "state": "Did not refuel",
             "dropdown-options": [
-                "From Depot",
-                "From Human Player",
-                "From Center"
+                "Depot",
+                "Human Player",
+                "Center"
             ],
             "id": "refuel",
             "info": {
@@ -82,11 +82,11 @@
                 "body": "Sometimes, teams may be able to grab more fuel after scoring once.\n\n<b>The Depot:</b> The side with 24 (6x4) Fuel on the floor, opposite of the Human Player Station."
             },
             "leaderboard": {
-              "title-avg": "Usual Refuel",
-              "title-single": "Refueled",
-              "category-override": false,
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Usual Refuel",
+                "title-single": "Refueled",
+                "category-override": false,
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -100,11 +100,11 @@
             ],
             "id": "climb_auto",
             "leaderboard": {
-              "title-avg": "Usual Climb",
-              "title-single": "Climb",
-              "category-override": false,
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Usual Climb",
+                "title-single": "Climb",
+                "category-override": false,
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -118,11 +118,11 @@
                 "body": "Did Auton run successfully, with no interruptions, blocks, etc?"
             },
             "leaderboard": {
-              "title-avg": "Auton Reliable",
-              "title-single": "Auton Success",
-              "category-override": false,
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Auton Reliable",
+                "title-single": "Auton Success",
+                "category-override": false,
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -132,11 +132,11 @@
             "id": "won_auto",
             "offline": true,
             "leaderboard": {
-              "title-avg": "Auton Winrate",
-              "title-single": "Auton Win",
-              "category-override": false,
-              "visibility": "both",
-              "type": "bar"
+                "title-avg": "Auton Winrate",
+                "title-single": "Auton Win",
+                "category-override": false,
+                "visibility": "both",
+                "type": "bar"
             }
         }
     ],
@@ -151,11 +151,11 @@
                 "body": "The amount of time, in seconds, it takes for a robot to score in the HUB or Human Player, fuel back up, then re-score."
             },
             "leaderboard": {
-              "title-avg": "Avg Cycle Time",
-              "title-single": "Cycle Time",
-              "category-override": false,
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Avg Cycle Time",
+                "title-single": "Cycle Time",
+                "category-override": false,
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -169,11 +169,11 @@
             "label-max": "Fast",
             "id": "speed",
             "leaderboard": {
-              "title-avg": "Avg Bot Speed",
-              "title-single": "Bot Speed",
-              "category-override": false,
-              "visibility": "both",
-              "type": "bar"
+                "title-avg": "Avg Bot Speed",
+                "title-single": "Bot Speed",
+                "category-override": false,
+                "visibility": "both",
+                "type": "bar"
             }
         },
         {
@@ -191,11 +191,11 @@
                 "body": "Give your best guess as to how much fuel this bot successfully scored, as compared to fuel missed."
             },
             "leaderboard": {
-              "title-avg": "Avg Estimated Accuracy",
-              "title-single": "Estimated Accuracy",
-              "category-override": "Bot & Driver",
-              "visibility": "both",
-              "type": "bar"
+                "title-avg": "Avg Estimated Accuracy",
+                "title-single": "Estimated Accuracy",
+                "category-override": "Bot & Driver",
+                "visibility": "both",
+                "type": "bar"
             }
         },
         {
@@ -208,11 +208,11 @@
                 "Fuel Passing"
             ],
             "leaderboard": {
-              "title-avg": "Usual Strategy",
-              "title-single": "Strategy",
-              "category-override": false,
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Usual Strategy",
+                "title-single": "Strategy",
+                "category-override": false,
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -222,11 +222,11 @@
             "text": "(Accurately, hitting it's shots)",
             "id": "moving_fire",
             "leaderboard": {
-              "title-avg": "Moving Fire",
-              "title-single": "Moving Fire",
-              "category-override": "Bot & Driver",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Moving Fire",
+                "title-single": "Moving Fire",
+                "category-override": "Bot & Driver",
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -242,11 +242,11 @@
                 "body": "In order to score, teams need a shooter to fire fuel. Obviously.\n\n<b>Fixed Direction:</b> Shooter cannot aim independantly from the direction of the chassis.\n\n<b>Rotating Turret:</b> Shooter can rotate independantly from the chassis."
             },
             "leaderboard": {
-              "title-avg": "Outtake Type",
-              "title-single": "Outtake Type",
-              "category-override": "Bot & Driver",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Outtake Type",
+                "title-single": "Outtake Type",
+                "category-override": "Bot & Driver",
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -259,11 +259,11 @@
                 "Trench AND Ramp"
             ],
             "leaderboard": {
-              "title-avg": "Ramp & Trench",
-              "title-single": "Ramp & Trench",
-              "category-override": "Bot & Driver",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Ramp & Trench",
+                "title-single": "Ramp & Trench",
+                "category-override": "Bot & Driver",
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -281,11 +281,11 @@
                 "body": "Give your best guess as to how many fuel this bot can hold at a time. <b>None</b> (0) means the bot lacks a hopper."
             },
             "leaderboard": {
-              "title-avg": "Estimated Capacity",
-              "title-single": "Estimated Capacity",
-              "category-override": "Bot & Driver",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Estimated Capacity",
+                "title-single": "Estimated Capacity",
+                "category-override": "Bot & Driver",
+                "visibility": "both",
+                "type": "pill"
             }
         }
     ],
@@ -301,11 +301,11 @@
             ],
             "id": "hang_end",
             "leaderboard": {
-              "title-avg": "Usual Hang",
-              "title-single": "Hang Height",
-              "category-override": false,
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Usual Hang",
+                "title-single": "Hang Height",
+                "category-override": false,
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -319,11 +319,11 @@
             ],
             "id": "hang_end_pos",
             "leaderboard": {
-              "title-avg": "Usual Hang Side",
-              "title-single": "Hang Side",
-              "category-override": false,
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Usual Hang Side",
+                "title-single": "Hang Side",
+                "category-override": false,
+                "visibility": "both",
+                "type": "pill"
             }
         }
     ],
@@ -335,11 +335,11 @@
             "offline": true,
             "id": "won",
             "leaderboard": {
-              "title-avg": "Match Winrate",
-              "title-single": "Won Match",
-              "category-override": false,
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Match Winrate",
+                "title-single": "Won Match",
+                "category-override": false,
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -351,11 +351,11 @@
             "required": true,
             "offline": true,
             "leaderboard": {
-              "title-avg": "Avg Teleop Score",
-              "title-single": "Teleop Score",
-              "category-override": "teleop",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Avg Teleop Score",
+                "title-single": "Teleop Score",
+                "category-override": "teleop",
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -367,11 +367,11 @@
             "required": true,
             "offline": true,
             "leaderboard": {
-              "title-avg": "Avg Auton Score",
-              "title-single": "Auton Score",
-              "category-override": "autonomous",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Avg Auton Score",
+                "title-single": "Auton Score",
+                "category-override": "autonomous",
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -383,11 +383,11 @@
             "required": true,
             "offline": true,
             "leaderboard": {
-              "title-avg": "Avg Penalites",
-              "title-single": "Alliance Penalties",
-              "category-override": "Bot & Driver",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Avg Penalites",
+                "title-single": "Alliance Penalties",
+                "category-override": "Bot & Driver",
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -401,11 +401,11 @@
             "label-max": "Pro",
             "id": "skill",
             "leaderboard": {
-              "title-avg": "Avg Driver Skill",
-              "title-single": "Driver Skill",
-              "category-override": "Bot & Driver",
-              "visibility": "both",
-              "type": "pill"
+                "title-avg": "Avg Driver Skill",
+                "title-single": "Driver Skill",
+                "category-override": "Bot & Driver",
+                "visibility": "both",
+                "type": "pill"
             }
         },
         {
@@ -415,11 +415,11 @@
             "text": "Did the robot ever stop working?",
             "id": "broke",
             "leaderboard": {
-              "title-avg": "Bot Breakdowns",
-              "title-single": "Broke Down",
-              "category-override": "Bot & Driver",
-              "visibility": "both",
-              "type": "bar"
+                "title-avg": "Bot Breakdowns",
+                "title-single": "Broke Down",
+                "category-override": "Bot & Driver",
+                "visibility": "both",
+                "type": "bar"
             }
         },
         {
@@ -428,7 +428,12 @@
             "state": "",
             "placeholder": "Enter any important notes here (i.e top-heavy, stutters..)",
             "id": "notes",
-            "leaderboard": false
+            "leaderboard": {
+                "title-single": "Notes",
+                "visibility": "single",
+                "category-override": "general",
+                "type": "txt"
+            }
         }
     ]
 }
