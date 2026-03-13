@@ -118,7 +118,7 @@ async function renderMatches(mData) {
       inspectedMatch = match;
       if (!isCompleted) {
         actionBtn.innerHTML = `
-        <ion-icon class="ionicon" name="open-outline"></ion-icon> Inspect This Match`;
+        <ion-icon class="ionicon" name="open-outline"></ion-icon> Scout This Match`;
       } else {
         actionBtn.innerHTML = `
         <ion-icon class="ionicon" name="open-outline"></ion-icon> Review this match`;
