@@ -157,7 +157,7 @@ a {
   backdrop-filter: blur(20px);
   border-radius: 12px;
   cursor: pointer;
-
+  position: relative;
   padding: 0;
   aspect-ratio: 1;
   transition: all 0.2s ease-out;
@@ -170,8 +170,14 @@ a {
 }
 
 .mini-btn ion-icon {
-  position: fixed;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.mini-btn {
+  overflow: hidden;
 }
 
 ion-icon,
