@@ -1,9 +1,14 @@
-import { TBA_GET } from "/JS/utils.js";
+import { TBA_GET, newEventCache } from "/JS/utils.js";
 
 const eventTitle = document.getElementById("eventNameHeader");
 
 const eventKey = localStorage.getItem("currentEventKey") || null;
 const eventDetails = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.eventDetails;
+
+if (eventDetails == null || eventDetails.length == 0) {
+  eventDetails = newEventCache(eventKey);
+}
+
 const inspectTypeElement = document.getElementById("eventCodeHeader");
 
 const URLParams = new URLSearchParams(window.location.search);
@@ -19,6 +24,7 @@ const pillTemplate = categoryTemplate.querySelector("#stat-pill-template");
 const barTemplate = categoryTemplate.querySelector("#stat-bar-template");
 const txtTemplate = categoryTemplate.querySelector("#stat-txt-template");
 
+const mts = document.querySelector(".match-team-select");
 //BIG sorting functions to crunch total scouted data
 
 async function getOrganizedScoutedData() {
@@ -254,7 +260,10 @@ function renderStats(teamData) {
 }
 
 function clearStats() {
-  document.querySelector(".team-sections").querySelectorAll(".section-card:not(.template)").forEach((el) => el.remove());
+  document
+    .querySelector(".team-sections")
+    .querySelectorAll(".section-card:not(.template)")
+    .forEach((el) => el.remove());
 }
 
 if (inspectType == "team") {
@@ -264,15 +273,14 @@ if (inspectType == "team") {
   if (teamData) {
     renderStats(teamData);
   }
+  mts.style.display = "none";
 } else {
+  mts.style.display = "flex";
   const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData ?? [];
   const match = mData.find((m) => m.key == inspectKey);
   const matchNumber = match?.match_number?.toString();
 
-  const teams = [
-    ...match.alliances.blue.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Blue ${i + 1}` })),
-    ...match.alliances.red.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Red ${i + 1}` })),
-  ];
+  const teams = [...match.alliances.blue.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Blue ${i + 1}` })), ...match.alliances.red.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Red ${i + 1}` }))];
 
   let currentIndex = 0;
 
