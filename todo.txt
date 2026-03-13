@@ -7,3 +7,23 @@ go through and edit all lines of code with TODO on them
 - make some other metrics for the leaderboard (startpos) be retrieved by tba
 - logout when on questionnaire page
 - make the pwa the entire website and not jsut the questionnaire
+
+- question version changed. would you like to apply and reset form?
+
+- prevent duplicates, dont allow reupload
+
+- beached
+
+- duplicate responses on dropdowns bug
+
+-  timer responses with value 0.00 we should ignore
+
+- toggle + dropdown advanced 
+
+- humanplayer skill?
+
+- number only inputs
+
+- multiple checkboxes
+
+- notes section
