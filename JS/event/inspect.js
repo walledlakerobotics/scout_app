@@ -113,7 +113,7 @@ async function getTeamData(teamKey, matchID = null) {
         if (topValues.length === 1) {
           result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length };
         } else {
-          result[category][questionID] = { value: "Mixed" };
+          result[category][questionID] = { value: "Mixed", frequency: maxFreq / values.length, totalCount: values.length };
         }
       }
     }

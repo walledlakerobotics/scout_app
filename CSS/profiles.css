@@ -1,3 +1,8 @@
+.text-container {
+  max-height: 80dvh;
+  overflow-y: auto;
+}
+
 .profileBtn {
   margin: 0;
   opacity: 1;
