@@ -251,7 +251,10 @@ function renderStats(teamData) {
     header.textContent = categoryID.toUpperCase();
     categoryTemplate.parentNode.appendChild(categoryElement);
   }
-  categoryTemplate.remove();
+}
+
+function clearStats() {
+  document.querySelector(".team-sections").querySelectorAll(".section-card:not(.template)").forEach((el) => el.remove());
 }
 
 if (inspectType == "team") {
@@ -264,15 +267,39 @@ if (inspectType == "team") {
 } else {
   const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData ?? [];
   const match = mData.find((m) => m.key == inspectKey);
-  const teamNum = match?.alliances.red.team_keys[0].slice(3);
   const matchNumber = match?.match_number?.toString();
 
-  const teamData = await getTeamData(teamNum, matchNumber);
-  loadHero(teamNum, teamData);
+  const teams = [
+    ...match.alliances.blue.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Blue ${i + 1}` })),
+    ...match.alliances.red.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Red ${i + 1}` })),
+  ];
 
-  if (teamData) {
-    renderStats(teamData);
+  let currentIndex = 0;
+
+  async function loadTeamAtIndex(index) {
+    const { teamNum, label } = teams[index];
+    document.getElementById("team-label").textContent = label;
+    document.getElementById("hero-rank").textContent = "—";
+    document.getElementById("hero-winrate").textContent = "—";
+    document.getElementById("hero-startpos").textContent = "—";
+    document.getElementById("team-name").textContent = "Team";
+    clearStats();
+    const teamData = await getTeamData(teamNum, matchNumber);
+    loadHero(teamNum, teamData);
+    if (teamData) renderStats(teamData);
   }
+
+  document.getElementById("swap-left").addEventListener("click", () => {
+    currentIndex = (currentIndex - 1 + teams.length) % teams.length;
+    loadTeamAtIndex(currentIndex);
+  });
+
+  document.getElementById("swap-right").addEventListener("click", () => {
+    currentIndex = (currentIndex + 1) % teams.length;
+    loadTeamAtIndex(currentIndex);
+  });
+
+  loadTeamAtIndex(0);
 }
 
 if (!eventKey) {

@@ -6,12 +6,9 @@
   <link rel="stylesheet" type="text/css" href="../CSS/event-frc/inspect.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
 
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -33,16 +30,34 @@
         </button>
       </div>
     </div>
-    <div class="text-container">
+    <div class="text-container" style="display: flex; flex-wrap: wrap; flex-direction: column">
+      <div class="match-team-select" style="display: flex; gap: 10px; align-items: center">
+        <button class="mini-btn" id="swap-left">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </button>
+        <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+          <h2 style="margin: 0" id="team-label">Blue 2</h2>
+          <p style="margin: 0; opacity: 0.8">Click to change</p>
+        </div>
+        <button class="mini-btn" id="swap-right">
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
       <div class="inspect-panel">
         <div class="inspect-team">
           <div class="team-hero">
             <div class="hero-team-id" style="flex-direction: row; gap: 15px">
-              <img class="team-logo" id="team-logo" src="" onerror="
+              <img
+                class="team-logo"
+                id="team-logo"
+                style="filter: none"
+                src=""
+                onerror="
                   this.onerror = null;
                   this.classList.add('no-logo');
                   this.src = '../Img/Noicon_mono.png';
-                " />
+                "
+              />
               <div>
                 <p class="hero-team-number" id="team-number">1234</p>
                 <p class="hero-team-name" id="team-name">Team</p>
@@ -91,7 +106,6 @@
                   <span class="stat-label">Label</span>
                   <span class="stat-txt neutral">Loooooooong text</span>
                 </div>
-
               </div>
             </div>
           </div>
@@ -117,8 +131,7 @@
         <button class="mini-btn" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
           <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
         </button>
-        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013"
-          onclick="logout()">
+        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013" onclick="logout()">
           <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
         </button>
       </div>
