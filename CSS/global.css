@@ -176,6 +176,8 @@ a {
 
 ion-icon,
 .ionicon {
+  max-width: 60%;
+  max-height: 60%;
   width: 60%;
   height: 60%;
   color: var(--theme-main-text);
