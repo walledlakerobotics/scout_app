@@ -106,7 +106,7 @@ function newStat(type = "pill", parent, label, qData) {
   const value = qData?.value;
   const frequency = qData?.frequency;
   let clone;
-  let text = `${value}`;
+  let text = value;
   if (frequency) {
     text = `${value} · ${frequency * 100}%`;
   }
@@ -115,6 +115,21 @@ function newStat(type = "pill", parent, label, qData) {
     clone = barTemplate.cloneNode(true);
     clone.querySelector(".stat-label").textContent = label;
     clone.querySelector(".stat-bar-label-row span").textContent = text;
+
+    const barFill = clone.querySelector(".stat-bar-fill");
+    const textElem = clone.querySelector(".minmax");
+    const isPercentage = qData.qType !== "slider";
+    let widthPct;
+    if (isPercentage) {
+      widthPct = (qData.frequency ?? 0) * 100;
+      textElem.textContent = `${Math.round(widthPct)} / 100`;
+    } else {
+      const min = qData.qMin ?? 0;
+      const max = qData.qMax ?? 100;
+      widthPct = ((qData.value - min) / (max - min)) * 100;
+      textElem.textContent = `${qData.value} / ${max}`;
+    }
+    barFill.style.width = `${widthPct}%`;
   } else {
     clone = pillTemplate.cloneNode(true);
     clone.querySelector(".stat-label").textContent = label;
@@ -134,7 +149,7 @@ if (inspectType == "team") {
   const questionLookup = {};
   for (const categoryID in questionsRaw) {
     for (const question of questionsRaw[categoryID]) {
-      if (question.id) questionLookup[question.id] = question.leaderboard;
+      if (question.id) questionLookup[question.id] = { ...question.leaderboard, _qType: question.type, _min: question.min, _max: question.max };
     }
   }
 
@@ -153,7 +168,6 @@ if (inspectType == "team") {
       const statType = isAvgMode ? lb.type : "pill";
       const label = isAvgMode ? lb["title-avg"] : lb["title-single"];
 
-      // yes/no
       const qData = teamData[categoryID][questionID];
       let displayValue = qData.value;
       if (displayValue === true || displayValue === "true") displayValue = "Yes";
@@ -162,7 +176,7 @@ if (inspectType == "team") {
       if (displayValue === null || displayValue === undefined || displayValue === "") continue;
 
       if (!displayCategories[targetCategory]) displayCategories[targetCategory] = [];
-      displayCategories[targetCategory].push({ label, statType, value: displayValue, frequency: qData.frequency });
+      displayCategories[targetCategory].push({ label, statType, value: displayValue, frequency: qData.frequency, qType: lb._qType, qMin: lb._min, qMax: lb._max });
     }
   }
 
@@ -175,8 +189,12 @@ if (inspectType == "team") {
     statContainer.innerHTML = "";
 
     for (const stat of displayCategories[categoryID]) {
-      newStat(stat.statType, statContainer, stat.label, { value: stat.value, frequency: stat.frequency });
+      if (stat.label && stat.value) {
+        newStat(stat.statType, statContainer, stat.label, { value: stat.value, frequency: stat.frequency, qType: stat.qType, qMin: stat.qMin, qMax: stat.qMax });
+      }
     }
+
+    if (!statContainer.hasChildNodes()) continue;
 
     header.textContent = categoryID.toUpperCase();
     categoryTemplate.parentNode.appendChild(categoryElement);

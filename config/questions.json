@@ -83,10 +83,10 @@
             },
             "leaderboard": {
               "title-avg": "Usual Refuel",
-              "title-single": "Refuel",
+              "title-single": "Refueled",
               "category-override": false,
               "visibility": "both",
-              "type": "bar"
+              "type": "pill"
             }
         },
         {
@@ -102,6 +102,24 @@
             "leaderboard": {
               "title-avg": "Usual Climb",
               "title-single": "Climb",
+              "category-override": false,
+              "visibility": "both",
+              "type": "pill"
+            }
+        },
+        {
+            "type": "toggle",
+            "header": "Auton Success?",
+            "state": false,
+            "id": "auto_success",
+            "offline": true,
+            "info": {
+                "header": "Successful Autonomous",
+                "body": "Did Auton run successfully, with no interruptions, blocks, etc?"
+            },
+            "leaderboard": {
+              "title-avg": "Auton Reliable",
+              "title-single": "Auton Success",
               "category-override": false,
               "visibility": "both",
               "type": "pill"
@@ -397,7 +415,7 @@
             "text": "Did the robot ever stop working?",
             "id": "broke",
             "leaderboard": {
-              "title-avg": "Bot Reliability",
+              "title-avg": "Bot Unreliable",
               "title-single": "Broke Down",
               "category-override": "Bot & Driver",
               "visibility": "both",
