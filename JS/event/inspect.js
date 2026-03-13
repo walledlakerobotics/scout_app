@@ -5,7 +5,7 @@ const eventTitle = document.getElementById("eventNameHeader");
 
 const users = await getUsers();
 const eventKey = localStorage.getItem("currentEventKey") || null;
-const eventDetails = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.eventDetails;
+var eventDetails = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.eventDetails;
 
 function lookupScouter(scoutID) {
   const scouter = Object.values(users).find((u) => String(u.id) === String(scoutID));
@@ -16,7 +16,7 @@ function lookupScouter(scoutID) {
 // this is the worst spaghetti code ive ever written. made sloppily and in a rush for comp. fix later.
 
 if (eventDetails == null || eventDetails.length == 0) {
-  eventDetails = newEventCache(eventKey);
+  eventDetails = await newEventCache(eventKey);
 }
 
 const inspectTypeElement = document.getElementById("eventCodeHeader");
