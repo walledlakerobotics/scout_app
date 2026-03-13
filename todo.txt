@@ -16,8 +16,6 @@ go through and edit all lines of code with TODO on them
 
 - duplicate responses on dropdowns bug
 
--  timer responses with value 0.00 we should ignore
-
 - toggle + dropdown advanced 
 
 - humanplayer skill?

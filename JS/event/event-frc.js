@@ -211,11 +211,6 @@ teamSearchInput.addEventListener("input", () => {
   });
 });
 
-window.reloadPage = function () {
-  localStorage.removeItem(CACHE_KEY);
-  location.reload();
-};
-
 offlineScoutBtn.onclick = function () {
   location.href = `../HTML/scout.html?status=offline&eventKey=${eventKey}`;
 };

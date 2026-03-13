@@ -1,4 +1,4 @@
-import { getUserTeam } from "/JS/utils.js";
+import { TBA_GET } from "/JS/utils.js";
 
 const eventTitle = document.getElementById("eventNameHeader");
 
@@ -10,12 +10,14 @@ const URLParams = new URLSearchParams(window.location.search);
 const inspectType = URLParams.get("type") || "thing";
 const inspectKey = URLParams.get("key") || "?";
 const matchKey = URLParams.get("match") || null;
-const isAvgMode = matchKey === null;
+
+const isAvgMode = inspectType === "team" && matchKey === null;
 
 const categoryTemplate = document.getElementById("section-card");
 
 const pillTemplate = categoryTemplate.querySelector("#stat-pill-template");
 const barTemplate = categoryTemplate.querySelector("#stat-bar-template");
+const txtTemplate = categoryTemplate.querySelector("#stat-txt-template");
 
 //BIG sorting functions to crunch total scouted data
 
@@ -63,6 +65,16 @@ async function getTeamData(teamKey, matchID = null) {
   const layoutRef = submissions.find((s) => Object.values(s)[0]?.version === maxVersion);
   const validQuestions = new Set(Object.keys(layoutRef ?? {}));
 
+  const questionsRaw = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`))?.questionsData?.data ?? {};
+  const questionTypes = {};
+  for (const categoryID in questionsRaw) {
+    for (const question of questionsRaw[categoryID]) {
+      if (question.id) {
+        questionTypes[question.id] = question.type;
+      }
+    }
+  }
+
   // restricted to the highest ver
   const collected = {};
   for (const submission of submissions) {
@@ -72,11 +84,12 @@ async function getTeamData(teamKey, matchID = null) {
       if (!collected[category]) collected[category] = {};
       if (!collected[category][questionID]) collected[category][questionID] = [];
       const coerced = typeof value === "boolean" ? value : isNaN(Number(value)) || value === "" ? value : Math.round(Number(value) * 100) / 100;
+      if (questionTypes[questionID] === "timer" && Math.floor(parseInt(Number(coerced))) == 0) continue;
       collected[category][questionID].push(coerced);
     }
   }
 
-  // average for nums/bools, return most common or "Mixed"
+  // average for nums/bools, return most common
   const result = {};
   for (const category in collected) {
     result[category] = {};
@@ -92,7 +105,7 @@ async function getTeamData(teamKey, matchID = null) {
         const maxFreq = Math.max(...Object.values(freq));
         const topValues = Object.keys(freq).filter((k) => freq[k] === maxFreq);
         if (topValues.length === 1) {
-          result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100 };
+          result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length };
         } else {
           result[category][questionID] = { value: "Mixed" };
         }
@@ -110,7 +123,6 @@ function newStat(type = "pill", parent, label, qData) {
   if (frequency) {
     text = `${value} · ${frequency * 100}%`;
   }
-
   if (type === "bar") {
     clone = barTemplate.cloneNode(true);
     clone.querySelector(".stat-label").textContent = label;
@@ -119,21 +131,30 @@ function newStat(type = "pill", parent, label, qData) {
     const barFill = clone.querySelector(".stat-bar-fill");
     const textElem = clone.querySelector(".minmax");
     const isPercentage = qData.qType !== "slider";
-    let widthPct;
+    let width;
     if (isPercentage) {
-      widthPct = (qData.frequency ?? 0) * 100;
-      textElem.textContent = `${Math.round(widthPct)} / 100`;
+      width = (qData.frequency ?? 0) * 100;
+      if (qData.totalCount) {
+        const count = Math.round((qData.frequency ?? 0) * qData.totalCount);
+        textElem.textContent = `${count} / ${qData.totalCount}`;
+      } else {
+        textElem.textContent = `${Math.round(width)} / 100`;
+      }
     } else {
       const min = qData.qMin ?? 0;
       const max = qData.qMax ?? 100;
-      widthPct = ((qData.value - min) / (max - min)) * 100;
+      width = ((qData.value - min) / (max - min)) * 100;
       textElem.textContent = `${qData.value} / ${max}`;
     }
-    barFill.style.width = `${widthPct}%`;
-  } else {
+    barFill.style.width = `${width}%`;
+  } else if (type == "pill") {
     clone = pillTemplate.cloneNode(true);
     clone.querySelector(".stat-label").textContent = label;
     clone.querySelector(".stat-pill").textContent = text;
+  } else {
+    clone = txtTemplate.cloneNode(true);
+    clone.querySelector(".stat-label").textContent = label;
+    clone.querySelector(".stat-txt").textContent = text;
   }
   clone.removeAttribute("id");
   clone.classList.remove("template");
@@ -141,10 +162,41 @@ function newStat(type = "pill", parent, label, qData) {
   return clone;
 }
 
-if (inspectType == "team") {
-  const teamData = await getTeamData(inspectKey, matchKey);
+async function loadHero(key, teamData) {
+  document.getElementById("team-number").textContent = key;
+  document.getElementById("team-logo").src = `https://www.thebluealliance.com/avatar/2026/frc${key}.png`;
+
+  const start = teamData?.prematch?.startpos?.value;
+  if (start) {
+    document.getElementById("hero-startpos").textContent = start;
+  }
+
+  // wr from cache. should get from preorganized data, except it doesnt cause yeah
+  const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData ?? [];
+  const teamKeyFull = `frc${key}`;
+  const played = mData.filter((m) => (m.alliances.blue.team_keys.includes(teamKeyFull) || m.alliances.red.team_keys.includes(teamKeyFull)) && m.alliances.red.score >= 0 && m.alliances.blue.score >= 0);
+  if (played.length > 0) {
+    const wins = played.filter((m) => {
+      const side = m.alliances.blue.team_keys.includes(teamKeyFull) ? "blue" : "red";
+      return m.winning_alliance === side;
+    }).length;
+    document.getElementById("hero-winrate").textContent = `${Math.round((wins / played.length) * 100)}%`;
+  }
+
+  const [teamInfo, rankings] = await Promise.all([TBA_GET(`/team/frc${key}`), TBA_GET(`/event/${eventKey}/rankings`)]);
+  if (teamInfo?.nickname) document.getElementById("team-name").textContent = teamInfo.nickname;
+  if (rankings?.rankings) {
+    const entry = rankings.rankings.find((r) => r.team_key === teamKeyFull);
+    if (entry) {
+      const r = entry.rank;
+      const suffix = r === 1 ? "st" : r === 2 ? "nd" : r === 3 ? "rd" : "th";
+      document.getElementById("hero-rank").textContent = `${r}${suffix}`;
+    }
+  }
+}
+
+function renderStats(teamData) {
   const questionsRaw = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).questionsData?.data;
-  console.log(teamData);
 
   const questionLookup = {};
   for (const categoryID in questionsRaw) {
@@ -176,21 +228,21 @@ if (inspectType == "team") {
       if (displayValue === null || displayValue === undefined || displayValue === "") continue;
 
       if (!displayCategories[targetCategory]) displayCategories[targetCategory] = [];
-      displayCategories[targetCategory].push({ label, statType, value: displayValue, frequency: qData.frequency, qType: lb._qType, qMin: lb._min, qMax: lb._max });
+      displayCategories[targetCategory].push({ label, statType, value: displayValue, frequency: qData.frequency, totalCount: qData.totalCount, qType: lb._qType, qMin: lb._min, qMax: lb._max });
     }
   }
 
-  // render
   for (const categoryID in displayCategories) {
     const categoryElement = categoryTemplate.cloneNode(true);
     const statContainer = categoryElement.querySelector(".section-stats");
     const header = categoryElement.querySelector(".section-header");
+    categoryElement.classList.remove("template");
 
     statContainer.innerHTML = "";
 
     for (const stat of displayCategories[categoryID]) {
       if (stat.label && stat.value) {
-        newStat(stat.statType, statContainer, stat.label, { value: stat.value, frequency: stat.frequency, qType: stat.qType, qMin: stat.qMin, qMax: stat.qMax });
+        newStat(stat.statType, statContainer, stat.label, { value: stat.value, frequency: stat.frequency, totalCount: stat.totalCount, qType: stat.qType, qMin: stat.qMin, qMax: stat.qMax });
       }
     }
 
@@ -200,6 +252,27 @@ if (inspectType == "team") {
     categoryTemplate.parentNode.appendChild(categoryElement);
   }
   categoryTemplate.remove();
+}
+
+if (inspectType == "team") {
+  const teamData = await getTeamData(inspectKey, matchKey);
+  console.log(teamData);
+  loadHero(inspectKey, teamData);
+  if (teamData) {
+    renderStats(teamData);
+  }
+} else {
+  const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData ?? [];
+  const match = mData.find((m) => m.key == inspectKey);
+  const teamNum = match?.alliances.red.team_keys[0].slice(3);
+  const matchNumber = match?.match_number?.toString();
+
+  const teamData = await getTeamData(teamNum, matchNumber);
+  loadHero(teamNum, teamData);
+
+  if (teamData) {
+    renderStats(teamData);
+  }
 }
 
 if (!eventKey) {

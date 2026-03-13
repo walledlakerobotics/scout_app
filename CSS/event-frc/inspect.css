@@ -148,6 +148,10 @@
   backdrop-filter: blur(20px);
 }
 
+.section-card.template {
+  display: none;
+}
+
 .section-header {
   display: flex;
   flex-direction: row;
@@ -198,7 +202,8 @@
 }
 
 /* pill: text values */
-.stat-pill {
+.stat-pill,
+.stat-txt {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -212,6 +217,14 @@
   white-space: nowrap;
   min-width: 60px;
   text-align: center;
+}
+
+.stat-txt {
+  border-color: rgba(var(--theme-main-rgb), 0.72);
+  color: rgba(var(--theme-main-rgb), 0.72);
+  width: fit-content;
+  height: fit-content;
+  white-space: normal;
 }
 
 .stat-pill.positive {

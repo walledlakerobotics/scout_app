@@ -6,9 +6,12 @@
   <link rel="stylesheet" type="text/css" href="../CSS/event-frc/inspect.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+    rel="stylesheet" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
@@ -35,31 +38,27 @@
         <div class="inspect-team">
           <div class="team-hero">
             <div class="hero-team-id" style="flex-direction: row; gap: 15px">
-              <img
-                class="team-logo"
-                src="https://www.thebluealliance.com/avatar/2026/frc254.png"
-                onerror="
+              <img class="team-logo" id="team-logo" src="" onerror="
                   this.onerror = null;
                   this.classList.add('no-logo');
                   this.src = '../Img/Noicon_mono.png';
-                "
-              />
+                " />
               <div>
                 <p class="hero-team-number" id="team-number">1234</p>
-                <p class="hero-team-name" id="team-name">Template</p>
+                <p class="hero-team-name" id="team-name">Team</p>
               </div>
             </div>
             <div class="hero-stats">
               <div class="hero-stat">
-                <p class="hero-stat-val">1st</p>
+                <p class="hero-stat-val" id="hero-rank">—</p>
                 <p class="hero-stat-lbl">Rank</p>
               </div>
               <div class="hero-stat">
-                <p class="hero-stat-val green">100%</p>
+                <p class="hero-stat-val green" id="hero-winrate">—</p>
                 <p class="hero-stat-lbl">Winrate</p>
               </div>
               <div class="hero-stat">
-                <p class="hero-stat-val blue">Center</p>
+                <p class="hero-stat-val blue" id="hero-startpos">—</p>
                 <p class="hero-stat-lbl">Usual Start</p>
               </div>
             </div>
@@ -88,12 +87,17 @@
                   <span class="stat-label">Usual Refuel</span>
                   <span class="stat-pill neutral">Depot · 56%</span>
                 </div>
+                <div class="stat-row" id="stat-txt-template">
+                  <span class="stat-label">Label</span>
+                  <span class="stat-txt neutral">Loooooooong text</span>
+                </div>
+
               </div>
             </div>
           </div>
         </div>
 
-        <pre class="inspect-footer-note">Based on scouted data from N/A entries · <u>Edit Responses</u></pre>
+        <pre class="inspect-footer-note">Outcomes are displayed as Result · Frequency</pre>
       </div>
     </div>
 
@@ -113,7 +117,8 @@
         <button class="mini-btn" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
           <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
         </button>
-        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013" onclick="logout()">
+        <button class="mini-btn" style="border: 1px solid rgb(255, 0, 0); background-color: #ff000013"
+          onclick="logout()">
           <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
         </button>
       </div>

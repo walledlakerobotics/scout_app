@@ -53,7 +53,7 @@ eventBtn.addEventListener("click", () => {
   if (validEvent) {
     const uProfile = JSON.parse(localStorage.getItem("userProfile")) || null;
     if (uProfile && uProfile.name) {
-      window.location = `../HTML/event-frc.html?eventKey=2025mimil`; //`../HTML/event-frc.html?eventKey=${validEvent.key}`;
+      window.location = `../HTML/event-frc.html?eventKey=${validEvent.key}`;
     } else {
       window.location = `../HTML/profiles.html?eventKey=${validEvent.key}`;
     }

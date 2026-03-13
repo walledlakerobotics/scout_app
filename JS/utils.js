@@ -141,6 +141,13 @@ export async function newEventCache(eventKey, questionsFetcher) {
   return cache;
 }
 
+window.reloadPage = function () {
+  const eventKey = localStorage.getItem("currentEventKey");
+  const CACHE_KEY = `eventCache_${eventKey}`;
+  localStorage.removeItem(CACHE_KEY);
+  location.reload();
+};
+
 window.logout = () => {
   localStorage.removeItem("scoutingAuthToken");
   localStorage.removeItem("userProfile");
