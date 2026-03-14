@@ -323,7 +323,7 @@ if (inspectType == "team") {
     document.getElementById("hero-startpos").textContent = "—";
     document.getElementById("team-name").textContent = "Team";
     clearStats();
-    const { data: teamData, scouter } = await getTeamData(teamNum, matchNumber);
+    const { data: teamData, scouter } = await getTeamData(teamNum, matchKey);
     loadHero(teamNum, teamData, scouter?.name);
     if (teamData) renderStats(teamData);
   }
