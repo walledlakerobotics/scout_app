@@ -24,9 +24,8 @@ const inspectTypeElement = document.getElementById("eventCodeHeader");
 const URLParams = new URLSearchParams(window.location.search);
 const inspectType = URLParams.get("type") || "thing";
 const inspectKey = URLParams.get("key") || "?";
-const matchKey = URLParams.get("match") || null;
 
-const isAvgMode = inspectType === "team" && matchKey === null;
+const isAvgMode = inspectType === "team";
 
 const categoryTemplate = document.getElementById("section-card");
 
@@ -62,12 +61,14 @@ async function getOrganizedScoutedData() {
   return organizedTeams;
 }
 async function getTeamData(teamKey, matchID = null) {
+  console.warn(teamKey, matchID);
   const organizedTeams = await getOrganizedScoutedData();
   const submissions = organizedTeams[teamKey];
-  console.log(matchID);
+
   if (!submissions) return null;
 
   if (matchID !== null) {
+    console.log(submissions);
     const match = submissions.find((s) => s.match?.value == matchID);
     if (!match) return null;
     const scouter = lookupScouter(match._scoutID);
@@ -298,7 +299,7 @@ function clearStats() {
 }
 
 if (inspectType == "team") {
-  const { data: teamData, scouter } = await getTeamData(inspectKey, matchKey);
+  const { data: teamData, scouter } = await getTeamData(inspectKey);
   console.log(teamData);
   loadHero(inspectKey, teamData, scouter?.name);
   if (teamData) {
@@ -323,7 +324,8 @@ if (inspectType == "team") {
     document.getElementById("hero-startpos").textContent = "—";
     document.getElementById("team-name").textContent = "Team";
     clearStats();
-    const { data: teamData, scouter } = await getTeamData(teamNum, matchKey);
+
+    const { data: teamData, scouter } = await getTeamData(teamNum, matchNumber);
     loadHero(teamNum, teamData, scouter?.name);
     if (teamData) renderStats(teamData);
   }

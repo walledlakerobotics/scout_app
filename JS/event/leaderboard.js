@@ -13,7 +13,7 @@ export const LEADERBOARD_COLUMNS_OFFLINE = [
   { id: "ap-potential", label: "AP Potential" },
 ];
 
-export const LEADERBOARD_COLUMNS_SCOUTED = [];
+export const LEADERBOARD_COLUMNS_SCOUTED = [{ id: "avg-penalties", label: "Avg Penalties" }];
 export let LEADERBOARD_COLUMNS = useOnlineLeaderboardLayout ? [] : [...LEADERBOARD_COLUMNS_OFFLINE];
 
 async function initLeaderboard() {

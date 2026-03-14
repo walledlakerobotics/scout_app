@@ -405,7 +405,7 @@
                 "title-single": "Driver Skill",
                 "category-override": "Bot & Driver",
                 "visibility": "both",
-                "type": "pill"
+                "type": "bar"
             }
         },
         {
