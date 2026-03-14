@@ -64,6 +64,7 @@ async function getOrganizedScoutedData() {
 async function getTeamData(teamKey, matchID = null) {
   const organizedTeams = await getOrganizedScoutedData();
   const submissions = organizedTeams[teamKey];
+  console.log(matchID);
   if (!submissions) return null;
 
   if (matchID !== null) {
@@ -139,11 +140,12 @@ async function getTeamData(teamKey, matchID = null) {
 
 function newStat(type = "pill", parent, label, qData) {
   const value = qData?.value;
-  const frequency = qData?.frequency;
+  var frequency = qData?.frequency;
   let clone;
   let text = value;
+
   if (frequency) {
-    text = `${value} · ${frequency * 100}%`;
+    text = `${value} · ${Math.round(frequency * 100)}%`;
   }
   if (type === "bar") {
     clone = barTemplate.cloneNode(true);
@@ -157,8 +159,10 @@ function newStat(type = "pill", parent, label, qData) {
     if (isPercentage) {
       width = (qData.frequency ?? 0) * 100;
       if (qData.totalCount) {
-        const count = Math.round((qData.frequency ?? 0) * qData.totalCount);
-        textElem.textContent = `${count} / ${qData.totalCount}`;
+        var max = qData.totalCount;
+        var count = Math.round((qData.frequency ?? 0) * qData.totalCount);
+        if (value == "No") count = max - count;
+        textElem.textContent = `${count} / ${max}`;
       } else {
         textElem.textContent = `${Math.round(width)} / 100`;
       }
@@ -187,7 +191,14 @@ function newStat(type = "pill", parent, label, qData) {
 
 async function loadHero(key, teamData, scouter = "N/A") {
   document.getElementById("team-number").textContent = key;
-  document.getElementById("team-logo").src = `https://www.thebluealliance.com/avatar/2026/frc${key}.png`;
+  const logoEl = document.getElementById("team-logo");
+  logoEl.classList.remove("no-logo");
+  logoEl.onerror = function () {
+    this.onerror = null;
+    this.classList.add("no-logo");
+    this.src = "../Img/Noicon_mono.png";
+  };
+  logoEl.src = `https://www.thebluealliance.com/avatar/2026/frc${key}.png`;
 
   const start = teamData?.prematch?.startpos?.value;
   if (start) {

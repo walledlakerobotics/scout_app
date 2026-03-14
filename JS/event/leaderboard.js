@@ -42,7 +42,6 @@ async function reorganizeLeaderboardData() {
     const raw = await TBA_GET(`/event/${eventKey}/rankings`);
     if (!raw || !raw.rankings) return { columns: [], rows: [] };
 
-    // Build column list from what FIRST actually defines for this season
     const sortCols = (raw.sort_order_info ?? []).map((info, i) => ({
       id: `sort-${i}`,
       label: info.name,
@@ -58,10 +57,9 @@ async function reorganizeLeaderboardData() {
       source: "extra_stats",
       index: i,
     }));
-    // Scouted columns come last — you populate stats[col.id] yourself
+
     const columns = [...sortCols, ...extraCols, ...LEADERBOARD_COLUMNS_SCOUTED];
 
-    // Build a flat stats object per team
     const rows = raw.rankings.map((entry) => {
       const stats = { rank: entry.rank };
       sortCols.forEach((col) => {
