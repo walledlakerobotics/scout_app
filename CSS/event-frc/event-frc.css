@@ -172,12 +172,15 @@
   border-radius: 12px;
   padding: 0 12px;
   font-size: 15px;
+  text-align: center;
   color: rgb(var(--theme-main-text));
   width: 90px;
   flex-shrink: 1;
   min-width: 50px;
   outline: none;
-  transition: border-color 0.2s ease-out, width 0.2s ease-out;
+  transition:
+    border-color 0.2s ease-out,
+    width 0.2s ease-out;
   font-family: inherit;
 }
 

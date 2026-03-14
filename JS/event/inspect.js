@@ -64,13 +64,13 @@ async function getTeamData(teamKey, matchID = null) {
   console.warn(teamKey, matchID);
   const organizedTeams = await getOrganizedScoutedData();
   const submissions = organizedTeams[teamKey];
-
-  if (!submissions) return null;
+  if (!submissions) return {};
 
   if (matchID !== null) {
     console.log(submissions);
     const match = submissions.find((s) => s.match?.value == matchID);
-    if (!match) return null;
+
+    if (!match) return {};
     const scouter = lookupScouter(match._scoutID);
     const result = {};
     for (const questionID in match) {
