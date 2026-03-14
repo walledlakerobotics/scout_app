@@ -174,7 +174,7 @@
   font-size: 15px;
   text-align: center;
   color: rgb(var(--theme-main-text));
-  width: 90px;
+  width: 15ch;
   flex-shrink: 1;
   min-width: 50px;
   outline: none;
