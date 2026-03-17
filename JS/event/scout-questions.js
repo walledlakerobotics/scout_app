@@ -1,5 +1,5 @@
 import { submitQuestionsOnline, questionDB } from "/JS/DB.js";
-import { popupError } from "/JS/event/scout.js";
+import { popupError, showPopup } from "/JS/event/scout.js";
 import { retagResponses, isActiveEvent, newEventCache } from "/JS/utils.js";
 const uploadBtn = document.getElementById("uploadBtn");
 const resetBtn = document.getElementById("resetBtn");
@@ -7,7 +7,10 @@ const qrPopup = document.getElementById("qr-popup");
 const qrBtn = document.getElementById("qrBtn");
 const reloadBtn = document.getElementById("reloadBtn");
 
-var eventKey = new URLSearchParams(window.location.search).get("eventKey") || localStorage.getItem("currentEventKey") || null;
+const URLSP = new URLSearchParams(window.location.search);
+const showSetupNotif = URLSP.get("setupComplete");
+var eventKey = URLSP.get("eventKey") || localStorage.getItem("currentEventKey") || null;
+
 if (!eventKey) {
   const res = await isActiveEvent();
   eventKey = res.event.key;
@@ -107,9 +110,10 @@ function checkIsFormComplete(responses, questions) {
 }
 
 uploadBtn.addEventListener("click", async () => {
+  const offlineEnabled = localStorage.getItem("offlineQuestions") === "true";
   const finalData = {
     questions: {
-      data: retagResponses(responses, questions),
+      data: retagResponses(responses, questions, offlineEnabled),
       version: questionsVersion,
     },
     scoutID: JSON.parse(localStorage.getItem("userProfile"))?.id || -1,
@@ -147,6 +151,7 @@ qrBtn.addEventListener("click", () => {
   data = JSON.stringify({
     scoutID: userData?.id || -1,
     version: questionsVersion,
+    offlineEnabled: localStorage.getItem("offlineQuestions") === "true",
     data: responses,
   });
 
@@ -217,7 +222,7 @@ resetBtn.addEventListener("click", () => {
   }
 });
 
-async function init(params) {
+async function init() {
   const categories = document.querySelectorAll(".category");
   const offlineQuestions = localStorage.getItem("offlineQuestions");
   // if you don't like nested if's then you may want to avert your eyes
@@ -226,230 +231,242 @@ async function init(params) {
   if (forceRefresh) localStorage.removeItem("reloadQuestions");
 
   let cache = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
+  console.log(forceRefresh);
+  var failed = false;
 
   if (!cache || forceRefresh) {
     try {
       cache = await newEventCache(eventKey, () => questionDB("GET", null, forceRefresh ? { cache: "no-store" } : {}));
     } catch (e) {
       console.error("Failed to create event cache:", e);
-      popupError("No internet connection and previous data unavailable. no questions will be displayed.");
+      failed = true;
       return;
     }
   }
 
-  if (!cache?.questionsData?.data) {
+  if (!cache?.questionsData?.data || failed) {
     popupError("No internet connection and previous data unavailable. no questions will be displayed.");
     return;
   }
+  if (!failed && showSetupNotif) {
+    URLSP.delete("setupComplete");
+    history.replaceState(null, "", `${location.pathname}?${URLSP}`);
+    showPopup(true, "Ready for Offline", "You're all set!\nAdd this page to your home screen to be ready for game day <b>(share > more > add to home screen)</b>.\n\nIn the mean time, get used to the questions shown here. This prompt won't be shown again.");
+  }
 
   const data = cache.questionsData.data;
+  questionsVersion = cache.questionsData.version;
   questions = structuredClone(data); // long story on why this needs structuredclone.
 
   const categoryKeys = Object.keys(data);
-
-  const prevResponses = JSON.parse(localStorage.getItem("responses") || "{}");
-  if (Object.keys(prevResponses).length > 0) {
-    for (const category in prevResponses) {
-      prevResponses[category].forEach((question, i) => {
-        data[category][i].state = question;
-      });
+  try {
+    const prevResponses = JSON.parse(localStorage.getItem("responses") || "{}");
+    if (Object.keys(prevResponses).length > 0) {
+      for (const category in prevResponses) {
+        prevResponses[category].forEach((question, i) => {
+          data[category][i].state = question;
+        });
+      }
     }
-  }
 
-  categories.forEach((category) => {
-    const id = category.id;
-    const categoryFormElement = document.getElementById(category.id).querySelector(".form");
-    if (categoryKeys.includes(id)) {
-      const categoryData = data[id];
+    categories.forEach((category) => {
+      const id = category.id;
+      const categoryFormElement = document.getElementById(category.id).querySelector(".form");
+      if (categoryKeys.includes(id)) {
+        const categoryData = data[id];
 
-      responses[id] = []; // responses for this category
+        responses[id] = []; // responses for this category
 
-      categoryData.forEach((questionInfo, index) => {
-        const qType = questionInfo.type;
-        const element = newTemplateFromID(qType);
+        categoryData.forEach((questionInfo, index) => {
+          const qType = questionInfo.type;
+          const element = newTemplateFromID(qType);
 
-        element.dataset.questionIndex = index; // array position
+          element.dataset.questionIndex = index; // array position
 
-        const qHeader = element.querySelector("#question-header");
-        qHeader.textContent = questionInfo.header;
-        responses[id][index] = questionInfo.state;
+          const qHeader = element.querySelector("#question-header");
+          qHeader.textContent = questionInfo.header;
+          responses[id][index] = questionInfo.state;
 
-        if (questionInfo.offline == true) {
-          element.classList.add("offlineQuestion");
-        }
-        if (offlineQuestions === "false" && questionInfo.offline == true) {
-          element.style.display = "none";
-        }
+          if (questionInfo.offline == true) {
+            element.classList.add("offlineQuestion");
+          }
+          if (offlineQuestions === "false" && questionInfo.offline == true) {
+            element.style.display = "none";
+          }
 
-        const infoBtn = element.querySelector(".infobtn");
-        if (questionInfo.info) {
-          infoBtn.addEventListener("click", (e) => {
-            showPopup(true, questionInfo.info.header, questionInfo.info.body);
-          });
-        } else {
-          infoBtn.style.display = "none";
-        }
-
-        if (qType == "toggle") {
-          //toggle
-          const qText = element.querySelector("#question-text");
-          if (!questionInfo.text || questionInfo.text === "") {
-            qText.remove();
+          const infoBtn = element.querySelector(".infobtn");
+          if (questionInfo.info) {
+            infoBtn.addEventListener("click", (e) => {
+              showPopup(true, questionInfo.info.header, questionInfo.info.body);
+            });
           } else {
-            qText.textContent = questionInfo.text;
-          }
-          const checkbox = element.querySelector("input[type=checkbox]");
-          checkbox.id = `${id}-${index}-toggle`;
-          if (questionInfo.state) {
-            checkbox.checked = true;
+            infoBtn.style.display = "none";
           }
 
-          checkbox.addEventListener("change", (e) => {
-            updateResponse(e.target.id, e.target.checked);
-          });
-        } else if (qType == "dropdown") {
-          //dropdown
-          const placeholder = element.querySelector("#option-placeholder");
-          const select = element.querySelector("select");
-          select.id = `${id}-${index}-select`;
-
-          for (const optionIndex in questionInfo["dropdown-options"]) {
-            const option = placeholder.cloneNode(true);
-            option.textContent = questionInfo["dropdown-options"][optionIndex];
-            placeholder.parentNode.appendChild(option);
-          }
-          placeholder.textContent = questionInfo.state;
-
-          select.addEventListener("change", (e) => {
-            updateResponse(e.target.id, e.target.value);
-          });
-          select.value = questionInfo.state;
-        } else if (qType == "text" || qType == "textarea") {
-          //text inputs
-          const input = element.querySelector("#text");
-          input.id = `${id}-${index}-text`;
-          input.placeholder = questionInfo.placeholder;
-          input.value = questionInfo.state;
-
-          input.addEventListener("input", (e) => {
-            updateResponse(e.target.id, e.target.value);
-          });
-        } else if (qType == "counter") {
-          //counter
-          const count = element.querySelector("#count");
-          count.id = `${id}-${index}-count`;
-          count.value = questionInfo.state;
-          count.textContent = questionInfo.state;
-
-          const decrementBtn = element.querySelector('button[onclick*="decrementCounter"]');
-          const incrementBtn = element.querySelector('button[onclick*="incrementCounter"]');
-
-          if (decrementBtn) {
-            decrementBtn.setAttribute("onclick", `decrementCounter('${count.id}')`);
-          }
-          if (incrementBtn) {
-            incrementBtn.setAttribute("onclick", `incrementCounter('${count.id}')`);
-          }
-        } else if (qType == "slider") {
-          //slider
-          const slider = element.querySelector("#range");
-          const value = element.querySelector("#slider-value");
-          const min = element.querySelector("#min-label");
-          const max = element.querySelector("#max-label");
-
-          slider.id = `${id}-${index}-slider`;
-          value.id = `${id}-${index}-slider-value`;
-
-          slider.min = questionInfo.min;
-          slider.max = questionInfo.max;
-          slider.step = questionInfo.step;
-          slider.value = questionInfo.state;
-          value.textContent = questionInfo.state;
-          min.textContent = questionInfo["label-min"];
-          max.textContent = questionInfo["label-max"];
-
-          slider.addEventListener("input", (e) => {
-            value.textContent = e.target.value;
-            updateResponse(e.target.id, e.target.value);
-          });
-        } else if (qType == "timer") {
-          //timer
-          const timeInput = element.querySelector("#time");
-          timeInput.id = `${id}-${index}-time`;
-          timeInput.value = questionInfo.state;
-
-          const playPauseBtn = element.querySelector("#play-pause-btn");
-          const restartBtn = element.querySelector("#restart-btn");
-          const playPauseIcon = playPauseBtn.querySelector("ion-icon");
-
-          playPauseBtn.id = `${id}-${index}-play-pause`;
-          restartBtn.id = `${id}-${index}-restart`;
-
-          let isRunning = false;
-          let startTime = 0;
-          let elapsedTime = 0;
-          let intervalId = null;
-
-          playPauseBtn.addEventListener("click", () => {
-            if (isRunning) {
-              // pause
-              clearInterval(intervalId);
-              isRunning = false;
-              updateResponse(timeInput.id, (elapsedTime / 1000).toFixed(2));
-              playPauseIcon.setAttribute("name", "play");
+          if (qType == "toggle") {
+            //toggle
+            const qText = element.querySelector("#question-text");
+            if (!questionInfo.text || questionInfo.text === "") {
+              qText.remove();
             } else {
-              // play
-              startTime = Date.now() - elapsedTime;
-              intervalId = setInterval(() => {
-                elapsedTime = Date.now() - startTime;
-                const seconds = (elapsedTime / 1000).toFixed(2);
-                timeInput.value = seconds;
-                updateResponse(timeInput.id, seconds, true);
-              }, 10); //ms
-              isRunning = true;
-              playPauseIcon.setAttribute("name", "pause");
+              qText.textContent = questionInfo.text;
             }
-          });
+            const checkbox = element.querySelector("input[type=checkbox]");
+            checkbox.id = `${id}-${index}-toggle`;
+            if (questionInfo.state) {
+              checkbox.checked = true;
+            }
 
-          restartBtn.addEventListener("click", () => {
-            clearInterval(intervalId);
-            isRunning = false;
-            elapsedTime = 0;
-            timeInput.value = "0.00";
-            playPauseIcon.setAttribute("name", "play");
-            updateResponse(timeInput.id, "0.00");
-          });
+            checkbox.addEventListener("change", (e) => {
+              updateResponse(e.target.id, e.target.checked);
+            });
+          } else if (qType == "dropdown") {
+            //dropdown
+            const placeholder = element.querySelector("#option-placeholder");
+            const select = element.querySelector("select");
+            select.id = `${id}-${index}-select`;
 
-          timeInput.addEventListener("input", (e) => {
-            // this'll prob lag like hell so might have to change later
-            if (isRunning) {
+            for (const optionIndex in questionInfo["dropdown-options"]) {
+              const option = placeholder.cloneNode(true);
+              option.textContent = questionInfo["dropdown-options"][optionIndex];
+              placeholder.parentNode.appendChild(option);
+            }
+            placeholder.textContent = questionInfo.state;
+
+            select.addEventListener("change", (e) => {
+              updateResponse(e.target.id, e.target.value);
+            });
+            select.value = questionInfo.state;
+          } else if (qType == "text" || qType == "textarea") {
+            //text inputs
+            const input = element.querySelector("#text");
+            input.id = `${id}-${index}-text`;
+            input.placeholder = questionInfo.placeholder;
+            input.value = questionInfo.state;
+
+            input.addEventListener("input", (e) => {
+              updateResponse(e.target.id, e.target.value);
+            });
+          } else if (qType == "counter") {
+            //counter
+            const count = element.querySelector("#count");
+            count.id = `${id}-${index}-count`;
+            count.value = questionInfo.state;
+            count.textContent = questionInfo.state;
+
+            const decrementBtn = element.querySelector('button[onclick*="decrementCounter"]');
+            const incrementBtn = element.querySelector('button[onclick*="incrementCounter"]');
+
+            if (decrementBtn) {
+              decrementBtn.setAttribute("onclick", `decrementCounter('${count.id}')`);
+            }
+            if (incrementBtn) {
+              incrementBtn.setAttribute("onclick", `incrementCounter('${count.id}')`);
+            }
+          } else if (qType == "slider") {
+            //slider
+            const slider = element.querySelector("#range");
+            const value = element.querySelector("#slider-value");
+            const min = element.querySelector("#min-label");
+            const max = element.querySelector("#max-label");
+
+            slider.id = `${id}-${index}-slider`;
+            value.id = `${id}-${index}-slider-value`;
+
+            slider.min = questionInfo.min;
+            slider.max = questionInfo.max;
+            slider.step = questionInfo.step;
+            slider.value = questionInfo.state;
+            value.textContent = questionInfo.state;
+            min.textContent = questionInfo["label-min"];
+            max.textContent = questionInfo["label-max"];
+
+            slider.addEventListener("input", (e) => {
+              value.textContent = e.target.value;
+              updateResponse(e.target.id, Number(e.target.value));
+            });
+          } else if (qType == "timer") {
+            //timer
+            const timeInput = element.querySelector("#time");
+            timeInput.id = `${id}-${index}-time`;
+            timeInput.value = questionInfo.state;
+
+            const playPauseBtn = element.querySelector("#play-pause-btn");
+            const restartBtn = element.querySelector("#restart-btn");
+            const playPauseIcon = playPauseBtn.querySelector("ion-icon");
+
+            playPauseBtn.id = `${id}-${index}-play-pause`;
+            restartBtn.id = `${id}-${index}-restart`;
+
+            let isRunning = false;
+            let startTime = 0;
+            let elapsedTime = 0;
+            let intervalId = null;
+
+            playPauseBtn.addEventListener("click", () => {
+              if (isRunning) {
+                // pause
+                clearInterval(intervalId);
+                isRunning = false;
+                updateResponse(timeInput.id, (elapsedTime / 1000).toFixed(2));
+                playPauseIcon.setAttribute("name", "play");
+              } else {
+                // play
+                startTime = Date.now() - elapsedTime;
+                intervalId = setInterval(() => {
+                  elapsedTime = Date.now() - startTime;
+                  const seconds = (elapsedTime / 1000).toFixed(2);
+                  timeInput.value = seconds;
+                  updateResponse(timeInput.id, seconds, true);
+                }, 10); //ms
+                isRunning = true;
+                playPauseIcon.setAttribute("name", "pause");
+              }
+            });
+
+            restartBtn.addEventListener("click", () => {
               clearInterval(intervalId);
               isRunning = false;
+              elapsedTime = 0;
+              timeInput.value = "0.00";
               playPauseIcon.setAttribute("name", "play");
-            }
-            // oh lord idk here
-            const manualValue = parseFloat(e.target.value) || 0;
-            elapsedTime = manualValue * 1000;
-            updateResponse(e.target.id, e.target.value, true);
-          });
-        } else {
-          console.warn("missing case or element for type:", qType);
-        }
-        categoryFormElement.appendChild(element);
-        element.classList.remove("form-template");
-      });
-    }
-  });
-  //} catch (error) {
-  //  console.error("Could not fetch questions:", error);
-  //}
+              updateResponse(timeInput.id, "0.00");
+            });
+
+            timeInput.addEventListener("input", (e) => {
+              // this'll prob lag like hell so might have to change later
+              if (isRunning) {
+                clearInterval(intervalId);
+                isRunning = false;
+                playPauseIcon.setAttribute("name", "play");
+              }
+              // oh lord idk here
+              const manualValue = parseFloat(e.target.value) || 0;
+              elapsedTime = manualValue * 1000;
+              updateResponse(e.target.id, e.target.value, true);
+            });
+          } else {
+            console.warn("missing case or element for type:", qType);
+          }
+          categoryFormElement.appendChild(element);
+          element.classList.remove("form-template");
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Could not fetch questions:", error);
+  }
 }
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
-  init(); // DOM already ready, just run it
+  init();
 }
+
+window.back = function () {
+  location.href = `/HTML/event-frc.html?eventKey=${localStorage.getItem("currentEventKey")}`;
+};
 
 window.addEventListener("beforeunload", saveResponses);
 

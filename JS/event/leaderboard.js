@@ -13,7 +13,7 @@ export const LEADERBOARD_COLUMNS_OFFLINE = [
   { id: "ap-potential", label: "AP Potential" },
 ];
 
-export const LEADERBOARD_COLUMNS_SCOUTED = [];
+export const LEADERBOARD_COLUMNS_SCOUTED = [{ id: "avg-penalties", label: "Avg Penalties" }];
 export let LEADERBOARD_COLUMNS = useOnlineLeaderboardLayout ? [] : [...LEADERBOARD_COLUMNS_OFFLINE];
 
 async function initLeaderboard() {
@@ -42,7 +42,6 @@ async function reorganizeLeaderboardData() {
     const raw = await TBA_GET(`/event/${eventKey}/rankings`);
     if (!raw || !raw.rankings) return { columns: [], rows: [] };
 
-    // Build column list from what FIRST actually defines for this season
     const sortCols = (raw.sort_order_info ?? []).map((info, i) => ({
       id: `sort-${i}`,
       label: info.name,
@@ -58,10 +57,9 @@ async function reorganizeLeaderboardData() {
       source: "extra_stats",
       index: i,
     }));
-    // Scouted columns come last — you populate stats[col.id] yourself
+
     const columns = [...sortCols, ...extraCols, ...LEADERBOARD_COLUMNS_SCOUTED];
 
-    // Build a flat stats object per team
     const rows = raw.rankings.map((entry) => {
       const stats = { rank: entry.rank };
       sortCols.forEach((col) => {
@@ -80,7 +78,7 @@ async function reorganizeLeaderboardData() {
 
     return { columns, rows };
   } else {
-    const raw = await getDB(`/db?eventKey=2026mimil`) //  TODO: make this ${eventKey}
+    const raw = await getDB(`/db?eventKey=${eventKey}`)
       .then((res) => res.ok && res.json())
       .catch(() => null);
 

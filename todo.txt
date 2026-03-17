@@ -1,4 +1,27 @@
 delete me
 
+go through and edit all lines of code with TODO on them
+
+- only allow uploading to database when matches are active, so no idiot can mess up the data
+- make users unable to modify questions mid tournament
+- make some other metrics for the leaderboard (startpos) be retrieved by tba
 - logout when on questionnaire page
 - make the pwa the entire website and not jsut the questionnaire
+
+- question version changed. would you like to apply and reset form?
+
+- prevent duplicates, dont allow reupload
+
+- beached
+
+- duplicate responses on dropdowns bug
+
+- toggle + dropdown advanced 
+
+- humanplayer skill?
+
+- number only inputs
+
+- multiple checkboxes
+
+- notes section

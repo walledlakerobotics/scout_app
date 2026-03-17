@@ -1,6 +1,7 @@
-import { getUserTeam } from "./utils.js";
+import { getUserTeam, isAdmin } from "./utils.js";
 import { getUsers } from "./DB.js";
 const teamLabel = document.getElementById("team");
+const profileBtnGuest = document.getElementById("profileBtnGuest");
 
 const currentUserData = JSON.parse(localStorage.getItem("userProfile")) || null;
 if (currentUserData && currentUserData.name) {
@@ -15,9 +16,14 @@ if (currentUserData && currentUserData.name) {
   const users = await getUsers();
   const profileBtn = document.getElementById("profileBtn");
   const parentNode = profileBtn.parentNode;
+
   var delay = 0;
+  console.log(users);
+  //const isAdminSelect = ;
+  const adminMode = isAdmin();
   for (const user of users) {
-    if (user.team === userTeam) {
+    const match = adminMode ? user.role === "admin" : user.team === userTeam && user.role !== "admin";
+    if (match) {
       const thisBtn = profileBtn.cloneNode(true);
       thisBtn.style.display = "flex";
       thisBtn.textContent = `${user.name} →`;
@@ -33,6 +39,11 @@ if (currentUserData && currentUserData.name) {
     }
     delay += 80;
   }
-
-  teamLabel.textContent = `- ${userTeam} Scouters -`;
+  profileBtnGuest.addEventListener("click", () => {
+    const result = users.filter((item) => item.id === "-1");
+    localStorage.setItem("userProfile", JSON.stringify(result[0]));
+    console.log(result);
+    window.location = `../HTML/index.html`;
+  });
+  teamLabel.textContent = adminMode ? `- Head Scouts -` : `- ${userTeam} Scouters -`;
 })();

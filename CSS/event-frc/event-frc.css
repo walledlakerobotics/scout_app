@@ -164,14 +164,39 @@
   letter-spacing: 0.5px;
 }
 
+.team-search-input {
+  display: flex;
+
+  height: 50px;
+  border: var(--theme-main-border);
+  background-color: var(--theme-main-button);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  padding: 0 12px;
+  font-size: 15px;
+  text-align: center;
+  color: rgb(var(--theme-main-text));
+  flex: 1;
+  min-width: 6ch;
+  max-width: 16ch;
+  box-sizing: border-box;
+  transition: all 0.2s ease-out;
+  font-family: inherit;
+}
+
+.team-search-input::placeholder {
+  color: rgba(var(--theme-main-rgb), 0.4);
+}
+
+.team-search-input:focus {
+  border-color: rgba(var(--theme-main-rgb), 0.6);
+  border-radius: 15px;
+  max-width: 22ch;
+}
+
 .scout-btns button:not(:disabled):hover,
 .main-button:not(.scroll-btn):not(:disabled):hover {
   letter-spacing: 1px;
-}
-
-button:disabled {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
 }
 
 /* qr popup? im so sorry lmao */
@@ -322,6 +347,22 @@ button:disabled {
   align-items: center;
   justify-content: center;
 }
+
+/* other popup */
+
+.noInfoPopup {
+  z-index: 123123;
+  width: fit-content;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: 50%;
+  left: 50%;
+  padding: 15px;
+  gap: 10px;
+  transform: translateX(-50%) translateY(-50%);
+}
+
 /* media */
 
 @media (max-width: 550px) {
@@ -350,6 +391,11 @@ button:disabled {
   }
 }
 
+@media (min-width: 1000px) {
+  .body-section {
+    max-width: 700px;
+  }
+}
 @media (max-width: 870px) {
   .body-left {
     display: none;

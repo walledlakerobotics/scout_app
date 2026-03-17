@@ -157,7 +157,7 @@ a {
   backdrop-filter: blur(20px);
   border-radius: 12px;
   cursor: pointer;
-
+  position: relative;
   padding: 0;
   aspect-ratio: 1;
   transition: all 0.2s ease-out;
@@ -170,12 +170,20 @@ a {
 }
 
 .mini-btn ion-icon {
-  position: fixed;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.mini-btn {
+  overflow: hidden;
 }
 
 ion-icon,
 .ionicon {
+  max-width: 60%;
+  max-height: 60%;
   width: 60%;
   height: 60%;
   color: var(--theme-main-text);
@@ -270,6 +278,11 @@ ion-icon svg {
 
 .striped-bg-img {
   background-image: var(--striped-bg-img);
+}
+
+button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
 }
 
 @media (max-height: 750px) {

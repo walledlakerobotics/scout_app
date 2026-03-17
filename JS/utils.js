@@ -1,5 +1,7 @@
-// offline usage w/ qr codes: https://qr.15c.me/qr.html
 // ONCE PUBLISHED TO WEBSITE ALL CLOUDFLARE WORKERS MUST BE MOVED TO AN OFFICIAL ACCOUNT
+
+import { questionDB } from "/JS/DB.js";
+import { getDB } from "/JS/DB.js";
 
 export async function TBA_GET(endpoint) {
   // fetch the blue alliance with cloudflare auth worker
@@ -12,6 +14,10 @@ export async function TBA_GET(endpoint) {
     // network error? i think
     return false;
   }
+}
+
+export function isAdmin() {
+  return localStorage.getItem("isAdmin") === "true";
 }
 
 export function getUserTeam() {
@@ -86,7 +92,7 @@ export async function isActiveEvent() {
   };
 }
 
-export function retagResponses(untaggedResponses, questions) {
+export function retagResponses(untaggedResponses, questions, offlineEnabled = true) {
   if (!questions) {
     return null;
   }
@@ -101,9 +107,10 @@ export function retagResponses(untaggedResponses, questions) {
     const categoryQuestions = questions[categoryId];
 
     untaggedResponses[categoryId].forEach((value, index) => {
-      if (categoryQuestions[index] && categoryQuestions[index].id) {
-        const questionId = categoryQuestions[index].id;
-        retaggedResponses[categoryId][questionId] = value;
+      const q = categoryQuestions[index];
+      if (q && q.id) {
+        if (!offlineEnabled && q.offline === true) return;
+        retaggedResponses[categoryId][q.id] = value;
       }
     });
   }
@@ -112,11 +119,7 @@ export function retagResponses(untaggedResponses, questions) {
 }
 
 export async function newEventCache(eventKey, questionsFetcher) {
-  let [mData, eventDetails, questionsData] = await Promise.all([
-    TBA_GET(`/event/${eventKey}/matches`),
-    TBA_GET(`/event/${eventKey}`),
-    questionsFetcher ? questionsFetcher() : Promise.resolve(null),
-  ]);
+  let [mData, eventDetails, questionsData, scoutedData] = await Promise.all([TBA_GET(`/event/${eventKey}/matches`), TBA_GET(`/event/${eventKey}`), questionsFetcher ? questionsFetcher() : questionDB("GET"), getDB(`/db?eventKey=${eventKey}`)]);
 
   if (mData && mData.length !== 0) {
     mData.sort((a, b) => {
@@ -132,11 +135,19 @@ export async function newEventCache(eventKey, questionsFetcher) {
   }
 
   const lastUpdated = new Date().getTime();
-  const cache = { mData, eventDetails, lastUpdated, questionsData };
+  const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData: scoutedData.data };
   localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
+  localStorage.setItem("currentEventKey", eventKey);
   return cache;
 }
-//logout saved to window for access in HTML
+
+window.reloadPage = function () {
+  const eventKey = localStorage.getItem("currentEventKey");
+  const CACHE_KEY = `eventCache_${eventKey}`;
+  localStorage.removeItem(CACHE_KEY);
+  location.reload();
+};
+
 window.logout = () => {
   localStorage.removeItem("scoutingAuthToken");
   localStorage.removeItem("userProfile");

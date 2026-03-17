@@ -1,4 +1,4 @@
-import { questionDB } from "./DB.js";
+import { questionDB } from "/JS/DB.js";
 const editJsonBtn = document.getElementById("editJsonBtn");
 const jsonEdit = document.querySelector(".json-edit");
 const jsonInput = document.getElementById("jsonInput");

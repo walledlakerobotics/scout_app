@@ -55,7 +55,7 @@
       <div class="category-container">
         <div class="category" id="prematch">
           <div class="descriptor">
-            <h2>Prematch</h2>
+            <h2 class="category-title">Prematch</h2>
           </div>
           <div class="form-wrapper">
             <div class="form">
@@ -114,7 +114,7 @@
         </div>
         <div class="category" id="autonomous">
           <div class="descriptor">
-            <h2>Autonomous</h2>
+            <h2 class="category-title">Autonomous</h2>
           </div>
           <div class="form-wrapper">
             <div class="form">
@@ -185,7 +185,7 @@
         </div>
         <div class="category" id="teleop">
           <div class="descriptor">
-            <h2>Teleop</h2>
+            <h2 class="category-title">Teleop</h2>
           </div>
           <div class="form-wrapper">
             <div class="form"></div>
@@ -193,7 +193,7 @@
         </div>
         <div class="category" id="endgame">
           <div class="descriptor">
-            <h2>Endgame</h2>
+            <h2 class="category-title">Endgame</h2>
           </div>
           <div class="form-wrapper">
             <div class="form"></div>
@@ -201,7 +201,7 @@
         </div>
         <div class="category" id="postmatch">
           <div class="descriptor">
-            <h2>Postmatch</h2>
+            <h2 class="category-title">Postmatch</h2>
           </div>
           <div class="form-wrapper">
             <div class="form"></div>
@@ -209,7 +209,7 @@
         </div>
         <div class="category" id="submit">
           <div class="descriptor">
-            <h2>Submit</h2>
+            <h2 class="category-title">Submit</h2>
           </div>
           <div class="form-wrapper">
             <div class="form" style="gap: 10px">
@@ -222,7 +222,7 @@
                 <ion-icon name="qr-code-outline"></ion-icon>
                 Upload Via QR Code
               </button>
-              <button id="resetBtn" disabled class="form-btn">
+              <button id="resetBtn" class="form-btn">
                 <ion-icon name="reload"></ion-icon>
                 Reset Form
               </button>
@@ -264,9 +264,8 @@
         </div>
       </div>
     </div>
-
     <div class="footer">
-      <button class="mini-btn fb" onclick="history.back()">
+      <button class="mini-btn fb" onclick="back()">
         <ion-icon name="arrow-back-circle-outline"></ion-icon>
       </button>
       <a href="https://github.com/walledlakerobotics/walledlakerobotics.github.io">

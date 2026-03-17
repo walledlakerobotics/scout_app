@@ -11,6 +11,7 @@ const nextPageBtn = document.getElementById("nextPageBtn");
 const bodyLeft = document.querySelector(".body-left");
 const bodyRight = document.querySelector(".body-right");
 
+const noDice = document.querySelector(".noInfoPopup");
 const scrollBtn = document.querySelector(".scroll-btn");
 
 var inspectedMatch = null;
@@ -93,10 +94,14 @@ async function renderMatches(mData) {
 
     const actionBtn = matchEl.querySelector("#action-btn");
 
-    actionBtn.addEventListener("click", () => {
+    actionBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       if (!actionBtn.classList.contains("hidden")) {
-        //&& !isCompleted
-        location.href = `../HTML/scout.html?eventKey=${eventKey}&matchKey=${match.key}`;
+        if (isCompleted) {
+          location.href = `/HTML/inspect.html?type=match&key=${match.key}`;
+        } else {
+          location.href = `../HTML/scout.html?eventKey=${eventKey}&matchKey=${match.key}`;
+        }
       }
     });
 
@@ -113,9 +118,8 @@ async function renderMatches(mData) {
       inspectedMatch = match;
       if (!isCompleted) {
         actionBtn.innerHTML = `
-        <ion-icon class="ionicon" name="open-outline"></ion-icon> Inspect This Match`;
+        <ion-icon class="ionicon" name="open-outline"></ion-icon> Scout This Match`;
       } else {
-        location.href = `/HTML/inspect.html?type=match&key=${match.key}`;
         actionBtn.innerHTML = `
         <ion-icon class="ionicon" name="open-outline"></ion-icon> Review this match`;
       }
@@ -123,13 +127,7 @@ async function renderMatches(mData) {
 
     lastMatchCompleted = isCompleted;
     matchEl.id = `match-${match.key}`;
-    matchEl.classList.add("hidden");
     matchtemplate.parentNode.appendChild(matchEl);
-
-    delay += 13;
-    setTimeout(() => {
-      matchEl.classList.remove("hidden");
-    }, delay);
   }
   matchtemplate.classList.add("hidden"); // dont delete for refreshing w/o fetches
 }
@@ -179,6 +177,10 @@ document.addEventListener("DOMContentLoaded", () => {
       slot.textContent = "No Position";
     }
 
+    if (!mData || mData.length === 0) {
+      noDice.classList.remove("hidden");
+    }
+
     renderMatches(mData);
     loadLeaderboard();
   })();
@@ -188,10 +190,28 @@ scrollBtn.addEventListener("click", () => {
   document.querySelector(".match-theme-active")?.scrollIntoView({ block: "center", behavior: "smooth" });
 });
 
-window.reloadPage = function () {
-  localStorage.removeItem(CACHE_KEY);
-  location.reload();
-};
+const teamSearchInput = document.getElementById("team-search");
+
+function search() {
+  const query = teamSearchInput.value.trim();
+  const matchEls = document.querySelectorAll(".match:not(#ml-template)");
+  matchEls.forEach((matchEl) => {
+    if (!query) {
+      matchEl.style.display = "";
+      return;
+    }
+    const teams = matchEl.querySelectorAll("#m-blue th, #m-red th");
+    const found = Array.from(teams).some((th) => th.textContent == query);
+    matchEl.style.display = found ? "" : "none";
+  });
+}
+
+teamSearchInput.addEventListener("input", search);
+teamSearchInput.addEventListener("focus", () => {
+  setTimeout(() => {
+    search();
+  }, 50);
+});
 
 offlineScoutBtn.onclick = function () {
   location.href = `../HTML/scout.html?status=offline&eventKey=${eventKey}`;

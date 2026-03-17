@@ -39,11 +39,10 @@ async function verify(code) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
     });
-
     const data = await response.json();
-
     if (data.success) {
       localStorage.setItem("scoutingAuthToken", data.token); // Changed to localStorage
+      localStorage.setItem("isAdmin", data.isAdmin ? "true" : "false");
       window.location = "../HTML/profiles.html";
       //done
     } else {

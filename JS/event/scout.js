@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-function showPopup(state, title, msg, autoSize) {
+export function showPopup(state, title, msg, autoSize) {
   autoSize = false; // keep this off
   if (autoSize) {
     popupElipsis.style.display = "none";
@@ -91,9 +91,9 @@ function handleResize() {
 
 function updateItemsPerPage() {
   const width = window.innerWidth;
-  if (width <= 640) {
+  if (width <= 700) {
     itemsPerPage = 1;
-  } else if (width <= 960) {
+  } else if (width <= 1150) {
     itemsPerPage = 2;
   } else {
     itemsPerPage = 3;
@@ -153,6 +153,10 @@ function prevPage() {
     showCurrentPage();
   }
 }
+
+window.back = function () {
+  location.href = `/HTML/event-frc.html?eventKey=${localStorage.getItem("currentEventKey")}`;
+};
 
 //stupid stupid stupid
 document.addEventListener(

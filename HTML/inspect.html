@@ -3,6 +3,7 @@
 <head>
   <link rel="stylesheet" type="text/css" href="../CSS/global.css" />
   <link rel="stylesheet" type="text/css" href="../CSS/event-frc/event-frc.css" />
+  <link rel="stylesheet" type="text/css" href="../CSS/event-frc/inspect.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
@@ -29,15 +30,99 @@
         </button>
       </div>
     </div>
-    <div class="text-container"></div>
+    <div class="text-container">
+      <div class="match-team-select" style="display: flex; gap: 10px; align-items: center">
+        <button class="mini-btn" id="swap-left">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </button>
+        <div style="display: flex; flex-direction: column; flex-wrap: wrap">
+          <h2 style="margin: 0" id="team-label">Blue 2</h2>
+          <p style="margin: 0; opacity: 0.8">Click to change</p>
+        </div>
+        <button class="mini-btn" id="swap-right">
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="inspect-panel">
+        <div class="inspect-team">
+          <div class="team-hero">
+            <div class="hero-team-id" style="flex-direction: row; gap: 15px">
+              <img
+                class="team-logo"
+                id="team-logo"
+                style="filter: none"
+                onerror="
+                  this.onerror = null;
+                  this.classList.add('no-logo');
+                  this.src = '../Img/Noicon_mono.png';
+                "
+              />
+              <div>
+                <p class="hero-team-number" id="team-number">1234</p>
+                <p class="hero-team-name" id="team-name">Team</p>
+              </div>
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <p class="hero-stat-val" id="hero-rank">—</p>
+                <p class="hero-stat-lbl">Rank</p>
+              </div>
+              <div class="hero-stat hide1">
+                <p class="hero-stat-val green" id="hero-winrate">—</p>
+                <p class="hero-stat-lbl">Winrate</p>
+              </div>
+              <div class="hero-stat">
+                <p class="hero-stat-val green" id="hero-scouter">—</p>
+                <p class="hero-stat-lbl">Scouted By</p>
+              </div>
+              <div class="hero-stat hide2">
+                <p class="hero-stat-val blue" id="hero-startpos">—</p>
+                <p class="hero-stat-lbl">Usual Start</p>
+              </div>
+            </div>
+          </div>
+          <div class="team-sections">
+            <div class="section-card template" id="section-card">
+              <div class="section-header">
+                <ion-icon name="flash-outline"></ion-icon>
+                Autonomous
+              </div>
+              <div class="section-stats">
+                <div class="stat-row template" id="stat-bar-template">
+                  <span class="stat-label">Moved</span>
+                  <div class="stat-bar-wrap">
+                    <div class="stat-bar-label-row">
+                      <span>89%</span>
+                      <span class="minmax" style="opacity: 0.4">8/9</span>
+                    </div>
+                    <div class="stat-bar">
+                      <div class="stat-bar-fill high" style="width: 89%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stat-row" id="stat-pill-template">
+                  <span class="stat-label">Usual Refuel</span>
+                  <span class="stat-pill neutral">Depot · 56%</span>
+                </div>
+                <div class="stat-row" id="stat-txt-template">
+                  <span class="stat-label">Label</span>
+                  <span class="stat-txt neutral">Loooooooong text</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <pre class="inspect-footer-note">Outcomes are displayed as [Result] · [Result Frequency]</pre>
+      </div>
+    </div>
 
     <footer>
       <div class="footer">
-        <a href="https://walledlakerobotics.com">
-          <button class="mini-btn">
-            <ion-icon name="arrow-back-circle-outline"></ion-icon>
-          </button>
-        </a>
+        <button class="mini-btn" onclick="history.back()">
+          <ion-icon name="arrow-back-circle-outline"></ion-icon>
+        </button>
         <a href="https://github.com/walledlakerobotics/walledlakerobotics.github.io">
           <button class="mini-btn">
             <ion-icon name="logo-github"></ion-icon>
@@ -53,7 +138,6 @@
           <ion-icon name="log-out-outline" style="color: rgb(255, 0, 0)"></ion-icon>
         </button>
       </div>
-      <p class="tc-formatted">© 2026 Walled Lake Robotics</p>
     </footer>
   </div>
   <script type="module" src="../JS/utils.js"></script>

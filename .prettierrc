@@ -2,7 +2,7 @@
   "tabWidth": 2,
   "useTabs": false,
 
-  "printWidth": 700,
+  "printWidth": 500,
 
   "semi": true,
   "singleQuote": false,

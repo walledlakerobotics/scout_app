@@ -38,9 +38,7 @@
         <div class="descriptor">
           <h1 id="lb-header">- Teams</h1>
           <div class="filter-container">
-            <div class="lb-filter" id="lb-filter">
-              <!-- Filter buttons are injected by leaderboard.js from LEADERBOARD_COLUMNS -->
-            </div>
+            <div class="lb-filter" id="lb-filter"></div>
             <button class="lb-next-btn" id="lb-next-btn" title="Next sort column">
               <ion-icon name="chevron-forward-outline"></ion-icon>
             </button>
@@ -82,12 +80,13 @@
       <div class="body-section body-right">
         <div class="bsr bsr-top">
           <div class="descriptor" style="gap: 10px">
-            <h1 style="white-space: nowrap">Match Data</h1>
+            <h1 style="white-space: nowrap">Matches</h1>
             <div style="display: flex; gap: 5px">
               <button class="main-button scroll-btn">
                 <ion-icon name="arrow-down-outline"></ion-icon>
-                Scroll to Live Match
+                Live Match
               </button>
+              <input class="team-search-input" id="team-search" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Search #" onclick="this.value = ''" />
               <button class="mini-btn btn-disabled" id="filter-btn" disabled>
                 <ion-icon name="filter-outline"></ion-icon>
               </button>
@@ -181,6 +180,10 @@
           Upload to Cloud
         </button>
       </div>
+    </div>
+    <div class="noInfoPopup themed-frosted hidden">
+      <h1 style="margin: 0">No Dice</h1>
+      <p style="margin: 0">It doesn't look like there's public data for this tournament yet. Try waiting a few minutes then retry — if nothing shows after 3 or so matches, then notify a developer.</p>
     </div>
     <div class="footer">
       <a href="../HTML/index.html">
