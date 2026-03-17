@@ -127,13 +127,7 @@ async function renderMatches(mData) {
 
     lastMatchCompleted = isCompleted;
     matchEl.id = `match-${match.key}`;
-    matchEl.classList.add("hidden");
     matchtemplate.parentNode.appendChild(matchEl);
-
-    delay += 13;
-    setTimeout(() => {
-      matchEl.classList.remove("hidden");
-    }, delay);
   }
   matchtemplate.classList.add("hidden"); // dont delete for refreshing w/o fetches
 }
@@ -197,7 +191,8 @@ scrollBtn.addEventListener("click", () => {
 });
 
 const teamSearchInput = document.getElementById("team-search");
-teamSearchInput.addEventListener("input", () => {
+
+function search() {
   const query = teamSearchInput.value.trim();
   const matchEls = document.querySelectorAll(".match:not(#ml-template)");
   matchEls.forEach((matchEl) => {
@@ -209,6 +204,13 @@ teamSearchInput.addEventListener("input", () => {
     const found = Array.from(teams).some((th) => th.textContent == query);
     matchEl.style.display = found ? "" : "none";
   });
+}
+
+teamSearchInput.addEventListener("input", search);
+teamSearchInput.addEventListener("focus", () => {
+  setTimeout(() => {
+    search();
+  }, 50);
 });
 
 offlineScoutBtn.onclick = function () {
