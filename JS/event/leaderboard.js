@@ -13,8 +13,11 @@ export const LEADERBOARD_COLUMNS_OFFLINE = [
   { id: "ap-potential", label: "AP Potential" },
 ];
 
-export const LEADERBOARD_COLUMNS_SCOUTED = [{ id: "avg-penalties", label: "Avg Penalties" }];
-export let LEADERBOARD_COLUMNS = useOnlineLeaderboardLayout ? [] : [...LEADERBOARD_COLUMNS_OFFLINE];
+export const LEADERBOARD_COLUMNS_SCOUTED = [
+  { id: "elo", label: "ELO" },
+  { id: "israeliness", label: "Is This Team From Israel?" },
+];
+export let LEADERBOARD_COLUMNS = [];
 
 async function initLeaderboard() {
   //check for stale data in the api, ask to fallback to scouted data only if last valid match is over 30m ago or there is no matches completed at all
@@ -58,7 +61,7 @@ async function reorganizeLeaderboardData() {
       index: i,
     }));
 
-    const columns = [...sortCols, ...extraCols, ...LEADERBOARD_COLUMNS_SCOUTED];
+    const tbaColumns = [...sortCols, ...extraCols];
 
     const rows = raw.rankings.map((entry) => {
       const stats = { rank: entry.rank };
@@ -76,7 +79,7 @@ async function reorganizeLeaderboardData() {
       return { teamKey: entry.team_key, stats };
     });
 
-    return { columns, rows };
+    return { tbaColumns, scoutedColumns: LEADERBOARD_COLUMNS_SCOUTED, rows };
   } else {
     const raw = await getDB(`/db?eventKey=${eventKey}`)
       .then((res) => res.ok && res.json())
@@ -84,7 +87,7 @@ async function reorganizeLeaderboardData() {
 
     const scoutedData = raw?.data;
     const questionLayout = raw?.questions; // to get the names of the categories n stuff
-    return { columns: LEADERBOARD_COLUMNS_OFFLINE, rows: [] };
+    return { tbaColumns: LEADERBOARD_COLUMNS_OFFLINE, scoutedColumns: LEADERBOARD_COLUMNS_SCOUTED, rows: [] };
   }
 }
 
@@ -191,26 +194,43 @@ export async function loadLeaderboard() {
     return;
   }
 
-  const { columns, rows } = await reorganizeLeaderboardData();
+  const { tbaColumns, scoutedColumns, rows } = await reorganizeLeaderboardData();
 
-  document.getElementById("lb-header").textContent = `${rows.length || "0"} Teams`;
+  const lbSets = [
+    { label: "TBA", columns: tbaColumns },
+    { label: "HERE", columns: scoutedColumns },
+  ];
+  let currentLbIndex = 0;
 
-  LEADERBOARD_COLUMNS.length = 0;
-  columns.forEach((c) => LEADERBOARD_COLUMNS.push(c));
+  function renderLb() {
+    // clear rows
+    teamList.querySelectorAll(".team:not(.template)").forEach((el) => el.remove());
 
-  // trigger UI to rebuild with the real column list
-  document.dispatchEvent(new CustomEvent("lb-columns-ready"));
+    const { label, columns } = lbSets[currentLbIndex];
+    document.getElementById("lb-header").textContent = label;
 
-  // render rows in rank order (TBA already sorts them, but just in case)
-  rows
-    .sort((a, b) => (a.stats.rank ?? 0) - (b.stats.rank ?? 0))
-    .forEach(({ teamKey, stats }) => {
-      const number = teamKey.replace("frc", "");
-      createTeam(number, stats, columns);
-    });
+    LEADERBOARD_COLUMNS.length = 0;
+    columns.forEach((c) => LEADERBOARD_COLUMNS.push(c));
+    document.dispatchEvent(new CustomEvent("lb-columns-ready"));
+
+    rows
+      .sort((a, b) => (a.stats.rank ?? 0) - (b.stats.rank ?? 0))
+      .forEach(({ teamKey, stats }) => {
+        const number = teamKey.replace("frc", "");
+        createTeam(number, stats, columns);
+      });
+
+    console.warn("Leaderboard rendered:", label, columns);
+  }
+
+  document.getElementById("nextLbBtn").addEventListener("click", () => {
+    currentLbIndex = (currentLbIndex + 1) % lbSets.length;
+    renderLb();
+  });
+
+  renderLb();
 
   template.classList.add("hidden");
-  console.warn("Leaderboard successfully populated:", columns, rows);
 }
 
 document.addEventListener("lb-sort-change", ({ detail }) => {

@@ -1,7 +1,28 @@
+.lb-header-div {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 157px;
+  gap: 10px;
+  height: 100%;
+  background-color: transparent;
+  outline: none;
+  padding: 5px 15px;
+}
+
+.lb-header-div ion-icon {
+  height: 24px;
+  width: 24px;
+  aspect-ratio: 1;
+}
+
 #lb-header {
   display: flex;
-  min-width: 157px;
-  justify-content: center;
+  font-size: clamp(15px, 7cqi, 25px);
+  line-height: 0.95;
+  text-align: center;
   align-items: center;
 }
 
@@ -119,7 +140,7 @@
   transition: background-color 0.15s ease;
   overflow: hidden;
   min-width: 0;
-  line-height: 0.95;
+  line-height: 1;
 }
 
 .filter-option:is(.active) {
