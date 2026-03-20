@@ -140,7 +140,7 @@
   transition: background-color 0.15s ease;
   overflow: hidden;
   min-width: 0;
-  line-height: 1;
+  line-height: 1.12;
 }
 
 .filter-option:is(.active) {

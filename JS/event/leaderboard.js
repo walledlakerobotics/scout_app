@@ -15,7 +15,7 @@ export const LEADERBOARD_COLUMNS_OFFLINE = [
 
 export const LEADERBOARD_COLUMNS_SCOUTED = [
   { id: "elo", label: "ELO" },
-  { id: "israeliness", label: "Is This Team From Israel?" },
+  { id: "coolness", label: "Is This Team Cool?" },
 ];
 export let LEADERBOARD_COLUMNS = [];
 
@@ -42,8 +42,11 @@ initLeaderboard();
 
 async function reorganizeLeaderboardData() {
   if (useOnlineLeaderboardLayout) {
-    const raw = await TBA_GET(`/event/${eventKey}/rankings`);
+    var evRaw = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)) ?? {};
+    const raw = evRaw.rankings ? evRaw.rankings : await TBA_GET(`/event/${eventKey}/rankings`);
     if (!raw || !raw.rankings) return { columns: [], rows: [] };
+    evRaw.rankings = raw;
+    localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(evRaw));
 
     const sortCols = (raw.sort_order_info ?? []).map((info, i) => ({
       id: `sort-${i}`,
@@ -74,16 +77,14 @@ async function reorganizeLeaderboardData() {
         stats[col.id] = val != null ? +val.toFixed(col.precision) : "-";
       });
       LEADERBOARD_COLUMNS_SCOUTED.forEach((col) => {
-        stats[col.id] = "-"; // TODO: fill from your scouted DB
+        stats[col.id] = Math.random() * 5000; // TODO: fill from your scouted DB
       });
       return { teamKey: entry.team_key, stats };
     });
 
     return { tbaColumns, scoutedColumns: LEADERBOARD_COLUMNS_SCOUTED, rows };
   } else {
-    const raw = await getDB(`/db?eventKey=${eventKey}`)
-      .then((res) => res.ok && res.json())
-      .catch(() => null);
+    const raw = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).eventDetails;
 
     const scoutedData = raw?.data;
     const questionLayout = raw?.questions; // to get the names of the categories n stuff
