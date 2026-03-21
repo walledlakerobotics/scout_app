@@ -305,17 +305,58 @@ function clearStats() {
     .forEach((el) => el.remove());
 }
 
+const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData ?? [];
+
+function renderMatchButtons(teamNum, submissions) {
+  const container = document.getElementById("others-container");
+  const teamAvgBtn = container.querySelector(".btn-template");
+
+  container.querySelectorAll("button:not(.btn-template)").forEach((el) => el.remove());
+
+  if (isAvgMode) {
+    teamAvgBtn.style.display = "none";
+  } else {
+    teamAvgBtn.style.display = "";
+    teamAvgBtn.classList.add("ta");
+    teamAvgBtn.onclick = () => {
+      location.href = `inspect.html?type=team&key=${teamNum}`;
+    };
+  }
+
+  if (!submissions?.length) return;
+
+  const teamKeyFull = `frc${teamNum}`;
+  for (const submission of submissions) {
+    const matchNum = submission.match?.value;
+    if (!matchNum) continue;
+
+    const matchEntry = mData.find((m) => m.match_number == matchNum && m.comp_level === "qm") ?? mData.find((m) => m.match_number == matchNum);
+    const matchKey = matchEntry?.key ?? `${eventKey}_qm${matchNum}`;
+    const matchWinner = matchEntry?.winning_alliance;
+    const teamAlliance = matchEntry?.alliances.blue.team_keys.includes(teamKeyFull) ? "blue" : "red";
+
+    const btn = document.createElement("button");
+    btn.textContent = `Match #${matchNum}`;
+    btn.className = "main-button striped-bg-img";
+    if (matchWinner && matchWinner !== "") {
+      btn.classList.add(matchWinner === teamAlliance ? "won" : "lost");
+    }
+    btn.addEventListener("click", () => {
+      location.href = `inspect.html?type=match&key=${matchKey}`;
+    });
+    container.appendChild(btn);
+  }
+}
+
 if (inspectType == "team") {
   const { data: teamData, scouter } = await getTeamData(inspectKey);
   console.log(teamData);
   loadHero(inspectKey, teamData, scouter?.name);
-  if (teamData) {
-    renderStats(teamData);
-  }
+  if (teamData) renderStats(teamData);
   mts.style.display = "none";
+  renderMatchButtons(inspectKey, matchesScouted);
 } else {
   mts.style.display = "flex";
-  const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData ?? [];
   const match = mData.find((m) => m.key == inspectKey);
   const matchNumber = match?.match_number?.toString();
 
@@ -331,10 +372,12 @@ if (inspectType == "team") {
     document.getElementById("hero-startpos").textContent = "—";
     document.getElementById("team-name").textContent = "Team";
     clearStats();
+    renderMatchButtons(teamNum, null); // clear while loading
 
     const { data: teamData, scouter } = await getTeamData(teamNum, matchNumber);
     loadHero(teamNum, teamData, scouter?.name);
     if (teamData) renderStats(teamData);
+    renderMatchButtons(teamNum, matchesScouted);
   }
 
   document.getElementById("swap-left").addEventListener("click", () => {
@@ -354,31 +397,9 @@ if (!eventKey) {
   location.href = "/HTML/index.html?msg=Yeahhh%20idk%20either";
 }
 
+window.back = function () {
+  location.href = `/HTML/event-frc.html?eventKey=${eventKey}`;
+};
+
 inspectTypeElement.textContent = inspectKey;
-
-eventTitle.textContent = `${eventDetails.year} ${eventDetails.district?.abbreviation?.toUpperCase() || eventDetails.short_name} ${eventDetails.short_name} Event`; //.textContent = `${inspectType} ${inspectKey}`;
-const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).mData;
-const template = document.querySelector(".btn-template");
-
-for (const matchIndex in matchesScouted) {
-  const matchNum = matchesScouted[matchIndex].match.value;
-  const dupe = template.cloneNode(true);
-  const matchWinner = mData[matchIndex - 1]?.winning_alliance; // TODO: This won't work offline
-  const teamAlliance = mData[matchIndex - 1]?.alliances.blue.team_keys.includes(`frc${inspectKey}`) ? "blue" : "red";
-  dupe.textContent = `Match #${matchNum}`;
-  dupe.classList.remove("btn-template");
-  if (matchWinner === "") {
-    //keep gray
-  } else if (matchWinner === teamAlliance) {
-    dupe.classList.add("won");
-  } else {
-    dupe.classList.add("lost");
-  }
-  template.parentNode.appendChild(dupe);
-}
-template.classList.add("ta");
-for (const el of template.parentNode.children) {
-  if (!el.classList.contains("btn-template")) {
-    //el.remove(); fix, only call when changing teams
-  }
-}
+eventTitle.textContent = `${eventDetails.year} ${eventDetails.district?.abbreviation?.toUpperCase() || eventDetails.short_name} ${eventDetails.short_name} Event`;
