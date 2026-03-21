@@ -13,9 +13,11 @@ export const LEADERBOARD_COLUMNS_OFFLINE = [
   { id: "ap-potential", label: "AP Potential" },
 ];
 
+// for this category, ids mean the question id that it'll try to get the info from
 export const LEADERBOARD_COLUMNS_SCOUTED = [
-  { id: "elo", label: "ELO" },
-  { id: "coolness", label: "Is This Team Cool?" },
+  { id: "broke", label: "Bot Reliability" },
+  { id: "accuracy", label: "Bot Accuracy" },
+  { id: "scored", label: "Auton Scored" },
 ];
 export let LEADERBOARD_COLUMNS = [];
 
@@ -66,6 +68,8 @@ async function reorganizeLeaderboardData() {
 
     const tbaColumns = [...sortCols, ...extraCols];
 
+    const eventData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
+
     const rows = raw.rankings.map((entry) => {
       const stats = { rank: entry.rank };
       sortCols.forEach((col) => {
@@ -77,7 +81,21 @@ async function reorganizeLeaderboardData() {
         stats[col.id] = val != null ? +val.toFixed(col.precision) : "-";
       });
       LEADERBOARD_COLUMNS_SCOUTED.forEach((col) => {
-        stats[col.id] = Math.random() * 5000; // TODO: fill from your scouted DB
+        //scoutedDataPTAvgs(Flat) is a thing so i can ez yoink it straight from there
+        const teamID = entry.team_key.slice(3);
+        try {
+          const res = eventData.scoutedDataPTAvgsFlat[teamID][col.id];
+          var out = res.value;
+          if (res.yesRate !== undefined) {
+            // boolean question: always use yesRate so higher = more yesses
+          } else if (typeof out === "string") {
+            out = `${res.value} (${Math.round(res.frequency * 100)}%)`;
+          }
+        } catch {
+          console.error(eventData.scoutedDataPTAvgsFlat[teamID], col.id);
+        }
+
+        stats[col.id] = out;
       });
       return { teamKey: entry.team_key, stats };
     });
@@ -237,7 +255,6 @@ export async function loadLeaderboard() {
 document.addEventListener("lb-sort-change", ({ detail }) => {
   const teamList = document.getElementById("team-list");
   const teams = Array.from(teamList.querySelectorAll(".team:not(.template)"));
-
   if (detail.col === null) {
     teams
       .sort((a, b) => {
@@ -245,7 +262,12 @@ document.addEventListener("lb-sort-change", ({ detail }) => {
         const rb = parseInt(b.querySelector(".team-rank").textContent) || 9999;
         return ra - rb;
       })
-      .forEach((el) => teamList.appendChild(el));
+      .forEach((el) => {
+        //const guh = el.querySelector(".team-sub-rank");
+        //guh.style.display = "block";
+        //guh.textContent = teams.indexOf(el);
+        teamList.appendChild(el);
+      });
     return;
   }
 
@@ -254,7 +276,7 @@ document.addEventListener("lb-sort-change", ({ detail }) => {
 
   teams
     .sort((a, b) => {
-      // only works if each stat is in the right order
+      // only works if each stat is in the right order but who cares amirite
       const statsA = Array.from(a.querySelectorAll(".team-stat"));
       const statsB = Array.from(b.querySelectorAll(".team-stat"));
       const valA = parseFloat(statsA[detail.col]?.textContent) ?? -Infinity;

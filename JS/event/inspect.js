@@ -63,6 +63,7 @@ async function getOrganizedScoutedData() {
 async function getTeamData(teamKey, matchID = null) {
   console.warn(teamKey, matchID);
   const organizedTeams = await getOrganizedScoutedData();
+  console.warn(organizedTeams);
   const submissions = organizedTeams[teamKey];
   if (!submissions) return {};
 
@@ -82,6 +83,9 @@ async function getTeamData(teamKey, matchID = null) {
     }
     return { data: result, scouter };
   }
+
+  const cachedAvg = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`))?.scoutedDataPTAvg?.[teamKey];
+  if (cachedAvg) return { data: cachedAvg, scouter: "N/A" };
 
   const getVersion = (s) => Object.entries(s).find(([k]) => k !== "_scoutID")?.[1]?.version ?? -1;
   const maxVersion = Math.max(...submissions.map(getVersion));
@@ -128,14 +132,17 @@ async function getTeamData(teamKey, matchID = null) {
         for (const v of values) freq[v] = (freq[v] || 0) + 1;
         const maxFreq = Math.max(...Object.values(freq));
         const topValues = Object.keys(freq).filter((k) => freq[k] === maxFreq);
+        const isBoolLike = values.every((v) => v === true || v === false);
+        const yesRate = isBoolLike ? Math.round((values.filter((v) => v === true).length / values.length) * 100) / 100 : undefined;
         if (topValues.length === 1) {
-          result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length };
+          result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length, yesRate };
         } else {
-          result[category][questionID] = { value: "Mixed", frequency: maxFreq / values.length, totalCount: values.length };
+          result[category][questionID] = { value: isBoolLike ? topValues[0] : "Mixed", frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length, yesRate };
         }
       }
     }
   }
+  console.warn(result);
   return { data: result, scouter: "N/A" };
 }
 
@@ -155,23 +162,21 @@ function newStat(type = "pill", parent, label, qData) {
 
     const barFill = clone.querySelector(".stat-bar-fill");
     const textElem = clone.querySelector(".minmax");
-    const isPercentage = qData.qType !== "slider";
     let width;
-    if (isPercentage) {
-      width = (qData.frequency ?? 0) * 100;
-      if (qData.totalCount) {
-        var max = qData.totalCount;
-        var count = Math.round((qData.frequency ?? 0) * qData.totalCount);
-        if (value == "No") count = max - count;
-        textElem.textContent = `${count} / ${max}`;
-      } else {
-        textElem.textContent = `${Math.round(width)} / 100`;
-      }
-    } else {
+    if (qData.qType === "slider") {
       const min = qData.qMin ?? 0;
       const max = qData.qMax ?? 100;
       width = ((qData.value - min) / (max - min)) * 100;
       textElem.textContent = `${qData.value} / ${max}`;
+    } else {
+      const freq = qData.frequency ?? 0;
+      width = freq * 100;
+      if (qData.totalCount) {
+        const count = Math.round(freq * qData.totalCount);
+        textElem.textContent = `${count} / ${qData.totalCount}`;
+      } else {
+        textElem.textContent = `${Math.round(width)} / 100`;
+      }
     }
     barFill.style.width = `${width}%`;
   } else if (type == "pill") {

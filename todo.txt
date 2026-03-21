@@ -14,14 +14,10 @@ go through and edit all lines of code with TODO on them
 
 - beached
 
-- duplicate responses on dropdowns bug
-
 - toggle + dropdown advanced 
-
-- humanplayer skill?
 
 - number only inputs
 
 - multiple checkboxes
 
-- notes section
+- 

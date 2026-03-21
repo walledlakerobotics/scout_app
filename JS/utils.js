@@ -39,11 +39,11 @@ export async function isActiveEvent() {
 
   let currentEvent = null;
   let nextEvent = null;
-
+  const devOverride = true;
   try {
     const team = getUserTeam();
     const now = new Date();
-    const devOverride = true;
+
     const events = await TBA_GET(`/team/frc${team}/events/${now.getUTCFullYear()}`);
 
     if (!events) return false;
@@ -53,12 +53,12 @@ export async function isActiveEvent() {
       const end = new Date(details.end_date);
 
       // active event in range
-      if (devOverride || (now >= start && now <= end)) {
+      if (now >= start && now <= end) {
         currentEvent = details;
         break;
       }
 
-      // soonest event
+      // soonest upcoming event
       if (start > now) {
         if (nextEvent === null || start < new Date(nextEvent.start_date)) {
           nextEvent = details;
@@ -80,7 +80,7 @@ export async function isActiveEvent() {
 
   if (nextEvent) {
     return {
-      isActive: false,
+      isActive: devOverride,
       event: nextEvent,
     };
   }
@@ -135,11 +135,108 @@ export async function newEventCache(eventKey, questionsFetcher) {
   }
 
   const lastUpdated = new Date().getTime();
-  const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData: scoutedData.data };
+  //sorted, per-team averages. HELL! HELL! HELL!
+  const scoutedDataPTAvgs = scoutedData?.data ? getAllTeamAverages(scoutedData.data, questionsData) : {};
+  const scoutedDataPTAvgsFlat = {};
+  for (const team in scoutedDataPTAvgs) {
+    scoutedDataPTAvgsFlat[team] = {};
+    for (const category in scoutedDataPTAvgs[team]) {
+      for (const questionID in scoutedDataPTAvgs[team][category]) {
+        scoutedDataPTAvgsFlat[team][questionID] = scoutedDataPTAvgs[team][category][questionID];
+      }
+    }
+  }
+  const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData: scoutedData.data, scoutedDataPTAvgs, scoutedDataPTAvgsFlat };
   localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
   localStorage.setItem("currentEventKey", eventKey);
   return cache;
 }
+
+export function getAllTeamAverages(scoutedData, questionsData) {
+  // raw submissions, by team
+  const organizedTeams = {};
+  for (const i in scoutedData) {
+    const guh = JSON.parse(scoutedData[i].data);
+    const submission = JSON.parse(scoutedData[i].data)?.questions;
+    const data = submission?.data;
+    const sorted = { _scoutID: guh.scoutID };
+    for (const category in data) {
+      for (const questionID in data[category]) {
+        sorted[questionID] = { value: data[category][questionID], category, version: submission.version || -1 };
+      }
+    }
+    const team = sorted.team?.value;
+    if (team) {
+      if (!organizedTeams[team]) organizedTeams[team] = [];
+      organizedTeams[team].push(sorted);
+    }
+  }
+
+  const questionsRaw = questionsData?.data ?? {};
+  const questionTypes = {};
+  for (const categoryID in questionsRaw) {
+    for (const question of questionsRaw[categoryID]) {
+      if (question.id) questionTypes[question.id] = question.type;
+    }
+  }
+
+  // note for future developers: "sorry"
+
+  const allTeamAverages = {};
+  for (const teamKey in organizedTeams) {
+    const submissions = organizedTeams[teamKey];
+    const getVersion = (s) => Object.entries(s).find(([k]) => k !== "_scoutID")?.[1]?.version ?? -1;
+    const maxVersion = Math.max(...submissions.map(getVersion));
+    const layoutRef = submissions.find((s) => getVersion(s) === maxVersion);
+    const validQuestions = new Set(Object.keys(layoutRef ?? {}));
+
+    const collected = {};
+    for (const submission of submissions) {
+      for (const questionID in submission) {
+        if (questionID === "_scoutID") continue;
+        if (!validQuestions.has(questionID)) continue;
+        const { value, category } = submission[questionID];
+        if (!collected[category]) collected[category] = {};
+        if (!collected[category][questionID]) collected[category][questionID] = [];
+        const coerced = typeof value === "boolean" ? value : isNaN(Number(value)) || value === "" ? value : Math.round(Number(value) * 100) / 100;
+        if (questionTypes[questionID] === "timer" && Math.floor(parseInt(Number(coerced))) == 0) continue;
+        collected[category][questionID].push(coerced);
+      }
+    }
+
+    const result = {};
+    for (const category in collected) {
+      result[category] = {};
+      for (const questionID in collected[category]) {
+        const values = collected[category][questionID];
+        const isNumeric = values.every((v) => typeof v === "number");
+        if (isNumeric) {
+          const avg = Math.round((values.reduce((acc, v) => acc + v, 0) / values.length) * 100) / 100;
+          result[category][questionID] = { value: avg };
+        } else {
+          const freq = {};
+          for (const v of values) freq[v] = (freq[v] || 0) + 1;
+          const maxFreq = Math.max(...Object.values(freq));
+          const topValues = Object.keys(freq).filter((k) => freq[k] === maxFreq);
+          // yesRate: fraction of true responses, stored for all boolean questions so
+          // consumers always get a consistent "higher = more yes" value regardless of
+          // which answer happened to be most common.
+          const isBoolLike = values.every((v) => v === true || v === false);
+          const yesRate = isBoolLike ? Math.round((values.filter((v) => v === true).length / values.length) * 100) / 100 : undefined;
+          if (topValues.length === 1) {
+            result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length, yesRate };
+          } else {
+            result[category][questionID] = { value: isBoolLike ? topValues[0] : "Mixed", frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length, yesRate };
+          }
+        }
+      }
+    }
+    allTeamAverages[teamKey] = result;
+  }
+  return allTeamAverages;
+}
+
+export async function getAllScoutedLbColums() {}
 
 window.reloadPage = function () {
   const eventKey = localStorage.getItem("currentEventKey");
