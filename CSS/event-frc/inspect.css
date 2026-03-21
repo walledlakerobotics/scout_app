@@ -16,6 +16,43 @@
   flex-shrink: 0;
 }
 
+.select-others {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#others-header {
+  margin: 0;
+}
+
+.select-others div {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100dvw;
+  height: fit-content;
+}
+
+.select-others button {
+  height: 45px;
+  width: fit-content;
+  padding: 5px 15px;
+}
+
+.won {
+  filter: sepia(1) saturate(2) hue-rotate(45deg);
+}
+.lost {
+  filter: sepia(1) saturate(3) hue-rotate(299deg);
+}
+.ta {
+  filter: sepia(1) saturate(3) hue-rotate(0);
+}
+
 .inspect-panel {
   width: 100%;
   flex: 1;

@@ -34,6 +34,7 @@ const barTemplate = categoryTemplate.querySelector("#stat-bar-template");
 const txtTemplate = categoryTemplate.querySelector("#stat-txt-template");
 
 const mts = document.querySelector(".match-team-select");
+var matchesScouted = {};
 //BIG sorting functions to crunch total scouted data
 
 async function getOrganizedScoutedData() {
@@ -60,12 +61,13 @@ async function getOrganizedScoutedData() {
   }
   return organizedTeams;
 }
+
 async function getTeamData(teamKey, matchID = null) {
-  console.warn(teamKey, matchID);
   const organizedTeams = await getOrganizedScoutedData();
-  console.warn(organizedTeams);
   const submissions = organizedTeams[teamKey];
   if (!submissions) return {};
+
+  matchesScouted = submissions;
 
   if (matchID !== null) {
     console.log(submissions);
@@ -91,7 +93,7 @@ async function getTeamData(teamKey, matchID = null) {
   const maxVersion = Math.max(...submissions.map(getVersion));
   const layoutRef = submissions.find((s) => getVersion(s) === maxVersion);
   const validQuestions = new Set(Object.keys(layoutRef ?? {}));
-
+  console.warn(layoutRef, maxVersion);
   const questionsRaw = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`))?.questionsData?.data ?? {};
   const questionTypes = {};
   for (const categoryID in questionsRaw) {
@@ -345,14 +347,38 @@ if (inspectType == "team") {
     loadTeam(currentIndex);
   });
 
-  loadTeam(0);
+  await loadTeam(0);
 }
 
 if (!eventKey) {
   location.href = "/HTML/index.html?msg=Yeahhh%20idk%20either";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  inspectTypeElement.textContent = inspectKey;
-  eventTitle.textContent = `${eventDetails.year} ${eventDetails.district?.abbreviation?.toUpperCase() || eventDetails.short_name} ${eventDetails.short_name} Event`; //.textContent = `${inspectType} ${inspectKey}`;
-});
+inspectTypeElement.textContent = inspectKey;
+
+eventTitle.textContent = `${eventDetails.year} ${eventDetails.district?.abbreviation?.toUpperCase() || eventDetails.short_name} ${eventDetails.short_name} Event`; //.textContent = `${inspectType} ${inspectKey}`;
+const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).mData;
+const template = document.querySelector(".btn-template");
+
+for (const matchIndex in matchesScouted) {
+  const matchNum = matchesScouted[matchIndex].match.value;
+  const dupe = template.cloneNode(true);
+  const matchWinner = mData[matchIndex - 1]?.winning_alliance; // TODO: This won't work offline
+  const teamAlliance = mData[matchIndex - 1]?.alliances.blue.team_keys.includes(`frc${inspectKey}`) ? "blue" : "red";
+  dupe.textContent = `Match #${matchNum}`;
+  dupe.classList.remove("btn-template");
+  if (matchWinner === "") {
+    //keep gray
+  } else if (matchWinner === teamAlliance) {
+    dupe.classList.add("won");
+  } else {
+    dupe.classList.add("lost");
+  }
+  template.parentNode.appendChild(dupe);
+}
+template.classList.add("ta");
+for (const el of template.parentNode.children) {
+  if (!el.classList.contains("btn-template")) {
+    //el.remove(); fix, only call when changing teams
+  }
+}

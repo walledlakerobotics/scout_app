@@ -15,9 +15,10 @@ export const LEADERBOARD_COLUMNS_OFFLINE = [
 
 // for this category, ids mean the question id that it'll try to get the info from
 export const LEADERBOARD_COLUMNS_SCOUTED = [
-  { id: "broke", label: "Bot Reliability" },
-  { id: "accuracy", label: "Bot Accuracy" },
-  { id: "scored", label: "Auton Scored" },
+  { id: "broke", label: "Bot Reliability (%)" },
+  { id: "accuracy", label: "Bot Accuracy (%)" },
+  { id: "skill", label: "Avg Driver Skill (x/10)" },
+  //{ id: "_APT", label: "APT Score" },
 ];
 export let LEADERBOARD_COLUMNS = [];
 
@@ -41,6 +42,18 @@ async function initLeaderboard() {
 }
 
 initLeaderboard();
+
+function getQuestionsFlat() {
+  const evRaw = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)) ?? {};
+  const questions = evRaw.questionsData.data;
+  var sorted = {};
+  for (const category in questions) {
+    for (const questionID in questions[category]) {
+      sorted[questions[category][questionID].id] = questions[category][questionID];
+    }
+  }
+  return sorted;
+}
 
 async function reorganizeLeaderboardData() {
   if (useOnlineLeaderboardLayout) {
@@ -68,8 +81,6 @@ async function reorganizeLeaderboardData() {
 
     const tbaColumns = [...sortCols, ...extraCols];
 
-    const eventData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
-
     const rows = raw.rankings.map((entry) => {
       const stats = { rank: entry.rank };
       sortCols.forEach((col) => {
@@ -80,19 +91,31 @@ async function reorganizeLeaderboardData() {
         const val = entry.extra_stats?.[col.index];
         stats[col.id] = val != null ? +val.toFixed(col.precision) : "-";
       });
+      const qFlat = getQuestionsFlat();
       LEADERBOARD_COLUMNS_SCOUTED.forEach((col) => {
         //scoutedDataPTAvgs(Flat) is a thing so i can ez yoink it straight from there
         const teamID = entry.team_key.slice(3);
+        const question = qFlat[col.id] || {};
+
         try {
-          const res = eventData.scoutedDataPTAvgsFlat[teamID][col.id];
+          const res = evRaw.scoutedDataPTAvgsFlat[teamID][col.id];
           var out = res.value;
-          if (res.yesRate !== undefined) {
-            // boolean question: always use yesRate so higher = more yesses
+
+          console.warn(question.type, res.yesRate);
+
+          if (question.type == "toggle" && res.yesRate !== undefined) {
+            // boolean question
+            const inverted = question?.leaderboard?.["lb-bool-inverted"] || false;
+            if (inverted) {
+              out = Math.round((1 - res.yesRate) * 100);
+            } else {
+              out = Math.round(res.yesRate * 100);
+            }
           } else if (typeof out === "string") {
             out = `${res.value} (${Math.round(res.frequency * 100)}%)`;
           }
         } catch {
-          console.error(eventData.scoutedDataPTAvgsFlat[teamID], col.id);
+          console.error(evRaw.scoutedDataPTAvgsFlat[teamID], col.id);
         }
 
         stats[col.id] = out;
@@ -217,7 +240,7 @@ export async function loadLeaderboard() {
 
   const lbSets = [
     { label: "TBA", columns: tbaColumns },
-    { label: "HERE", columns: scoutedColumns },
+    { label: "Local", columns: scoutedColumns },
   ];
   let currentLbIndex = 0;
 

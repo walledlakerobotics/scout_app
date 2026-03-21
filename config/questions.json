@@ -415,6 +415,8 @@
             "text": "Did the robot ever stop working?",
             "id": "broke",
             "leaderboard": {
+                "lb-header": "Bot Reliability][][][]",
+                "lb-bool-inverted": true,
                 "title-avg": "Bot Breakdowns",
                 "title-single": "Broke Down",
                 "category-override": "Bot & Driver",
