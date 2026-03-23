@@ -151,6 +151,13 @@
   border: 1px solid var(--theme-main-accent);
   overflow: hidden;
   box-sizing: border-box;
+  max-height: 200px;
+  transition: all 0.4s cubic-bezier(0.13, 0.74, 0.58, 1);
+}
+
+.f {
+  opacity: 0.3;
+  max-height: 0px !important;
 }
 
 #toggle .body h2 {

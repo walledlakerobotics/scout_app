@@ -326,6 +326,7 @@ function renderMatchButtons(teamNum, submissions) {
   if (!submissions?.length) return;
 
   const teamKeyFull = `frc${teamNum}`;
+  submissions.reverse();
   for (const submission of submissions) {
     const matchNum = submission.match?.value;
     if (!matchNum) continue;
