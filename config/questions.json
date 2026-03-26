@@ -1,6 +1,14 @@
 {
   "prematch": [
     {
+      "type": "toggle",
+      "header": "No-Show?",
+      "state": false,
+      "text": "Did the robot not show up?",
+      "id": "noshow",
+      "leaderboard": false
+    },
+    {
       "type": "dropdown",
       "header": "Starting Position",
       "state": "Choose a side..",
@@ -12,6 +20,7 @@
         "visibility": "both",
         "type": "pill"
       },
+      "depends": ["noshow"],
       "id": "startpos",
       "required": true
     },
@@ -32,14 +41,6 @@
       "id": "match",
       "required": true,
       "leaderboard": false
-    },
-    {
-      "type": "toggle",
-      "header": "No-Show?",
-      "state": false,
-      "text": "Is the robot not on the field?",
-      "id": "noshow",
-      "leaderboard": false
     }
   ],
   "autonomous": [
@@ -49,6 +50,7 @@
       "state": false,
       "text": "Did the robot do anything at all?",
       "id": "moved",
+      "depends": ["noshow"],
       "leaderboard": {
         "title-avg": "Moved",
         "title-single": "Moved",
@@ -63,6 +65,7 @@
       "state": false,
       "text": "Fired at the HUB and scored most shots.",
       "id": "scored",
+      "depends": ["noshow", "moved"],
       "leaderboard": {
         "title-avg": "Scored",
         "title-single": "Scored",
@@ -81,6 +84,7 @@
         "header": "Refueling during Autonomous",
         "body": "Sometimes, teams may be able to grab more fuel after scoring once.\n\n<b>The Depot:</b> The side with 24 (6x4) Fuel on the floor, opposite of the Human Player Station."
       },
+      "depends": ["noshow", "moved"],
       "leaderboard": {
         "title-avg": "Usual Refuel",
         "title-single": "Refueled",
@@ -95,6 +99,7 @@
       "state": "Did not climb",
       "dropdown-options": ["L1: Output Side", "L1: Middle", "L1: Depot Side"],
       "id": "climb_auto",
+      "depends": ["noshow", "moved"],
       "leaderboard": {
         "title-avg": "Usual Climb",
         "title-single": "Climb",
@@ -109,16 +114,17 @@
       "state": false,
       "id": "auto_success",
       "offline": true,
-      "info": {
-        "header": "Successful Autonomous",
-        "body": "Did Auton run successfully, with no interruptions, blocks, etc?"
-      },
+      "depends": ["noshow", "moved"],
       "leaderboard": {
         "title-avg": "Auton Reliable",
         "title-single": "Auton Success",
         "category-override": false,
         "visibility": "both",
         "type": "pill"
+      },
+      "info": {
+        "header": "Successful Autonomous",
+        "body": "Did Auton appear to run successfully, no interruptions, or blocks?"
       }
     },
     {
@@ -127,6 +133,7 @@
       "state": false,
       "id": "won_auto",
       "offline": true,
+      "depends": ["noshow"],
       "leaderboard": {
         "title-avg": "Auton Winrate",
         "title-single": "Auton Win",

@@ -38,7 +38,9 @@
   width: 100%;
   height: fit-content;
   overflow-x: scroll;
-  scrollbar-color: transparent transparent;
+  scrollbar-color: rgba(var(--theme-main-rgb), 0.5) transparent;
+  scrollbar-width: thin;
+  padding-bottom: 5px;
 }
 
 .select-others button {
