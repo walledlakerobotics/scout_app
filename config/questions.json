@@ -145,6 +145,20 @@
   ],
   "teleop": [
     {
+      "type": "toggle",
+      "header": "Robot Can Move?",
+      "state": true,
+      "id": "moved_teleop",
+      "leaderboard": false
+    },
+    {
+      "type": "toggle",
+      "header": "Working Shooter?",
+      "state": true,
+      "id": "shooter",
+      "leaderboard": false
+    },
+    {
       "type": "slider",
       "header": "Robot Speed",
       "state": 3,
@@ -154,6 +168,7 @@
       "label-min": "Tank",
       "label-max": "Fast",
       "id": "speed",
+      "depends": ["moved_teleop","noshow"],
       "leaderboard": {
         "title-avg": "Avg Bot Speed",
         "title-single": "Bot Speed",
@@ -172,6 +187,7 @@
       "label-min": "0%",
       "label-max": "100%",
       "id": "accuracy",
+      "depends": ["shooter","noshow"],
       "info": {
         "header": "Scoring Accuracy",
         "body": "Give your best guess as to how much fuel this bot successfully scored, as compared to fuel missed."
@@ -190,6 +206,7 @@
       "state": "Scoring in HUB",
       "id": "gameplay",
       "dropdown-options": ["Defense", "Fuel Passing"],
+      "depends": ["moved_teleop","noshow"],
       "leaderboard": {
         "title-avg": "Usual Strategy",
         "title-single": "Strategy",
@@ -204,6 +221,7 @@
       "state": false,
       "text": "AND scores these shots accurately and reliably?",
       "id": "moving_fire",
+      "depends": ["shooter","noshow"],
       "leaderboard": {
         "title-avg": "Moving Fire",
         "title-single": "Moving Fire",
@@ -218,6 +236,7 @@
       "state": "Fixed Direction",
       "dropdown-options": ["Rotating Turret"],
       "id": "shootertype",
+      "depends": ["shooter","noshow"],
       "info": {
         "header": "Outtake / Shooter Types",
         "body": "In order to score, teams need a shooter to fire fuel. Obviously.\n\n<b>Fixed Direction:</b> Shooter cannot aim independantly from the direction of the chassis.\n\n<b>Rotating Turret:</b> Shooter can rotate independantly from the chassis."
@@ -235,6 +254,7 @@
       "header": "Ramp / Trench?",
       "state": "Only Under Trench",
       "id": "travel",
+      "depends": ["moved_teleop","noshow"],
       "dropdown-options": ["Only Over Ramp", "Trench AND Ramp"],
       "info": {
         "header": "Fooey!",
@@ -278,6 +298,7 @@
       "state": "Did not hang",
       "dropdown-options": ["Level 1", "Level 2", "Level 3"],
       "id": "hang_end",
+      "depends": ["moved_teleop","noshow"],
       "leaderboard": {
         "title-avg": "Usual Hang",
         "title-single": "Hang Height",
@@ -292,6 +313,7 @@
       "state": "Did not hang",
       "dropdown-options": ["Output Side", "Middle", "Depot Side"],
       "id": "hang_end_pos",
+      "depends": ["moved_teleop","noshow"],
       "leaderboard": {
         "title-avg": "Usual Hang Side",
         "title-single": "Hang Side",
@@ -374,6 +396,7 @@
       "label-min": "New",
       "label-max": "Pro",
       "id": "skill",
+      "depends": ["moved_teleop","noshow"],
       "leaderboard": {
         "title-avg": "Avg Driver Skill",
         "title-single": "Driver Skill",
@@ -388,6 +411,7 @@
       "state": false,
       "text": "Did the robot ever stop working?",
       "id": "broke",
+      "depends": ["noshow"],
       "leaderboard": {
         "lb-header": "Bot Reliability][][][]",
         "lb-bool-inverted": true,

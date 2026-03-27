@@ -92,7 +92,7 @@ export async function isActiveEvent() {
   };
 }
 
-export function retagResponses(untaggedResponses, questions, offlineEnabled = true) {
+export function retagResponses(untaggedResponses, questions, offlineEnabled = true, disabledIds = new Set()) {
   if (!questions) {
     return null;
   }
@@ -110,7 +110,7 @@ export function retagResponses(untaggedResponses, questions, offlineEnabled = tr
       const q = categoryQuestions[index];
       if (q && q.id) {
         if (!offlineEnabled && q.offline === true) return;
-        retaggedResponses[categoryId][q.id] = value;
+        retaggedResponses[categoryId][q.id] = disabledIds.has(q.id) ? "_IGNORE" : value;
       }
     });
   }

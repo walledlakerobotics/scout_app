@@ -19,6 +19,8 @@ if (!eventKey) {
 var questions = null;
 var questionsVersion = -1; // unknown
 let responses = {};
+const questionLookup = {}; // id { defaultState, categoryId, questionIndex }
+const dependentElements = []; // { element, depends, isOffline }
 var reset = false;
 
 function newTemplateFromID(id) {
@@ -67,12 +69,32 @@ function updateResponse(elementId, value, dontupdate) {
   }
 
   responses[categoryId][questionIndex] = value;
+  updateDependencyVisibility();
   if (resetBtn.disabled) {
     resetBtn.disabled = false;
   }
   if (!(dontupdate || false)) {
     saveResponses();
     console.log("Responses updated:", responses);
+  }
+}
+
+function updateDependencyVisibility() {
+  const offlineEnabled = localStorage.getItem("offlineQuestions") === "true";
+  for (const { element, depends, isOffline } of dependentElements) {
+    const depHidden = depends.some((depId) => {
+      const meta = questionLookup[depId];
+      if (!meta) return false;
+      const currentValue = responses[meta.categoryId]?.[meta.questionIndex];
+      return currentValue !== meta.defaultState;
+    });
+    const offlineHidden = isOffline && !offlineEnabled;
+
+    if (depHidden || offlineHidden) {
+      element.classList.add("disabled");
+    } else {
+      element.classList.remove("disabled");
+    }
   }
 }
 
@@ -109,11 +131,24 @@ function checkIsFormComplete(responses, questions) {
   return !errs;
 }
 
+function getDisabledQuestionIds() {
+  const disabledIds = new Set();
+  for (const { element } of dependentElements) {
+    if (element.classList.contains("disabled")) {
+      const categoryId = element.closest(".category").id;
+      const index = parseInt(element.dataset.questionIndex);
+      const q = questions[categoryId]?.[index];
+      if (q?.id) disabledIds.add(q.id);
+    }
+  }
+  return disabledIds;
+}
+
 uploadBtn.addEventListener("click", async () => {
   const offlineEnabled = localStorage.getItem("offlineQuestions") === "true";
   const finalData = {
     questions: {
-      data: retagResponses(responses, questions, offlineEnabled),
+      data: retagResponses(responses, questions, offlineEnabled, getDisabledQuestionIds()),
       version: questionsVersion,
     },
     scoutID: JSON.parse(localStorage.getItem("userProfile"))?.id || -1,
@@ -448,11 +483,28 @@ async function init() {
           } else {
             console.warn("missing case or element for type:", qType);
           }
+
+          if (questionInfo.id) {
+            questionLookup[questionInfo.id] = {
+              defaultState: questions[id][index].state,
+              categoryId: id,
+              questionIndex: index,
+            };
+          }
+          if (questionInfo.depends) {
+            dependentElements.push({
+              element,
+              depends: questionInfo.depends,
+              isOffline: questionInfo.offline === true,
+            });
+          }
+
           categoryFormElement.appendChild(element);
           element.classList.remove("form-template");
         });
       }
     });
+    updateDependencyVisibility();
   } catch (error) {
     console.error("Could not fetch questions:", error);
   }
@@ -469,6 +521,7 @@ window.back = function () {
 };
 
 window.addEventListener("beforeunload", saveResponses);
+document.addEventListener("offlineVisibilityChanged", updateDependencyVisibility);
 
 window.incrementCounter = incrementCounter;
 window.decrementCounter = decrementCounter;

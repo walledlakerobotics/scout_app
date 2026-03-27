@@ -52,6 +52,7 @@ function setOfflineQuestionsVisibility(visible) {
   for (const element of e) {
     element.style.display = visible ? "block" : "none";
   }
+  document.dispatchEvent(new Event("offlineVisibilityChanged"));
   if (!offlineBtn) {
     return;
   }
