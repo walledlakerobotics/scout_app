@@ -42,10 +42,11 @@ export async function submitQuestionsOnline(answers, scoutID) {
     try {
       const res = await fetch("https://data.bheitz780.workers.dev/db", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data: answers, event: thisEvent.key, scouter: scoutID || JSON.parse(localStorage.getItem("userProfile"))?.id || "Unknown" }),
       });
       console.log(res);
-      return res;
+      return res.ok;
     } catch {
       popupError("You seem to be offline. try uploading with QR.");
       return false;
