@@ -18,6 +18,8 @@ export const LEADERBOARD_COLUMNS_SCOUTED = [
   { id: "broke", label: "Bot Reliability (%)" },
   { id: "accuracy", label: "Bot Accuracy (%)" },
   { id: "skill", label: "Avg Driver Skill (x/10)" },
+  { id: "contribution", label: "Avg Score Contribution %" },
+  { id: "shooter_speed", label: "Avg Fuel/Second" },
   //{ id: "_APT", label: "APT Score" },
 ];
 export let LEADERBOARD_COLUMNS = [];
@@ -105,19 +107,19 @@ async function reorganizeLeaderboardData() {
           if (out === "_IGNORE") {
             out = "[N/A]";
           } else {
-          console.warn(question.type, res.yesRate);
+            console.warn(question.type, res.yesRate);
 
-          if (question.type == "toggle" && res.yesRate !== undefined) {
-            // boolean question
-            const inverted = question?.leaderboard?.["lb-bool-inverted"] || false;
-            if (inverted) {
-              out = Math.round((1 - res.yesRate) * 100);
-            } else {
-              out = Math.round(res.yesRate * 100);
+            if (question.type == "toggle" && res.yesRate !== undefined) {
+              // boolean question
+              const inverted = question?.leaderboard?.["lb-bool-inverted"] || false;
+              if (inverted) {
+                out = Math.round((1 - res.yesRate) * 100);
+              } else {
+                out = Math.round(res.yesRate * 100);
+              }
+            } else if (typeof out === "string") {
+              out = `${res.value} (${Math.round(res.frequency * 100)}%)`;
             }
-          } else if (typeof out === "string") {
-            out = `${res.value} (${Math.round(res.frequency * 100)}%)`;
-          }
           }
         } catch {
           console.error(evRaw.scoutedDataPTAvgsFlat[teamID], col.id);
