@@ -198,6 +198,7 @@ export function getAllTeamAverages(scoutedData, questionsData) {
         const { value, category } = submission[questionID];
         if (!collected[category]) collected[category] = {};
         if (!collected[category][questionID]) collected[category][questionID] = [];
+        if (value === "_IGNORE") continue;
         const coerced = typeof value === "boolean" ? value : isNaN(Number(value)) || value === "" ? value : Math.round(Number(value) * 100) / 100;
         if (questionTypes[questionID] === "timer" && Math.floor(parseInt(Number(coerced))) == 0) continue;
         collected[category][questionID].push(coerced);
@@ -209,6 +210,10 @@ export function getAllTeamAverages(scoutedData, questionsData) {
       result[category] = {};
       for (const questionID in collected[category]) {
         const values = collected[category][questionID];
+        if (values.length === 0) {
+          result[category][questionID] = { value: "_IGNORE" };
+          continue;
+        }
         const isNumeric = values.every((v) => typeof v === "number");
         if (isNumeric) {
           const avg = Math.round((values.reduce((acc, v) => acc + v, 0) / values.length) * 100) / 100;
@@ -218,9 +223,7 @@ export function getAllTeamAverages(scoutedData, questionsData) {
           for (const v of values) freq[v] = (freq[v] || 0) + 1;
           const maxFreq = Math.max(...Object.values(freq));
           const topValues = Object.keys(freq).filter((k) => freq[k] === maxFreq);
-          // yesRate: fraction of true responses, stored for all boolean questions so
-          // consumers always get a consistent "higher = more yes" value regardless of
-          // which answer happened to be most common.
+          // yesRate: fraction of true responses
           const isBoolLike = values.every((v) => v === true || v === false);
           const yesRate = isBoolLike ? Math.round((values.filter((v) => v === true).length / values.length) * 100) / 100 : undefined;
           if (topValues.length === 1) {
@@ -245,8 +248,16 @@ window.reloadPage = function () {
   location.reload();
 };
 
-window.logout = () => {
+window.logout = (param) => {
+  if (param === "redirect=scout") {
+    // Switch profile without re-login — keep auth token
+    localStorage.removeItem("userProfile");
+    const eventKey = localStorage.getItem("currentEventKey");
+    const eventParam = eventKey ? `&eventKey=${eventKey}` : "";
+    window.location = `../HTML/profiles.html?redirect=scout${eventParam}`;
+    return;
+  }
   localStorage.removeItem("scoutingAuthToken");
   localStorage.removeItem("userProfile");
-  window.location = "../HTML/login.html";
+  window.location = `../HTML/login.html`;
 };

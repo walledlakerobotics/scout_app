@@ -123,7 +123,7 @@ function handleQRCode(data) {
   if (data != "" || data != "{}") {
     const parsedData = {
       questions: {
-        data: retagResponses(JSON.parse(data).data, JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).questionsData.data, JSON.parse(data).offlineEnabled !== false),
+        data: retagResponses(JSON.parse(data).data, JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).questionsData.data, JSON.parse(data).offlineEnabled !== false, new Set(JSON.parse(data).disabledIds || [])), ///god
         version: JSON.parse(data).version,
       },
       scoutID: JSON.parse(data).scoutID || -1,

@@ -114,11 +114,13 @@ function saveResponses() {
 
 function checkIsFormComplete(responses, questions) {
   var errs = false;
+  const disabledIds = getDisabledQuestionIds();
   console.log(questions);
   for (const categoryId in questions) {
     const categoryQuestions = questions[categoryId];
 
     categoryQuestions.forEach((questionInfo, index) => {
+      if (questionInfo.id && disabledIds.has(questionInfo.id)) return;
       if ((questionInfo.required === true && questionInfo.offline === (false || undefined)) || (questionInfo.required === true && questionInfo.offline === true && localStorage.getItem("offlineQuestions") == "true")) {
         const currentResponse = responses[categoryId]?.[index];
         if (currentResponse === questionInfo.state) {
@@ -183,11 +185,20 @@ qrBtn.addEventListener("click", () => {
     return;
   }
 
+  const disabledIds = getDisabledQuestionIds();
+  const qrResponses = {};
+  for (const categoryId in responses) {
+    qrResponses[categoryId] = responses[categoryId].map((value, index) => {
+      const q = questions[categoryId]?.[index];
+      return q?.id && disabledIds.has(q.id) ? "_IGNORE" : value;
+    });
+  }
+
   data = JSON.stringify({
     scoutID: userData?.id || -1,
     version: questionsVersion,
     offlineEnabled: localStorage.getItem("offlineQuestions") === "true",
-    data: responses,
+    data: qrResponses,
   });
 
   console.log(responses);
@@ -259,7 +270,6 @@ resetBtn.addEventListener("click", () => {
 
 async function init() {
   const categories = document.querySelectorAll(".category");
-  const offlineQuestions = localStorage.getItem("offlineQuestions");
   // if you don't like nested if's then you may want to avert your eyes
 
   const forceRefresh = localStorage.getItem("reloadQuestions") === "true";
@@ -324,9 +334,6 @@ async function init() {
 
           if (questionInfo.offline == true) {
             element.classList.add("offlineQuestion");
-          }
-          if (offlineQuestions === "false" && questionInfo.offline == true) {
-            element.style.display = "none";
           }
 
           const infoBtn = element.querySelector(".infobtn");
@@ -491,10 +498,10 @@ async function init() {
               questionIndex: index,
             };
           }
-          if (questionInfo.depends) {
+          if (questionInfo.depends || questionInfo.offline) {
             dependentElements.push({
               element,
-              depends: questionInfo.depends,
+              depends: questionInfo.depends || [],
               isOffline: questionInfo.offline === true,
             });
           }

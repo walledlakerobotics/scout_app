@@ -29,6 +29,7 @@
       "header": "Team Number",
       "state": "",
       "placeholder": "Enter text..",
+      "text-restrictions": "number",
       "id": "team",
       "required": true,
       "leaderboard": false
@@ -38,6 +39,7 @@
       "header": "Match Number",
       "state": "",
       "placeholder": "Enter text..",
+      "text-restrictions": "number",
       "id": "match",
       "required": true,
       "leaderboard": false
@@ -47,7 +49,7 @@
     {
       "type": "toggle",
       "header": "Robot Moved?",
-      "state": false,
+      "state": true,
       "text": "Did the robot do anything at all?",
       "id": "moved",
       "depends": ["noshow"],
@@ -65,7 +67,7 @@
       "state": false,
       "text": "Fired at the HUB and scored most shots.",
       "id": "scored",
-      "depends": ["noshow", "moved"],
+      "depends": ["noshow"],
       "leaderboard": {
         "title-avg": "Scored",
         "title-single": "Scored",
@@ -113,11 +115,10 @@
       "header": "Auton Success?",
       "state": false,
       "id": "auto_success",
-      "offline": true,
       "depends": ["noshow", "moved"],
       "leaderboard": {
         "title-avg": "Auton Reliable",
-        "title-single": "Auton Success",
+        "title-single": "Auton Successful",
         "category-override": false,
         "visibility": "both",
         "type": "pill"
@@ -149,6 +150,7 @@
       "header": "Robot Can Move?",
       "state": true,
       "id": "moved_teleop",
+      "depends": ["noshow"],
       "leaderboard": false
     },
     {
@@ -156,6 +158,7 @@
       "header": "Working Shooter?",
       "state": true,
       "id": "shooter",
+      "depends": ["noshow"],
       "leaderboard": false
     },
     {
@@ -168,13 +171,47 @@
       "label-min": "Tank",
       "label-max": "Fast",
       "id": "speed",
-      "depends": ["moved_teleop","noshow"],
+      "depends": ["moved_teleop", "noshow"],
       "leaderboard": {
         "title-avg": "Avg Bot Speed",
         "title-single": "Bot Speed",
         "category-override": false,
         "visibility": "both",
         "type": "bar"
+      }
+    },
+    {
+      "type": "toggle",
+      "header": "Can Fire While Moving?",
+      "state": false,
+      "text": "AND scores these shots accurately and reliably?",
+      "id": "moving_fire",
+      "depends": ["shooter", "noshow"],
+      "leaderboard": {
+        "title-avg": "Moving Fire",
+        "title-single": "Moving Fire",
+        "category-override": "Bot & Driver",
+        "visibility": "both",
+        "type": "pill"
+      }
+    },
+    {
+      "type": "dropdown",
+      "header": "Ramp / Trench?",
+      "state": "Only Under Trench",
+      "id": "travel",
+      "depends": ["moved_teleop", "noshow"],
+      "dropdown-options": ["Only Over Ramp", "Trench AND Ramp"],
+      "info": {
+        "header": "Fooey!",
+        "body": "Based ONLY on what you've observed, state this robot's ability to go over the ramp and/or below the trench."
+      },
+      "leaderboard": {
+        "title-avg": "Ramp & Trench",
+        "title-single": "Ramp & Trench",
+        "category-override": "Bot & Driver",
+        "visibility": "both",
+        "type": "pill"
       }
     },
     {
@@ -187,7 +224,7 @@
       "label-min": "0%",
       "label-max": "100%",
       "id": "accuracy",
-      "depends": ["shooter","noshow"],
+      "depends": ["shooter", "noshow"],
       "info": {
         "header": "Scoring Accuracy",
         "body": "Give your best guess as to how much fuel this bot successfully scored, as compared to fuel missed."
@@ -202,41 +239,11 @@
     },
     {
       "type": "dropdown",
-      "header": "Main Gameplay Type",
-      "state": "Scoring in HUB",
-      "id": "gameplay",
-      "dropdown-options": ["Defense", "Fuel Passing"],
-      "depends": ["moved_teleop","noshow"],
-      "leaderboard": {
-        "title-avg": "Usual Strategy",
-        "title-single": "Strategy",
-        "category-override": false,
-        "visibility": "both",
-        "type": "pill"
-      }
-    },
-    {
-      "type": "toggle",
-      "header": "Can Fire While Moving?",
-      "state": false,
-      "text": "AND scores these shots accurately and reliably?",
-      "id": "moving_fire",
-      "depends": ["shooter","noshow"],
-      "leaderboard": {
-        "title-avg": "Moving Fire",
-        "title-single": "Moving Fire",
-        "category-override": "Bot & Driver",
-        "visibility": "both",
-        "type": "pill"
-      }
-    },
-    {
-      "type": "dropdown",
       "header": "Outtake / Shooter Type",
       "state": "Fixed Direction",
       "dropdown-options": ["Rotating Turret"],
       "id": "shootertype",
-      "depends": ["shooter","noshow"],
+      "depends": ["shooter", "noshow"],
       "info": {
         "header": "Outtake / Shooter Types",
         "body": "In order to score, teams need a shooter to fire fuel. Obviously.\n\n<b>Fixed Direction:</b> Shooter cannot aim independantly from the direction of the chassis.\n\n<b>Rotating Turret:</b> Shooter can rotate independantly from the chassis."
@@ -244,25 +251,6 @@
       "leaderboard": {
         "title-avg": "Outtake Type",
         "title-single": "Outtake Type",
-        "category-override": "Bot & Driver",
-        "visibility": "both",
-        "type": "pill"
-      }
-    },
-    {
-      "type": "dropdown",
-      "header": "Ramp / Trench?",
-      "state": "Only Under Trench",
-      "id": "travel",
-      "depends": ["moved_teleop","noshow"],
-      "dropdown-options": ["Only Over Ramp", "Trench AND Ramp"],
-      "info": {
-        "header": "Fooey!",
-        "body": "Based ONLY on what you've observed, state this robot's ability to go over the ramp and/or below the trench."
-      },
-      "leaderboard": {
-        "title-avg": "Ramp & Trench",
-        "title-single": "Ramp & Trench",
         "category-override": "Bot & Driver",
         "visibility": "both",
         "type": "pill"
@@ -282,10 +270,26 @@
         "header": "Fuel Capacity",
         "body": "Give your best guess as to how many fuel this bot can hold at a time. <b>None</b> (0) means the bot lacks a hopper."
       },
+      "depends": ["noshow"],
       "leaderboard": {
         "title-avg": "Estimated Capacity",
         "title-single": "Estimated Capacity",
         "category-override": "Bot & Driver",
+        "visibility": "both",
+        "type": "pill"
+      }
+    },
+    {
+      "type": "dropdown",
+      "header": "Main Gameplay Type",
+      "state": "Scoring in HUB",
+      "id": "gameplay",
+      "dropdown-options": ["Defense", "Fuel Passing"],
+      "depends": ["moved_teleop", "noshow"],
+      "leaderboard": {
+        "title-avg": "Usual Strategy",
+        "title-single": "Strategy",
+        "category-override": false,
         "visibility": "both",
         "type": "pill"
       }
@@ -298,7 +302,7 @@
       "state": "Did not hang",
       "dropdown-options": ["Level 1", "Level 2", "Level 3"],
       "id": "hang_end",
-      "depends": ["moved_teleop","noshow"],
+      "depends": ["moved_teleop", "noshow"],
       "leaderboard": {
         "title-avg": "Usual Hang",
         "title-single": "Hang Height",
@@ -313,7 +317,7 @@
       "state": "Did not hang",
       "dropdown-options": ["Output Side", "Middle", "Depot Side"],
       "id": "hang_end_pos",
-      "depends": ["moved_teleop","noshow"],
+      "depends": ["moved_teleop", "noshow"],
       "leaderboard": {
         "title-avg": "Usual Hang Side",
         "title-single": "Hang Side",
@@ -396,7 +400,7 @@
       "label-min": "New",
       "label-max": "Pro",
       "id": "skill",
-      "depends": ["moved_teleop","noshow"],
+      "depends": ["moved_teleop", "noshow"],
       "leaderboard": {
         "title-avg": "Avg Driver Skill",
         "title-single": "Driver Skill",

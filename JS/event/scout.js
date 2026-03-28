@@ -50,7 +50,11 @@ function showOptions() {
 function setOfflineQuestionsVisibility(visible) {
   const e = document.querySelectorAll(".offlineQuestion");
   for (const element of e) {
-    element.style.display = visible ? "block" : "none";
+    if (visible) {
+      element.classList.remove("disabled");
+    } else {
+      element.classList.add("disabled");
+    }
   }
   document.dispatchEvent(new Event("offlineVisibilityChanged"));
   if (!offlineBtn) {

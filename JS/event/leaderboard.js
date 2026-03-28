@@ -26,14 +26,15 @@ async function initLeaderboard() {
   //check for stale data in the api, ask to fallback to scouted data only if last valid match is over 30m ago or there is no matches completed at all
   //TODO finish this
   const eventData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
-  const matches = eventData?.mData || [];
   const now = new Date().getTime();
   const lastUpdated = eventData?.lastUpdated || now;
 
-  const lastMatchTime = matches.reduce((latest, m) => {
-    const t = new Date(m.time * 1000);
-    return t > latest ? t : latest;
-  }, new Date(0)); // fooey!
+  const endDate = new Date(eventData.eventDetails.end_date);
+
+  if (endDate && endDate < now) {
+    return;
+  }
+
   const seconds = Math.floor(Math.abs(lastUpdated - now) / 1000);
   if (seconds > 60 * 30) {
     confirm("A failsafe detected this data may be stale (30+ minutes old). It is recommended to refetch data.");
@@ -101,6 +102,9 @@ async function reorganizeLeaderboardData() {
           const res = evRaw.scoutedDataPTAvgsFlat[teamID][col.id];
           var out = res.value;
 
+          if (out === "_IGNORE") {
+            out = "[N/A]";
+          } else {
           console.warn(question.type, res.yesRate);
 
           if (question.type == "toggle" && res.yesRate !== undefined) {
@@ -113,6 +117,7 @@ async function reorganizeLeaderboardData() {
             }
           } else if (typeof out === "string") {
             out = `${res.value} (${Math.round(res.frequency * 100)}%)`;
+          }
           }
         } catch {
           console.error(evRaw.scoutedDataPTAvgsFlat[teamID], col.id);

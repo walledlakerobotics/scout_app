@@ -1,6 +1,6 @@
 .text-container {
   max-height: 80dvh;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 .profileBtn {
@@ -10,5 +10,4 @@
 
 .invisible {
   opacity: 0;
-  margin: -31px;
 }

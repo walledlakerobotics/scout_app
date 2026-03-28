@@ -113,6 +113,7 @@ async function getTeamData(teamKey, matchID = null) {
       const { value, category } = submission[questionID];
       if (!collected[category]) collected[category] = {};
       if (!collected[category][questionID]) collected[category][questionID] = [];
+      if (value === "_IGNORE") continue;
       const coerced = typeof value === "boolean" ? value : isNaN(Number(value)) || value === "" ? value : Math.round(Number(value) * 100) / 100;
       if (questionTypes[questionID] === "timer" && Math.floor(parseInt(Number(coerced))) == 0) continue;
       collected[category][questionID].push(coerced);
@@ -125,6 +126,10 @@ async function getTeamData(teamKey, matchID = null) {
     result[category] = {};
     for (const questionID in collected[category]) {
       const values = collected[category][questionID];
+      if (values.length === 0) {
+        result[category][questionID] = { value: "_IGNORE" };
+        continue;
+      }
       const isNumeric = values.every((v) => typeof v === "number");
       if (isNumeric) {
         const avg = Math.round((values.reduce((acc, v) => acc + v, 0) / values.length) * 100) / 100;
@@ -266,7 +271,8 @@ function renderStats(teamData) {
 
       const qData = teamData[categoryID][questionID];
       let displayValue = qData.value;
-      if (displayValue === true || displayValue === "true") displayValue = "Yes";
+      if (displayValue === "_IGNORE") displayValue = "[N/A]";
+      else if (displayValue === true || displayValue === "true") displayValue = "Yes";
       else if (displayValue === false || displayValue === "false") displayValue = "No";
 
       if (displayValue === null || displayValue === undefined || displayValue === "") continue;
