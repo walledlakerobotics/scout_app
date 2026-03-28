@@ -56,16 +56,15 @@ function setOfflineQuestionsVisibility(visible) {
       element.classList.add("disabled");
     }
   }
+  localStorage.setItem("offlineQuestions", visible ? "true" : "false");
   document.dispatchEvent(new Event("offlineVisibilityChanged"));
   if (!offlineBtn) {
     return;
   }
   if (visible) {
     offlineBtn.innerHTML = `<ion-icon name="cloud-offline-outline"></ion-icon>`;
-    localStorage.setItem("offlineQuestions", "true");
   } else {
     offlineBtn.innerHTML = `<ion-icon name="wifi-outline"></ion-icon>`;
-    localStorage.setItem("offlineQuestions", "false");
   }
 }
 
