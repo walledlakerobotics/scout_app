@@ -49,8 +49,8 @@ export async function isActiveEvent() {
     if (!events) return false;
 
     for (const details of events) {
-      const start = new Date(details.start_date);
-      const end = new Date(details.end_date);
+      const start = new Date(details.start_date + "T00:00:00");
+      const end = new Date(details.end_date + "T23:59:59");
 
       // active event in range
       if (now >= start && now <= end) {

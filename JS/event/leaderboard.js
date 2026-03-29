@@ -17,7 +17,7 @@ export const LEADERBOARD_COLUMNS_OFFLINE = [
 export const LEADERBOARD_COLUMNS_SCOUTED = [
   { id: "broke", label: "Bot Reliability (%)" },
   { id: "accuracy", label: "Bot Accuracy (%)" },
-  { id: "skill", label: "Avg Driver Skill (x/10)" },
+  { id: "skill", label: "Avg Driver Skill (of 10)" },
   { id: "contribution", label: "Avg Score Contribution %" },
   { id: "shooter_speed", label: "Avg Fuel/Second" },
   //{ id: "_APT", label: "APT Score" },
@@ -31,7 +31,7 @@ async function initLeaderboard() {
   const now = new Date().getTime();
   const lastUpdated = eventData?.lastUpdated || now;
 
-  const endDate = new Date(eventData.eventDetails.end_date);
+  const endDate = new Date(eventData?.eventDetails?.end_date || 0).getTime();
 
   if (endDate && endDate < now) {
     return;
