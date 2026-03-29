@@ -53,8 +53,8 @@ async function getOrganizedScoutedData() {
         sorted[questionID] = { value: data[category][questionID], category, version: submission.version || -1 };
       }
     }
-    const team = sorted.team?.value != null ? String(sorted.team.value).trim() : undefined;
-    if (team) {
+    const team = sorted.team?.value != null ? String(Number(String(sorted.team.value).trim())) : undefined;
+    if (team && team !== "NaN") {
       if (!organizedTeams[team]) organizedTeams[team] = [];
       organizedTeams[team].push(sorted);
     }
@@ -63,8 +63,9 @@ async function getOrganizedScoutedData() {
 }
 
 async function getTeamData(teamKey, matchID = null) {
+  console.log(teamKey);
   const organizedTeams = await getOrganizedScoutedData();
-  const submissions = organizedTeams[teamKey];
+  const submissions = organizedTeams[String(Number(String(teamKey).trim()))];
   if (!submissions) return {};
 
   matchesScouted = submissions;
@@ -399,7 +400,12 @@ if (inspectType == "team") {
   });
 
   const teamParam = URLParams.get("team");
-  const startIndex = teamParam ? Math.max(0, teams.findIndex((t) => t.teamNum === teamParam)) : 0;
+  const startIndex = teamParam
+    ? Math.max(
+        0,
+        teams.findIndex((t) => t.teamNum === teamParam)
+      )
+    : 0;
   await loadTeam(startIndex);
 }
 
