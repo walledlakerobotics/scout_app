@@ -166,7 +166,8 @@ uploadBtn.addEventListener("click", async () => {
   uploadBtn.disabled = true;
   const done = await submitQuestionsOnline(finalData);
   if (done) {
-    uploadBtn.textContent = "Done!";
+    uploadBtn.textContent = `Done! (ID: ${done.id ?? "?"})`;
+    console.log("Uploaded with ID:", done.id);
   } else {
     uploadBtn.disabled = false;
     uploadBtn.innerHTML = `<ion-icon name="cloud-upload-outline" role="img" class="md hydrated"></ion-icon>Upload To Cloud`;

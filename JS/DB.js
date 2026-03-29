@@ -45,8 +45,9 @@ export async function submitQuestionsOnline(answers, scoutID) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data: answers, event: thisEvent.key, scouter: scoutID || JSON.parse(localStorage.getItem("userProfile"))?.id || "Unknown" }),
       });
-      console.log(res);
-      return res.ok;
+      const result = await res.json();
+      console.log(result);
+      return res.ok ? result : false;
     } catch {
       popupError("You seem to be offline. try uploading with QR.");
       return false;
