@@ -204,7 +204,6 @@ export function getAllTeamAverages(scoutedData, questionsData) {
         collected[category][questionID].push(coerced);
       }
     }
-
     const result = {};
     for (const category in collected) {
       result[category] = {};
@@ -214,18 +213,24 @@ export function getAllTeamAverages(scoutedData, questionsData) {
           result[category][questionID] = { value: "_IGNORE" };
           continue;
         }
-        const isNumeric = values.every((v) => typeof v === "number");
-        if (isNumeric) {
-          const avg = Math.round((values.reduce((acc, v) => acc + v, 0) / values.length) * 100) / 100;
+        const numericCount = values.filter((v) => typeof v === "number").length;
+        const isNumberLike = numericCount > values.length / 2;
+        const boolLikeCount = values.filter((v) => v === true || v === false || v == "true" || v == "false").length;
+        const isBoolLike = boolLikeCount > values.length / 2;
+
+        if (isNumberLike) {
+          const numericValues = values.filter((v) => typeof v === "number");
+          const avg = Math.round((numericValues.reduce((acc, v) => acc + v, 0) / numericValues.length) * 100) / 100;
           result[category][questionID] = { value: avg };
         } else {
           const freq = {};
-          for (const v of values) freq[v] = (freq[v] || 0) + 1;
+          for (const v of values) {
+            freq[v] = (freq[v] || 0) + 1;
+          }
           const maxFreq = Math.max(...Object.values(freq));
           const topValues = Object.keys(freq).filter((k) => freq[k] === maxFreq);
           // yesRate: fraction of true responses
-          const isBoolLike = values.every((v) => v === true || v === false);
-          const yesRate = isBoolLike ? Math.round((values.filter((v) => v === true).length / values.length) * 100) / 100 : undefined;
+          const yesRate = isBoolLike ? Math.round((values.filter((v) => v === true).length / boolLikeCount) * 100) / 100 : undefined;
           if (topValues.length === 1) {
             result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length, yesRate };
           } else {

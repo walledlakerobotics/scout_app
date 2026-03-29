@@ -349,7 +349,7 @@ function renderMatchButtons(teamNum, submissions) {
       btn.classList.add(matchWinner === teamAlliance ? "won" : "lost");
     }
     btn.addEventListener("click", () => {
-      location.href = `inspect.html?type=match&key=${matchKey}`;
+      location.href = `inspect.html?type=match&key=${matchKey}&team=${teamNum}`;
     });
     container.appendChild(btn);
   }
@@ -397,7 +397,9 @@ if (inspectType == "team") {
     loadTeam(currentIndex);
   });
 
-  await loadTeam(0);
+  const teamParam = URLParams.get("team");
+  const startIndex = teamParam ? Math.max(0, teams.findIndex((t) => t.teamNum === teamParam)) : 0;
+  await loadTeam(startIndex);
 }
 
 if (!eventKey) {

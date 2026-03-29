@@ -107,7 +107,7 @@ async function reorganizeLeaderboardData() {
           if (out === "_IGNORE") {
             out = "[N/A]";
           } else {
-            console.warn(question.type, res.yesRate);
+            console.warn(question, res);
 
             if (question.type == "toggle" && res.yesRate !== undefined) {
               // boolean question
