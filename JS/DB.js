@@ -47,7 +47,7 @@ export async function submitQuestionsOnline(answers, scoutID) {
       });
       const result = await res.json();
       console.log(result);
-      if (!res.ok || !result.id || result.id.length < 20) return false;
+      if (!res.ok || !result.id || result.id.length < 10) return false;
       return result;
     } catch {
       popupError("You seem to be offline. try uploading with QR.");
