@@ -20,7 +20,7 @@ export const LEADERBOARD_COLUMNS_SCOUTED = [
   { id: "skill", label: "Avg Driver Skill (of 10)" },
   { id: "contribution", label: "Avg Score Contribution %" },
   { id: "shooter_speed", label: "Avg Fuel/Second" },
-  //{ id: "_APT", label: "APT Score" },
+  { id: "_APT", label: "Avg Fuel Contribution" },
 ];
 export let LEADERBOARD_COLUMNS = [];
 
@@ -107,8 +107,6 @@ async function reorganizeLeaderboardData() {
           if (out === "_IGNORE") {
             out = "[N/A]";
           } else {
-            console.warn(question, res);
-
             if (question.type == "toggle" && res.yesRate !== undefined) {
               // boolean question
               const inverted = question?.leaderboard?.["lb-bool-inverted"] || false;
@@ -122,7 +120,7 @@ async function reorganizeLeaderboardData() {
             }
           }
         } catch {
-          console.error(evRaw.scoutedDataPTAvgsFlat[teamID], col.id);
+          //console.error(evRaw.scoutedDataPTAvgsFlat[teamID], col.id);
         }
 
         stats[col.id] = out;
@@ -195,7 +193,17 @@ export async function loadLeaderboard() {
     if (statElTemplate !== undefined) {
       columns.forEach((col, i) => {
         const thisElement = statElTemplate.cloneNode(true);
-        thisElement.textContent = stats[col.id] ?? "-";
+        const isValid = stats[col.id] || false;
+        if (isValid) {
+          thisElement.textContent = isValid;
+        } else if (col.id === "_APT") {
+          const contribution = Number(stats["contribution"]);
+          const TBASortOrders = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).rankings.rankings[stats.rank - 1];
+          const avgMatch = TBASortOrders.sort_orders[1];
+          thisElement.textContent = Math.round((avgMatch / 100) * contribution);
+        } else {
+          thisElement.textContent = "0";
+        }
         const filterBtn = document.querySelectorAll("#lb-filter .filter-option")[i];
         if (filterBtn?.classList.contains("col-hidden")) {
           thisElement.classList.add("col-hidden");
