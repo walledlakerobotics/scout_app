@@ -84,7 +84,7 @@
   gap: 0;
   padding: 0;
   min-width: fit-content;
-  padding: 0 5px;
+  padding: 0 10px;
 }
 
 .lb-next-btn:hover {
@@ -98,6 +98,8 @@
   align-items: center;
   justify-content: center;
   margin-top: 2px;
+  max-width: 35px;
+  flex-wrap: wrap;
 }
 
 .lb-next-btn .page-dot {

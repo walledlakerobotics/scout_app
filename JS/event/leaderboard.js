@@ -20,7 +20,8 @@ export const LEADERBOARD_COLUMNS_SCOUTED = [
   { id: "skill", label: "Avg Driver Skill (of 10)" },
   { id: "contribution", label: "Avg Score Contribution %" },
   { id: "shooter_speed", label: "Avg Fuel/Second" },
-  { id: "_APT", label: "Avg Fuel Contribution" },
+  { id: "AFC", label: "Avg Fuel Contribution" },
+  { id: "AAFC", label: "ESTIMATED Auton Fuel" },
 ];
 export let LEADERBOARD_COLUMNS = [];
 
@@ -194,12 +195,17 @@ export async function loadLeaderboard() {
       columns.forEach((col, i) => {
         const thisElement = statElTemplate.cloneNode(true);
         const isValid = stats[col.id] || false;
+        const TBASortOrders = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).rankings.rankings[stats.rank - 1];
+
         if (isValid) {
           thisElement.textContent = isValid;
-        } else if (col.id === "_APT") {
+        } else if (col.id === "AFC") {
           const contribution = Number(stats["contribution"]);
-          const TBASortOrders = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).rankings.rankings[stats.rank - 1];
           const avgMatch = TBASortOrders.sort_orders[1];
+          thisElement.textContent = Math.round((avgMatch / 100) * contribution);
+        } else if (col.id === "AAFC") {
+          const contribution = Number(stats["contribution"]);
+          const avgMatch = TBASortOrders.sort_orders[2];
           thisElement.textContent = Math.round((avgMatch / 100) * contribution);
         } else {
           thisElement.textContent = "0";
