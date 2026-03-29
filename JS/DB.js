@@ -29,10 +29,11 @@ export async function getDB(param) {
   return res.json();
 }
 
-export async function submitQuestionsOnline(answers, scoutID) {
+export async function submitQuestionsOnline(answers, scoutID, eventKey) {
   // miiiight want to make this check for auth tokens sometime. but not now. i don't care
-  const evCache = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`));
-  const thisEvent = evCache?.eventDetails || (await isActiveEvent().event);
+  const resolvedKey = eventKey || localStorage.getItem("currentEventKey");
+  const evCache = JSON.parse(localStorage.getItem(`eventCache_${resolvedKey}`));
+  const thisEvent = evCache?.eventDetails || (await isActiveEvent()).event;
 
   if (!thisEvent && !navigator.onLine) {
     popupError("You seem to be offline. try uploading with QR.");

@@ -164,7 +164,7 @@ uploadBtn.addEventListener("click", async () => {
 
   uploadBtn.textContent = "Uploading...";
   uploadBtn.disabled = true;
-  const done = await submitQuestionsOnline(finalData);
+  const done = await submitQuestionsOnline(finalData, null, eventKey);
   if (done) {
     uploadBtn.textContent = `Done! (ID: ${done.id ?? "?"})`;
     console.log("Uploaded with ID:", done.id);
