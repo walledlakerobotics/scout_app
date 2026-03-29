@@ -53,7 +53,7 @@ async function getOrganizedScoutedData() {
         sorted[questionID] = { value: data[category][questionID], category, version: submission.version || -1 };
       }
     }
-    const team = sorted.team?.value;
+    const team = sorted.team?.value != null ? String(sorted.team.value).trim() : undefined;
     if (team) {
       if (!organizedTeams[team]) organizedTeams[team] = [];
       organizedTeams[team].push(sorted);
@@ -130,9 +130,10 @@ async function getTeamData(teamKey, matchID = null) {
         result[category][questionID] = { value: "_IGNORE" };
         continue;
       }
-      const isNumeric = values.every((v) => typeof v === "number");
+      const numericValues = values.filter((v) => typeof v === "number");
+      const isNumeric = numericValues.length > 0 && !values.every((v) => v === true || v === false);
       if (isNumeric) {
-        const avg = Math.round((values.reduce((acc, v) => acc + v, 0) / values.length) * 100) / 100;
+        const avg = Math.round((numericValues.reduce((acc, v) => acc + v, 0) / numericValues.length) * 100) / 100;
         result[category][questionID] = { value: avg };
       } else {
         const freq = {};
