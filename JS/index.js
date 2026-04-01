@@ -17,7 +17,7 @@ const eventBtn = document.getElementById("eventBtn");
 eventBtn.classList.add("eventBtn");
 
 if (userProfile.role == "admin") {
-  //worst way of doing this ever. literally no other auth checks. just this.
+  //worst way of doing this ever. literally no other auth checks. just this. TODO FIXX!!!!
   adminBtn.classList.remove("hidden");
 }
 
@@ -59,7 +59,8 @@ eventBtn.addEventListener("click", () => {
     }
   } else {
     const errorMsg = document.getElementById("errMsg");
-    errorMsg.textContent = `Event scouting won't resume until ${new Date(nextValidEvent.start_date).toDateString()}, at ${nextValidEvent.location_name}. See you there!`;
+    const nextDate = nextValidEvent ? new Date(nextValidEvent?.start_date).toDateString() : null;
+    errorMsg.textContent = `Event scouting won't resume until ${nextDate || "the OCCRA season"}, at ${nextValidEvent?.location_name || "who knows where"}. See you ${nextDate ? "there" : "then"}!`;
     errorMsg.classList.remove("hidden");
   }
 });
