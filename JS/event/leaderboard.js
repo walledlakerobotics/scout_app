@@ -13,21 +13,31 @@ export const LEADERBOARD_COLUMNS_OFFLINE = [
   { id: "ap-potential", label: "AP Potential" },
 ];
 
-export const LEADERBOARD_COLUMNS_SCOUTED = [{ id: "avg-penalties", label: "Avg Penalties" }];
-export let LEADERBOARD_COLUMNS = useOnlineLeaderboardLayout ? [] : [...LEADERBOARD_COLUMNS_OFFLINE];
+// for this category, ids mean the question id that it'll try to get the info from
+export const LEADERBOARD_COLUMNS_SCOUTED = [
+  { id: "broke", label: "Bot Reliability (%)" },
+  { id: "accuracy", label: "Bot Accuracy (%)" },
+  { id: "skill", label: "Avg Driver Skill (of 10)" },
+  { id: "contribution", label: "Avg Score Contribution %" },
+  { id: "shooter_speed", label: "Avg Fuel/Second" },
+  { id: "AFC", label: "Avg Fuel Contribution" },
+  { id: "AAFC", label: "ESTIMATED Auton Fuel" },
+];
+export let LEADERBOARD_COLUMNS = [];
 
 async function initLeaderboard() {
   //check for stale data in the api, ask to fallback to scouted data only if last valid match is over 30m ago or there is no matches completed at all
   //TODO finish this
   const eventData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
-  const matches = eventData?.mData || [];
   const now = new Date().getTime();
   const lastUpdated = eventData?.lastUpdated || now;
 
-  const lastMatchTime = matches.reduce((latest, m) => {
-    const t = new Date(m.time * 1000);
-    return t > latest ? t : latest;
-  }, new Date(0)); // fooey!
+  const endDate = new Date(eventData?.eventDetails?.end_date || 0).getTime();
+
+  if (endDate && endDate < now) {
+    return;
+  }
+
   const seconds = Math.floor(Math.abs(lastUpdated - now) / 1000);
   if (seconds > 60 * 30) {
     confirm("A failsafe detected this data may be stale (30+ minutes old). It is recommended to refetch data.");
@@ -37,10 +47,25 @@ async function initLeaderboard() {
 
 initLeaderboard();
 
+function getQuestionsFlat() {
+  const evRaw = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)) ?? {};
+  const questions = evRaw.questionsData.data;
+  var sorted = {};
+  for (const category in questions) {
+    for (const questionID in questions[category]) {
+      sorted[questions[category][questionID].id] = questions[category][questionID];
+    }
+  }
+  return sorted;
+}
+
 async function reorganizeLeaderboardData() {
   if (useOnlineLeaderboardLayout) {
-    const raw = await TBA_GET(`/event/${eventKey}/rankings`);
+    var evRaw = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)) ?? {};
+    const raw = evRaw.rankings ? evRaw.rankings : await TBA_GET(`/event/${eventKey}/rankings`);
     if (!raw || !raw.rankings) return { columns: [], rows: [] };
+    evRaw.rankings = raw;
+    localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(evRaw));
 
     const sortCols = (raw.sort_order_info ?? []).map((info, i) => ({
       id: `sort-${i}`,
@@ -58,7 +83,7 @@ async function reorganizeLeaderboardData() {
       index: i,
     }));
 
-    const columns = [...sortCols, ...extraCols, ...LEADERBOARD_COLUMNS_SCOUTED];
+    const tbaColumns = [...sortCols, ...extraCols];
 
     const rows = raw.rankings.map((entry) => {
       const stats = { rank: entry.rank };
@@ -70,21 +95,47 @@ async function reorganizeLeaderboardData() {
         const val = entry.extra_stats?.[col.index];
         stats[col.id] = val != null ? +val.toFixed(col.precision) : "-";
       });
+      const qFlat = getQuestionsFlat();
       LEADERBOARD_COLUMNS_SCOUTED.forEach((col) => {
-        stats[col.id] = "-"; // TODO: fill from your scouted DB
+        //scoutedDataPTAvgs(Flat) is a thing so i can ez yoink it straight from there
+        const teamID = entry.team_key.slice(3);
+        const question = qFlat[col.id] || {};
+
+        try {
+          const res = evRaw.scoutedDataPTAvgsFlat[teamID][col.id];
+          var out = res.value;
+
+          if (out === "_IGNORE") {
+            out = "[N/A]";
+          } else {
+            if (question.type == "toggle" && res.yesRate !== undefined) {
+              // boolean question
+              const inverted = question?.leaderboard?.["lb-bool-inverted"] || false;
+              if (inverted) {
+                out = Math.round((1 - res.yesRate) * 100);
+              } else {
+                out = Math.round(res.yesRate * 100);
+              }
+            } else if (typeof out === "string") {
+              out = `${res.value} (${Math.round(res.frequency * 100)}%)`;
+            }
+          }
+        } catch {
+          //console.error(evRaw.scoutedDataPTAvgsFlat[teamID], col.id);
+        }
+
+        stats[col.id] = out;
       });
       return { teamKey: entry.team_key, stats };
     });
 
-    return { columns, rows };
+    return { tbaColumns, scoutedColumns: LEADERBOARD_COLUMNS_SCOUTED, rows };
   } else {
-    const raw = await getDB(`/db?eventKey=${eventKey}`)
-      .then((res) => res.ok && res.json())
-      .catch(() => null);
+    const raw = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).eventDetails;
 
     const scoutedData = raw?.data;
     const questionLayout = raw?.questions; // to get the names of the categories n stuff
-    return { columns: LEADERBOARD_COLUMNS_OFFLINE, rows: [] };
+    return { tbaColumns: LEADERBOARD_COLUMNS_OFFLINE, scoutedColumns: LEADERBOARD_COLUMNS_SCOUTED, rows: [] };
   }
 }
 
@@ -143,7 +194,22 @@ export async function loadLeaderboard() {
     if (statElTemplate !== undefined) {
       columns.forEach((col, i) => {
         const thisElement = statElTemplate.cloneNode(true);
-        thisElement.textContent = stats[col.id] ?? "-";
+        const isValid = stats[col.id] || false;
+        const TBASortOrders = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).rankings.rankings[stats.rank - 1];
+
+        if (isValid) {
+          thisElement.textContent = isValid;
+        } else if (col.id === "AFC") {
+          const contribution = Number(stats["contribution"]);
+          const avgMatch = TBASortOrders.sort_orders[1];
+          thisElement.textContent = Math.round((avgMatch / 100) * contribution);
+        } else if (col.id === "AAFC") {
+          const contribution = Number(stats["contribution"]);
+          const avgMatch = TBASortOrders.sort_orders[2];
+          thisElement.textContent = Math.round((avgMatch / 100) * contribution);
+        } else {
+          thisElement.textContent = "0";
+        }
         const filterBtn = document.querySelectorAll("#lb-filter .filter-option")[i];
         if (filterBtn?.classList.contains("col-hidden")) {
           thisElement.classList.add("col-hidden");
@@ -191,32 +257,48 @@ export async function loadLeaderboard() {
     return;
   }
 
-  const { columns, rows } = await reorganizeLeaderboardData();
+  const { tbaColumns, scoutedColumns, rows } = await reorganizeLeaderboardData();
 
-  document.getElementById("lb-header").textContent = `${rows.length || "0"} Teams`;
+  const lbSets = [
+    { label: "TBA", columns: tbaColumns },
+    { label: "Local", columns: scoutedColumns },
+  ];
+  let currentLbIndex = 0;
 
-  LEADERBOARD_COLUMNS.length = 0;
-  columns.forEach((c) => LEADERBOARD_COLUMNS.push(c));
+  function renderLb() {
+    // clear rows
+    teamList.querySelectorAll(".team:not(.template)").forEach((el) => el.remove());
 
-  // trigger UI to rebuild with the real column list
-  document.dispatchEvent(new CustomEvent("lb-columns-ready"));
+    const { label, columns } = lbSets[currentLbIndex];
+    document.getElementById("lb-header").textContent = label;
 
-  // render rows in rank order (TBA already sorts them, but just in case)
-  rows
-    .sort((a, b) => (a.stats.rank ?? 0) - (b.stats.rank ?? 0))
-    .forEach(({ teamKey, stats }) => {
-      const number = teamKey.replace("frc", "");
-      createTeam(number, stats, columns);
-    });
+    LEADERBOARD_COLUMNS.length = 0;
+    columns.forEach((c) => LEADERBOARD_COLUMNS.push(c));
+    document.dispatchEvent(new CustomEvent("lb-columns-ready"));
+
+    rows
+      .sort((a, b) => (a.stats.rank ?? 0) - (b.stats.rank ?? 0))
+      .forEach(({ teamKey, stats }) => {
+        const number = teamKey.replace("frc", "");
+        createTeam(number, stats, columns);
+      });
+
+    console.warn("Leaderboard rendered:", label, columns);
+  }
+
+  document.getElementById("nextLbBtn").addEventListener("click", () => {
+    currentLbIndex = (currentLbIndex + 1) % lbSets.length;
+    renderLb();
+  });
+
+  renderLb();
 
   template.classList.add("hidden");
-  console.warn("Leaderboard successfully populated:", columns, rows);
 }
 
 document.addEventListener("lb-sort-change", ({ detail }) => {
   const teamList = document.getElementById("team-list");
   const teams = Array.from(teamList.querySelectorAll(".team:not(.template)"));
-
   if (detail.col === null) {
     teams
       .sort((a, b) => {
@@ -224,7 +306,12 @@ document.addEventListener("lb-sort-change", ({ detail }) => {
         const rb = parseInt(b.querySelector(".team-rank").textContent) || 9999;
         return ra - rb;
       })
-      .forEach((el) => teamList.appendChild(el));
+      .forEach((el) => {
+        //const guh = el.querySelector(".team-sub-rank");
+        //guh.style.display = "block";
+        //guh.textContent = teams.indexOf(el);
+        teamList.appendChild(el);
+      });
     return;
   }
 
@@ -233,7 +320,7 @@ document.addEventListener("lb-sort-change", ({ detail }) => {
 
   teams
     .sort((a, b) => {
-      // only works if each stat is in the right order
+      // only works if each stat is in the right order but who cares amirite
       const statsA = Array.from(a.querySelectorAll(".team-stat"));
       const statsB = Array.from(b.querySelectorAll(".team-stat"));
       const valA = parseFloat(statsA[detail.col]?.textContent) ?? -Infinity;
@@ -246,7 +333,7 @@ document.addEventListener("lb-sort-change", ({ detail }) => {
     .forEach((el) => teamList.appendChild(el));
 });
 
-//sort + column paging. entirely claude.
+//sort + column paging. entirely claude!!! spending my time on this wouldnt have been worth it especially due to the time constraints
 
 (function () {
   const ICON_DEFAULT = "chevron-expand-outline";

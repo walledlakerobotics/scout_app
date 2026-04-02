@@ -13,7 +13,6 @@ async function checkAuth() {
       const data = await response.json();
       console.log(data);
       if (data.success) {
-        // update token if new one is provided???
         if (data.token) {
           localStorage.setItem("scoutingAuthToken", data.token);
         }

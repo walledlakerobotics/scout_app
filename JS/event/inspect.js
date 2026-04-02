@@ -34,6 +34,7 @@ const barTemplate = categoryTemplate.querySelector("#stat-bar-template");
 const txtTemplate = categoryTemplate.querySelector("#stat-txt-template");
 
 const mts = document.querySelector(".match-team-select");
+var matchesScouted = {};
 //BIG sorting functions to crunch total scouted data
 
 async function getOrganizedScoutedData() {
@@ -52,19 +53,22 @@ async function getOrganizedScoutedData() {
         sorted[questionID] = { value: data[category][questionID], category, version: submission.version || -1 };
       }
     }
-    const team = sorted.team?.value;
-    if (team) {
+    const team = sorted.team?.value != null ? String(Number(String(sorted.team.value).trim())) : undefined;
+    if (team && team !== "NaN") {
       if (!organizedTeams[team]) organizedTeams[team] = [];
       organizedTeams[team].push(sorted);
     }
   }
   return organizedTeams;
 }
+
 async function getTeamData(teamKey, matchID = null) {
-  console.warn(teamKey, matchID);
+  console.log(teamKey);
   const organizedTeams = await getOrganizedScoutedData();
-  const submissions = organizedTeams[teamKey];
+  const submissions = organizedTeams[String(Number(String(teamKey).trim()))];
   if (!submissions) return {};
+
+  matchesScouted = submissions;
 
   if (matchID !== null) {
     console.log(submissions);
@@ -83,11 +87,14 @@ async function getTeamData(teamKey, matchID = null) {
     return { data: result, scouter };
   }
 
+  const cachedAvg = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`))?.scoutedDataPTAvg?.[teamKey];
+  if (cachedAvg) return { data: cachedAvg, scouter: "N/A" };
+
   const getVersion = (s) => Object.entries(s).find(([k]) => k !== "_scoutID")?.[1]?.version ?? -1;
   const maxVersion = Math.max(...submissions.map(getVersion));
   const layoutRef = submissions.find((s) => getVersion(s) === maxVersion);
   const validQuestions = new Set(Object.keys(layoutRef ?? {}));
-
+  console.warn(layoutRef, maxVersion);
   const questionsRaw = JSON.parse(localStorage.getItem(`eventCache_${localStorage.getItem("currentEventKey")}`))?.questionsData?.data ?? {};
   const questionTypes = {};
   for (const categoryID in questionsRaw) {
@@ -107,6 +114,7 @@ async function getTeamData(teamKey, matchID = null) {
       const { value, category } = submission[questionID];
       if (!collected[category]) collected[category] = {};
       if (!collected[category][questionID]) collected[category][questionID] = [];
+      if (value === "_IGNORE") continue;
       const coerced = typeof value === "boolean" ? value : isNaN(Number(value)) || value === "" ? value : Math.round(Number(value) * 100) / 100;
       if (questionTypes[questionID] === "timer" && Math.floor(parseInt(Number(coerced))) == 0) continue;
       collected[category][questionID].push(coerced);
@@ -119,23 +127,31 @@ async function getTeamData(teamKey, matchID = null) {
     result[category] = {};
     for (const questionID in collected[category]) {
       const values = collected[category][questionID];
-      const isNumeric = values.every((v) => typeof v === "number");
+      if (values.length === 0) {
+        result[category][questionID] = { value: "_IGNORE" };
+        continue;
+      }
+      const numericValues = values.filter((v) => typeof v === "number");
+      const isNumeric = numericValues.length > 0 && !values.every((v) => v === true || v === false);
       if (isNumeric) {
-        const avg = Math.round((values.reduce((acc, v) => acc + v, 0) / values.length) * 100) / 100;
+        const avg = Math.round((numericValues.reduce((acc, v) => acc + v, 0) / numericValues.length) * 100) / 100;
         result[category][questionID] = { value: avg };
       } else {
         const freq = {};
         for (const v of values) freq[v] = (freq[v] || 0) + 1;
         const maxFreq = Math.max(...Object.values(freq));
         const topValues = Object.keys(freq).filter((k) => freq[k] === maxFreq);
+        const isBoolLike = values.every((v) => v === true || v === false);
+        const yesRate = isBoolLike ? Math.round((values.filter((v) => v === true).length / values.length) * 100) / 100 : undefined;
         if (topValues.length === 1) {
-          result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length };
+          result[category][questionID] = { value: topValues[0], frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length, yesRate };
         } else {
-          result[category][questionID] = { value: "Mixed", frequency: maxFreq / values.length, totalCount: values.length };
+          result[category][questionID] = { value: isBoolLike ? topValues[0] : "Mixed", frequency: Math.round((maxFreq / values.length) * 100) / 100, totalCount: values.length, yesRate };
         }
       }
     }
   }
+  console.warn(result);
   return { data: result, scouter: "N/A" };
 }
 
@@ -155,23 +171,21 @@ function newStat(type = "pill", parent, label, qData) {
 
     const barFill = clone.querySelector(".stat-bar-fill");
     const textElem = clone.querySelector(".minmax");
-    const isPercentage = qData.qType !== "slider";
     let width;
-    if (isPercentage) {
-      width = (qData.frequency ?? 0) * 100;
-      if (qData.totalCount) {
-        var max = qData.totalCount;
-        var count = Math.round((qData.frequency ?? 0) * qData.totalCount);
-        if (value == "No") count = max - count;
-        textElem.textContent = `${count} / ${max}`;
-      } else {
-        textElem.textContent = `${Math.round(width)} / 100`;
-      }
-    } else {
+    if (qData.qType === "slider") {
       const min = qData.qMin ?? 0;
       const max = qData.qMax ?? 100;
       width = ((qData.value - min) / (max - min)) * 100;
       textElem.textContent = `${qData.value} / ${max}`;
+    } else {
+      const freq = qData.frequency ?? 0;
+      width = freq * 100;
+      if (qData.totalCount) {
+        const count = Math.round(freq * qData.totalCount);
+        textElem.textContent = `${count} / ${qData.totalCount}`;
+      } else {
+        textElem.textContent = `${Math.round(width)} / 100`;
+      }
     }
     barFill.style.width = `${width}%`;
   } else if (type == "pill") {
@@ -259,7 +273,8 @@ function renderStats(teamData) {
 
       const qData = teamData[categoryID][questionID];
       let displayValue = qData.value;
-      if (displayValue === true || displayValue === "true") displayValue = "Yes";
+      if (displayValue === "_IGNORE") displayValue = "[N/A]";
+      else if (displayValue === true || displayValue === "true") displayValue = "Yes";
       else if (displayValue === false || displayValue === "false") displayValue = "No";
 
       if (displayValue === null || displayValue === undefined || displayValue === "") continue;
@@ -298,17 +313,59 @@ function clearStats() {
     .forEach((el) => el.remove());
 }
 
+const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData ?? [];
+
+function renderMatchButtons(teamNum, submissions) {
+  const container = document.getElementById("others-container");
+  const teamAvgBtn = container.querySelector(".btn-template");
+
+  container.querySelectorAll("button:not(.btn-template)").forEach((el) => el.remove());
+
+  if (isAvgMode) {
+    teamAvgBtn.style.display = "none";
+  } else {
+    teamAvgBtn.style.display = "";
+    teamAvgBtn.classList.add("ta");
+    teamAvgBtn.onclick = () => {
+      location.href = `inspect.html?type=team&key=${teamNum}`;
+    };
+  }
+
+  if (!submissions?.length) return;
+
+  const teamKeyFull = `frc${teamNum}`;
+  submissions.reverse();
+  for (const submission of submissions) {
+    const matchNum = submission.match?.value;
+    if (!matchNum) continue;
+
+    const matchEntry = mData.find((m) => m.match_number == matchNum && m.comp_level === "qm") ?? mData.find((m) => m.match_number == matchNum);
+    const matchKey = matchEntry?.key ?? `${eventKey}_qm${matchNum}`;
+    const matchWinner = matchEntry?.winning_alliance;
+    const teamAlliance = matchEntry?.alliances.blue.team_keys.includes(teamKeyFull) ? "blue" : "red";
+
+    const btn = document.createElement("button");
+    btn.textContent = `Match #${matchNum}`;
+    btn.className = "main-button striped-bg-img";
+    if (matchWinner && matchWinner !== "") {
+      btn.classList.add(matchWinner === teamAlliance ? "won" : "lost");
+    }
+    btn.addEventListener("click", () => {
+      location.href = `inspect.html?type=match&key=${matchKey}&team=${teamNum}`;
+    });
+    container.appendChild(btn);
+  }
+}
+
 if (inspectType == "team") {
   const { data: teamData, scouter } = await getTeamData(inspectKey);
   console.log(teamData);
   loadHero(inspectKey, teamData, scouter?.name);
-  if (teamData) {
-    renderStats(teamData);
-  }
+  if (teamData) renderStats(teamData);
   mts.style.display = "none";
+  renderMatchButtons(inspectKey, matchesScouted);
 } else {
   mts.style.display = "flex";
-  const mData = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.mData ?? [];
   const match = mData.find((m) => m.key == inspectKey);
   const matchNumber = match?.match_number?.toString();
 
@@ -324,10 +381,12 @@ if (inspectType == "team") {
     document.getElementById("hero-startpos").textContent = "—";
     document.getElementById("team-name").textContent = "Team";
     clearStats();
+    renderMatchButtons(teamNum, null); // clear while loading
 
     const { data: teamData, scouter } = await getTeamData(teamNum, matchNumber);
     loadHero(teamNum, teamData, scouter?.name);
     if (teamData) renderStats(teamData);
+    renderMatchButtons(teamNum, matchesScouted);
   }
 
   document.getElementById("swap-left").addEventListener("click", () => {
@@ -340,14 +399,23 @@ if (inspectType == "team") {
     loadTeam(currentIndex);
   });
 
-  loadTeam(0);
+  const teamParam = URLParams.get("team");
+  const startIndex = teamParam
+    ? Math.max(
+        0,
+        teams.findIndex((t) => t.teamNum === teamParam)
+      )
+    : 0;
+  await loadTeam(startIndex);
 }
 
 if (!eventKey) {
   location.href = "/HTML/index.html?msg=Yeahhh%20idk%20either";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  inspectTypeElement.textContent = inspectKey;
-  eventTitle.textContent = `${eventDetails.year} ${eventDetails.district?.abbreviation?.toUpperCase() || eventDetails.short_name} ${eventDetails.short_name} Event`; //.textContent = `${inspectType} ${inspectKey}`;
-});
+window.back = function () {
+  location.href = `/HTML/event-frc.html?eventKey=${eventKey}`;
+};
+
+inspectTypeElement.textContent = inspectKey;
+eventTitle.textContent = `${eventDetails.year} ${eventDetails.district?.abbreviation?.toUpperCase() || eventDetails.short_name} ${eventDetails.short_name} Event`;

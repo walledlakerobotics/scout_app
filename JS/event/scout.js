@@ -50,17 +50,21 @@ function showOptions() {
 function setOfflineQuestionsVisibility(visible) {
   const e = document.querySelectorAll(".offlineQuestion");
   for (const element of e) {
-    element.style.display = visible ? "block" : "none";
+    if (visible) {
+      element.classList.remove("disabled");
+    } else {
+      element.classList.add("disabled");
+    }
   }
+  localStorage.setItem("offlineQuestions", visible ? "true" : "false");
+  document.dispatchEvent(new Event("offlineVisibilityChanged"));
   if (!offlineBtn) {
     return;
   }
   if (visible) {
     offlineBtn.innerHTML = `<ion-icon name="cloud-offline-outline"></ion-icon>`;
-    localStorage.setItem("offlineQuestions", "true");
   } else {
     offlineBtn.innerHTML = `<ion-icon name="wifi-outline"></ion-icon>`;
-    localStorage.setItem("offlineQuestions", "false");
   }
 }
 

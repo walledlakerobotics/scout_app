@@ -16,6 +16,49 @@
   flex-shrink: 0;
 }
 
+.select-others {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  max-width: 900px;
+}
+
+#others-header {
+  margin: 0;
+}
+
+#others-container {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+  height: fit-content;
+  overflow-x: scroll;
+  scrollbar-color: rgba(var(--theme-main-rgb), 0.5) transparent;
+  scrollbar-width: thin;
+  padding-bottom: 5px;
+}
+
+.select-others button {
+  height: 45px;
+  width: fit-content;
+  padding: 5px 15px;
+}
+
+.won {
+  filter: sepia(1) saturate(2) hue-rotate(45deg);
+}
+.lost {
+  filter: sepia(1) saturate(4) hue-rotate(313deg);
+}
+.ta {
+  filter: sepia(1) saturate(3) hue-rotate(0);
+}
+
 .inspect-panel {
   width: 100%;
   flex: 1;

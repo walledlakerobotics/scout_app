@@ -123,7 +123,7 @@ function handleQRCode(data) {
   if (data != "" || data != "{}") {
     const parsedData = {
       questions: {
-        data: retagResponses(JSON.parse(data).data, JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).questionsData.data, JSON.parse(data).offlineEnabled !== false),
+        data: retagResponses(JSON.parse(data).data, JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).questionsData.data, JSON.parse(data).offlineEnabled !== false, new Set(JSON.parse(data).disabledIds || [])), ///god
         version: JSON.parse(data).version,
       },
       scoutID: JSON.parse(data).scoutID || -1,
@@ -240,8 +240,8 @@ async function uploadThings() {
       setAlert(true, `Uploading Team ${teamNumber}...`);
       const done = await submitQuestionsOnline(data);
       if (done) {
-        console.log("Uploaded data for scoutID:", data.scoutID);
-        succeeded.push(data);
+        console.log("Uploaded data for scoutID:", data.scoutID, "DB ID:", done.id);
+        succeeded.push({ ...data, dbId: done.id });
       } else {
         console.warn("Failed to upload data for scoutID:", data.scoutID);
         failed.push(data);
@@ -279,7 +279,8 @@ async function uploadThings() {
   uploadBtn.innerHTML = '<ion-icon name="cloud-upload-outline"></ion-icon> Upload to Cloud';
 
   if (failed.length === 0) {
-    msgTimeout(`All ${succeeded.length} teams uploaded!`, 3000);
+    const ids = succeeded.map((d) => d.dbId ?? "?").join(", ");
+    msgTimeout(`All ${succeeded.length} teams uploaded! (IDs: ${ids})`, 4000);
   } else {
     const failedTeams = failed.map((d) => d.questions?.data?.prematch?.team || d.scoutID).join(", "); //magic
     msgTimeout(`${succeeded.length}/${succeeded.length + failed.length} uploaded. Failed: ${failedTeams}`, 4000);

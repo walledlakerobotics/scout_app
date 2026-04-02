@@ -151,6 +151,14 @@
   border: 1px solid var(--theme-main-accent);
   overflow: hidden;
   box-sizing: border-box;
+  max-height: 150px;
+  transition: all 0.3s cubic-bezier(0.13, 0.74, 0.58, 1);
+}
+
+.form-input.disabled {
+  opacity: 0;
+  max-height: 0px !important;
+  margin: -8.5px 0;
 }
 
 #toggle .body h2 {

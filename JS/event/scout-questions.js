@@ -19,6 +19,8 @@ if (!eventKey) {
 var questions = null;
 var questionsVersion = -1; // unknown
 let responses = {};
+const questionLookup = {}; // id { defaultState, categoryId, questionIndex }
+const dependentElements = []; // { element, depends, isOffline }
 var reset = false;
 
 function newTemplateFromID(id) {
@@ -67,12 +69,32 @@ function updateResponse(elementId, value, dontupdate) {
   }
 
   responses[categoryId][questionIndex] = value;
+  updateDependencyVisibility();
   if (resetBtn.disabled) {
     resetBtn.disabled = false;
   }
   if (!(dontupdate || false)) {
     saveResponses();
     console.log("Responses updated:", responses);
+  }
+}
+
+function updateDependencyVisibility() {
+  const offlineEnabled = localStorage.getItem("offlineQuestions") === "true";
+  for (const { element, depends, isOffline } of dependentElements) {
+    const depHidden = depends.some((depId) => {
+      const meta = questionLookup[depId];
+      if (!meta) return false;
+      const currentValue = responses[meta.categoryId]?.[meta.questionIndex];
+      return currentValue !== meta.defaultState;
+    });
+    const offlineHidden = isOffline && !offlineEnabled;
+
+    if (depHidden || offlineHidden) {
+      element.classList.add("disabled");
+    } else {
+      element.classList.remove("disabled");
+    }
   }
 }
 
@@ -92,11 +114,13 @@ function saveResponses() {
 
 function checkIsFormComplete(responses, questions) {
   var errs = false;
+  const disabledIds = getDisabledQuestionIds();
   console.log(questions);
   for (const categoryId in questions) {
     const categoryQuestions = questions[categoryId];
 
     categoryQuestions.forEach((questionInfo, index) => {
+      if (questionInfo.id && disabledIds.has(questionInfo.id)) return;
       if ((questionInfo.required === true && questionInfo.offline === (false || undefined)) || (questionInfo.required === true && questionInfo.offline === true && localStorage.getItem("offlineQuestions") == "true")) {
         const currentResponse = responses[categoryId]?.[index];
         if (currentResponse === questionInfo.state) {
@@ -109,11 +133,24 @@ function checkIsFormComplete(responses, questions) {
   return !errs;
 }
 
+function getDisabledQuestionIds() {
+  const disabledIds = new Set();
+  for (const { element } of dependentElements) {
+    if (element.classList.contains("disabled")) {
+      const categoryId = element.closest(".category").id;
+      const index = parseInt(element.dataset.questionIndex);
+      const q = questions[categoryId]?.[index];
+      if (q?.id) disabledIds.add(q.id);
+    }
+  }
+  return disabledIds;
+}
+
 uploadBtn.addEventListener("click", async () => {
   const offlineEnabled = localStorage.getItem("offlineQuestions") === "true";
   const finalData = {
     questions: {
-      data: retagResponses(responses, questions, offlineEnabled),
+      data: retagResponses(responses, questions, offlineEnabled, getDisabledQuestionIds()),
       version: questionsVersion,
     },
     scoutID: JSON.parse(localStorage.getItem("userProfile"))?.id || -1,
@@ -127,9 +164,10 @@ uploadBtn.addEventListener("click", async () => {
 
   uploadBtn.textContent = "Uploading...";
   uploadBtn.disabled = true;
-  const done = await submitQuestionsOnline(finalData);
+  const done = await submitQuestionsOnline(finalData, null, eventKey);
   if (done) {
-    uploadBtn.textContent = "Done!";
+    uploadBtn.textContent = `Done! (ID: ${done.id ?? "?"})`;
+    console.log("Uploaded with ID:", done.id);
   } else {
     uploadBtn.disabled = false;
     uploadBtn.innerHTML = `<ion-icon name="cloud-upload-outline" role="img" class="md hydrated"></ion-icon>Upload To Cloud`;
@@ -148,11 +186,20 @@ qrBtn.addEventListener("click", () => {
     return;
   }
 
+  const disabledIds = getDisabledQuestionIds();
+  const qrResponses = {};
+  for (const categoryId in responses) {
+    qrResponses[categoryId] = responses[categoryId].map((value, index) => {
+      const q = questions[categoryId]?.[index];
+      return q?.id && disabledIds.has(q.id) ? "_IGNORE" : value;
+    });
+  }
+
   data = JSON.stringify({
     scoutID: userData?.id || -1,
     version: questionsVersion,
     offlineEnabled: localStorage.getItem("offlineQuestions") === "true",
-    data: responses,
+    data: qrResponses,
   });
 
   console.log(responses);
@@ -224,13 +271,13 @@ resetBtn.addEventListener("click", () => {
 
 async function init() {
   const categories = document.querySelectorAll(".category");
-  const offlineQuestions = localStorage.getItem("offlineQuestions");
   // if you don't like nested if's then you may want to avert your eyes
 
   const forceRefresh = localStorage.getItem("reloadQuestions") === "true";
   if (forceRefresh) localStorage.removeItem("reloadQuestions");
 
   let cache = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
+  const oldVer = cache.questionsData.version;
   console.log(forceRefresh);
   var failed = false;
 
@@ -252,6 +299,8 @@ async function init() {
     URLSP.delete("setupComplete");
     history.replaceState(null, "", `${location.pathname}?${URLSP}`);
     showPopup(true, "Ready for Offline", "You're all set!\nAdd this page to your home screen to be ready for game day <b>(share > more > add to home screen)</b>.\n\nIn the mean time, get used to the questions shown here. This prompt won't be shown again.");
+  } else if (forceRefresh && cache.questionsData.version) {
+    showPopup(true, "Notice", `Questionnaire has been updated:\n\n<b>v${oldVer} -> v${cache.questionsData.version}</b>\n\nPlease confirm your responses before submitting.`);
   }
 
   const data = cache.questionsData.data;
@@ -289,9 +338,6 @@ async function init() {
 
           if (questionInfo.offline == true) {
             element.classList.add("offlineQuestion");
-          }
-          if (offlineQuestions === "false" && questionInfo.offline == true) {
-            element.style.display = "none";
           }
 
           const infoBtn = element.querySelector(".infobtn");
@@ -448,11 +494,28 @@ async function init() {
           } else {
             console.warn("missing case or element for type:", qType);
           }
+
+          if (questionInfo.id) {
+            questionLookup[questionInfo.id] = {
+              defaultState: questions[id][index].state,
+              categoryId: id,
+              questionIndex: index,
+            };
+          }
+          if (questionInfo.depends || questionInfo.offline) {
+            dependentElements.push({
+              element,
+              depends: questionInfo.depends || [],
+              isOffline: questionInfo.offline === true,
+            });
+          }
+
           categoryFormElement.appendChild(element);
           element.classList.remove("form-template");
         });
       }
     });
+    updateDependencyVisibility();
   } catch (error) {
     console.error("Could not fetch questions:", error);
   }
@@ -469,6 +532,7 @@ window.back = function () {
 };
 
 window.addEventListener("beforeunload", saveResponses);
+document.addEventListener("offlineVisibilityChanged", updateDependencyVisibility);
 
 window.incrementCounter = incrementCounter;
 window.decrementCounter = decrementCounter;

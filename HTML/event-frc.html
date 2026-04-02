@@ -17,7 +17,7 @@
   <div class="main">
     <div class="header">
       <div class="left">
-        <img src="../Img/FIRST_mono.png" />
+        <img src="../Img/icon-header.png" />
         <h1 class="event-title tc-formatted" id="eventNameHeader">Fetching Event Name...</h1>
       </div>
       <div class="right">
@@ -28,6 +28,9 @@
         <button class="mini-btn" onclick="reloadPage()">
           <ion-icon name="refresh"></ion-icon>
         </button>
+        <button class="mini-btn ap-select-btn" onclick="allianceSelection()">
+          <ion-icon style="color: rgb(62, 212, 28)" name="people-outline"></ion-icon>
+        </button>
         <button class="mini-btn" id="nextPageBtn">
           <ion-icon name="trophy-outline"></ion-icon>
         </button>
@@ -36,19 +39,26 @@
     <div class="text-container">
       <div class="body-section body-left">
         <div class="descriptor">
-          <h1 id="lb-header">- Teams</h1>
+          <div class="lb-header-div">
+            <button class="mini-btn" id="nextLbBtn">
+              <ion-icon name="swap-horizontal-outline"></ion-icon>
+            </button>
+            <h1 id="lb-header">TBA</h1>
+          </div>
           <div class="filter-container">
             <div class="lb-filter" id="lb-filter"></div>
-            <button class="lb-next-btn" id="lb-next-btn" title="Next sort column">
-              <ion-icon name="chevron-forward-outline"></ion-icon>
-            </button>
+            <button class="lb-next-btn" id="lb-next-btn" title="Next sort column"></button>
           </div>
         </div>
 
         <div class="team-list" id="team-list">
           <div class="team template hidden" id="lb-team-template">
             <div class="team-left">
-              <h1 class="team-rank">-</h1>
+              <div class="team-rankings">
+                <h1 class="team-rank">-</h1>
+                <h4 class="team-sub-rank" style="display: none">-</h4>
+              </div>
+
               <div class="team-logo-wrapper">
                 <img
                   class="team-logo"
@@ -133,10 +143,16 @@
               <ion-icon name="qr-code-outline"></ion-icon>
               Upload Data: Scan QR Codes
             </button>
-            <button id="btn-offline">
-              <ion-icon name="clipboard-outline"></ion-icon>
-              Go to General Scouting Form
-            </button>
+            <div class="scout-btns-bottom">
+              <button id="btn-offline">
+                <ion-icon name="clipboard-outline"></ion-icon>
+                Pit Scouting
+              </button>
+              <button id="btn-offline">
+                <ion-icon name="clipboard-outline"></ion-icon>
+                Match Scouting
+              </button>
+            </div>
           </div>
         </div>
       </div>
