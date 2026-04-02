@@ -37,7 +37,6 @@ saveJsonBtn.addEventListener("click", async () => {
   const jsonData = jsonInput.value;
   try {
     const parsedData = JSON.parse(jsonData);
-    // Here you would typically send the parsedData to your server or process it as needed
     console.log("Parsed JSON:", parsedData);
 
     const result = await questionDB("POST", parsedData);

@@ -333,7 +333,7 @@ document.addEventListener("lb-sort-change", ({ detail }) => {
     .forEach((el) => teamList.appendChild(el));
 });
 
-//sort + column paging. entirely claude.
+//sort + column paging. entirely claude!!! spending my time on this wouldnt have been worth it especially due to the time constraints
 
 (function () {
   const ICON_DEFAULT = "chevron-expand-outline";
