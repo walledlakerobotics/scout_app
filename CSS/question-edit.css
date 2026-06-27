@@ -1,0 +1,92 @@
+.main {
+  user-select: none;
+}
+
+.tablist {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+.mainBtn,
+#new-tab-btn {
+  width: fit-content;
+  padding: 6px 20px;
+  font-size: 18px;
+  height: 40px;
+  background-color: rgba(124, 142, 255, 0.096);
+}
+.mainBtn:hover {
+  padding: 5px 30px;
+}
+.mainBtn:active {
+  padding: 5px 15px;
+}
+
+#new-tab-btn {
+  aspect-ratio: 1;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 100%;
+}
+#new-tab-btn:hover {
+  width: 44px;
+  height: 44px;
+  padding: 0px;
+}
+
+.activeTab {
+  background-image: var(--striped-bg-img);
+  padding: 5px 30px;
+}
+
+/*  WHERE QUESTIONS ARE POPULATED  */
+
+.manage-panel {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  gap: 5px;
+}
+
+.input-list {
+  width: 100%;
+  height: fit-content;
+}
+
+.edit-main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: fit-content;
+  padding: 20px;
+  border-radius: 40px;
+}
+
+.tab-selected {
+  display: none;
+}
+
+hr {
+  height: 1px;
+  background-color: var(--theme-main-border-color);
+  border: none;
+  width: 100%;
+  margin: 20px;
+}
+.vr {
+  height: 100%;
+  background-color: var(--theme-main-border-color);
+  border: none;
+  width: 1px;
+  margin: 0 20px 0 20px;
+}
+
+#tab-template {
+  display: none;
+}

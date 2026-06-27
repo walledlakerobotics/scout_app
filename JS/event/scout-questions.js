@@ -277,7 +277,7 @@ async function init() {
   if (forceRefresh) localStorage.removeItem("reloadQuestions");
 
   let cache = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
-  const oldVer = cache.questionsData.version;
+  const oldVer = cache?.questionsData?.version || "?";
   console.log(forceRefresh);
   var failed = false;
 

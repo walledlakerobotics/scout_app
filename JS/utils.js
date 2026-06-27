@@ -34,12 +34,19 @@ export function getUserTeam() {
   return team;
 }
 
-export async function isActiveEvent() {
+export async function isActiveEvent(overrideStr) {
   // returns { isActive: boolean, event: currentevent/nextevent/null}
+
+  if (overrideStr) {
+    const event = await TBA_GET(`/event/${overrideStr}`);
+    if (!event) return false;
+    return { isActive: true, event };
+  }
 
   let currentEvent = null;
   let nextEvent = null;
   const devOverride = true;
+
   try {
     const team = getUserTeam();
     const now = new Date();

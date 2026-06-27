@@ -377,7 +377,7 @@
       "id": "contribution",
       "depends": ["noshow"],
       "leaderboard": {
-        "title-avg": "Avg Score Contribution",
+        "title-avg": "Est. Avg Score Contribution",
         "title-single": "Est. % Contribution",
         "category-override": "Bot & Driver",
         "visibility": "both",
