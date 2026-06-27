@@ -20,7 +20,7 @@
   height: 40px;
   background-color: rgba(124, 142, 255, 0.096);
 }
-.mainBtn:hover {
+.mainBtn:hover:not(.needs-selection):not(:disabled) {
   padding: 5px 30px;
 }
 .mainBtn:active {
@@ -47,25 +47,43 @@
 
 /*  WHERE QUESTIONS ARE POPULATED  */
 
-.manage-panel {
+.manage-header-buttons {
   width: 100%;
   height: fit-content;
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 5px;
 }
 
 .input-list {
   width: 100%;
+  min-width: fit-content;
   height: fit-content;
 }
 
-.edit-main {
+.edit-container {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: fit-content;
   padding: 20px;
   border-radius: 40px;
+  gap: 20px;
+}
+
+.edit-main {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: fit-content;
+}
+
+.needs-selection {
+  opacity: 0.4;
+  scale: 1;
+  cursor: not-allowed;
 }
 
 .tab-selected {

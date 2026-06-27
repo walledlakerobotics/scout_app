@@ -29,20 +29,38 @@
           <ion-icon name="add-circle"></ion-icon>
         </button>
       </div>
-      <div class="edit-main themed-frosted tab-selected">
-        <div class="manage-panel">
+      <div class="edit-container themed-frosted tab-selected">
+        <div class="manage-header-buttons">
           <button class="mainBtn manage-btn" id="new-question-btn">
             <ion-icon name="add-circle"></ion-icon>
             New
           </button>
-          <button class="mainBtn manage-btn">
+          <button class="mainBtn manage-btn needs-selection">
             <ion-icon name="create"></ion-icon>
-            Edit Selected
+            Edit
+          </button>
+          <button class="mainBtn manage-btn needs-selection">
+            <ion-icon name="chevron-up-circle"></ion-icon>
+            Shift Up
+          </button>
+          <button class="mainBtn manage-btn needs-selection">
+            <ion-icon name="chevron-down-circle"></ion-icon>
+            Shift Down
+          </button>
+          <button class="mainBtn manage-btn needs-selection">
+            <ion-icon name="trash"></ion-icon>
+            Delete
           </button>
         </div>
-        <div id="input-list">
-          <!--questions get populated here-->
+        <div class="edit-main">
+          <div class="edit-params">
+
+          </div>
+          <div id="input-list">
+            <!--questions get populated here-->
+          </div>
         </div>
+
       </div>
     </div>
 
