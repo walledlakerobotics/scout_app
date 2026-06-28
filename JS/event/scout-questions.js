@@ -13,7 +13,7 @@ var eventKey = URLSP.get("eventKey") || localStorage.getItem("currentEventKey") 
 
 if (!eventKey) {
   const res = await isActiveEvent();
-  eventKey = res.event.key;
+  eventKey = res.event?.key;
 }
 
 var questions = null;

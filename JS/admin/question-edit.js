@@ -1,5 +1,5 @@
 import { questionDB } from "/JS/DB.js";
-import { populateQuestions } from "/JS/utils.js";
+import { populateQuestions, newEventCache } from "/JS/utils.js";
 
 const tabTemplate = document.getElementById("tab-template");
 const newTabBtn = document.getElementById("new-tab-btn");
@@ -13,6 +13,38 @@ var questionsData = {};
 var currentSelectedTabKey = null;
 var lastSelectedTabKey = null;
 
+var selectedQuestionID = null;
+var lastSelectedQuestionID = null;
+
+function getQuestionElementByID(questionID) {
+  if (!questionID) return null;
+  const match = Array.from(inputList.children).find((el) => el.querySelector(".form-input").dataset.questionId == questionID);
+  return match?.querySelector(".form-input") ?? null;
+  // i spent genuinely way too long on this because js sucks
+}
+async function selectQuestion(questionID) {
+  lastSelectedQuestionID = selectedQuestionID;
+  selectedQuestionID = questionID;
+
+  const lastQuestionEl = getQuestionElementByID(lastSelectedQuestionID);
+  const selectedQuestionEl = getQuestionElementByID(selectedQuestionID);
+  if (lastQuestionEl) {
+    lastQuestionEl.classList.remove("q-selected");
+    lastQuestionEl.parentNode.querySelector("#restart-btn").innerHTML = `<ion-icon name="finger-print"></ion-icon>`;
+  }
+
+  if (lastSelectedQuestionID == selectedQuestionID) {
+    // user wants to cancel selection of the current question
+    selectedQuestionID = null;
+    selectedQuestionEl.classList.remove("q-selected");
+    return;
+  }
+
+  selectedQuestionEl.classList.add("q-selected");
+
+  console.log(getQuestionElementByID(questionID));
+}
+
 async function selectTab(key) {
   lastSelectedTabKey = currentSelectedTabKey;
   currentSelectedTabKey = key;
@@ -24,7 +56,7 @@ async function selectTab(key) {
     document.querySelectorAll(".tab-selected").forEach((el) => el.classList.remove("tab-selected"));
     tabList.style = "";
   }
-  let cache = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`));
+  let cache = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)) || newEventCache(eventKey);
   const data = cache.questionsData.data;
   const questions = structuredClone(data);
 
@@ -48,6 +80,11 @@ async function selectTab(key) {
     interactBtn.id = "restart-btn";
     interactBtn.className = "mini-btn";
     interactBtn.innerHTML = `<ion-icon name="finger-print"></ion-icon>`;
+
+    interactBtn.addEventListener("click", () => {
+      interactBtn.innerHTML = `<ion-icon name="close"></ion-icon>`;
+      selectQuestion(el.dataset.questionId);
+    });
 
     wrapper2.appendChild(qIndex);
     wrapper2.appendChild(interactBtn);

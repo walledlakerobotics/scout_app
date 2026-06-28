@@ -9,7 +9,8 @@
   align-items: center;
   justify-content: flex-start;
   gap: 5px;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
   margin: 0 15px 15px 15px;
   overflow-x: auto;
   scroll-behavior: smooth;
@@ -73,14 +74,14 @@
   height: fit-content !important;
   max-height: 60dvh;
   overflow-y: scroll;
-  overflow-x: hidden;
+  overflow-x: visible !important;
   max-width: 600px;
 }
 .form {
   padding: 10px !important;
 }
 .form-wrapper {
-  overflow-x: hidden;
+  overflow-y: hidden !important;
 }
 .form-template-container {
   display: none;
@@ -103,6 +104,10 @@
   width: 25px;
   font-size: 1.3em;
   margin: 0;
+}
+
+.q-selected {
+  box-shadow: 0 3px 10px 0px #c4d9ff8f;
 }
 
 .q-wrapper-right {

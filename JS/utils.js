@@ -42,6 +42,7 @@ export async function isActiveEvent(overrideStr) {
   if (overrideStr) {
     const event = await TBA_GET(`/event/${overrideStr}`);
     if (!event) return false;
+    newEventCache(event.key);
     return { isActive: true, event };
   }
 
@@ -81,6 +82,7 @@ export async function isActiveEvent(overrideStr) {
   }
 
   if (currentEvent) {
+    newEventCache(currentEvent.key);
     return {
       isActive: true,
       event: currentEvent,
@@ -140,11 +142,12 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
     }
     return;
   }
-  categoryData.forEach((questionInfo, index) => {
+  categoryData?.forEach((questionInfo, index) => {
     const qType = questionInfo.type;
     const element = newTemplateFromID(qType);
 
     element.dataset.questionIndex = index; // array position
+    element.dataset.questionId = questionInfo.id;
 
     const qHeader = element.querySelector("#question-header");
     qHeader.textContent = questionInfo.header;
