@@ -3,6 +3,8 @@
 import { questionDB } from "/JS/DB.js";
 import { getDB } from "/JS/DB.js";
 
+import { updateResponse } from "/JS/event/scout-questions.js";
+
 export async function TBA_GET(endpoint) {
   // fetch the blue alliance with cloudflare auth worker
   // note if TBA adds any sort of rate limiting this will probably need to be changed
@@ -123,6 +125,209 @@ export function retagResponses(untaggedResponses, questions, offlineEnabled = tr
   }
 
   return retaggedResponses;
+}
+
+export async function populateQuestions(questions, categoryID, categoryFormElement, responses = {}, dependentElements = []) {
+  const id = categoryID;
+  const categoryData = questions[categoryID];
+  let questionLookup = {};
+  function newTemplateFromID(id) {
+    const templates = Array.from(document.querySelectorAll(".form-template"));
+    const foundEl = templates.find((template) => template.id === id) || null;
+    if (foundEl) {
+      const newEl = foundEl.cloneNode(true);
+      return newEl;
+    }
+    return;
+  }
+  categoryData.forEach((questionInfo, index) => {
+    const qType = questionInfo.type;
+    const element = newTemplateFromID(qType);
+
+    element.dataset.questionIndex = index; // array position
+
+    const qHeader = element.querySelector("#question-header");
+    qHeader.textContent = questionInfo.header;
+    (responses[id] ??= [])[index] = questionInfo.state;
+
+    if (questionInfo.offline == true) {
+      element.classList.add("offlineQuestion");
+    }
+
+    const infoBtn = element.querySelector(".infobtn");
+    if (questionInfo.info) {
+      infoBtn.addEventListener("click", (e) => {
+        showPopup(true, questionInfo.info.header, questionInfo.info.body);
+      });
+    } else {
+      infoBtn.style.display = "none";
+    }
+
+    if (qType == "toggle") {
+      //toggle
+      const qText = element.querySelector("#question-text");
+      if (!questionInfo.text || questionInfo.text === "") {
+        qText.remove();
+      } else {
+        qText.textContent = questionInfo.text;
+      }
+      const checkbox = element.querySelector("input[type=checkbox]");
+      checkbox.id = `${id}-${index}-toggle`;
+      if (questionInfo.state) {
+        checkbox.checked = true;
+      }
+
+      checkbox.addEventListener("change", (e) => {
+        updateResponse(e.target.id, e.target.checked);
+      });
+    } else if (qType == "dropdown") {
+      //dropdown
+      const placeholder = element.querySelector("#option-placeholder");
+      const select = element.querySelector("select");
+      select.id = `${id}-${index}-select`;
+
+      for (const optionIndex in questionInfo["dropdown-options"]) {
+        const option = placeholder.cloneNode(true);
+        option.textContent = questionInfo["dropdown-options"][optionIndex];
+        placeholder.parentNode.appendChild(option);
+      }
+      placeholder.textContent = questionInfo.state;
+
+      select.addEventListener("change", (e) => {
+        updateResponse(e.target.id, e.target.value);
+      });
+      select.value = questionInfo.state;
+    } else if (qType == "text" || qType == "textarea") {
+      //text inputs
+      const input = element.querySelector("#text");
+      input.id = `${id}-${index}-text`;
+      input.placeholder = questionInfo.placeholder;
+      input.value = questionInfo.state;
+
+      input.addEventListener("input", (e) => {
+        updateResponse(e.target.id, e.target.value);
+      });
+    } else if (qType == "counter") {
+      //counter
+      const count = element.querySelector("#count");
+      count.id = `${id}-${index}-count`;
+      count.value = questionInfo.state;
+      count.textContent = questionInfo.state;
+
+      const decrementBtn = element.querySelector('button[onclick*="decrementCounter"]');
+      const incrementBtn = element.querySelector('button[onclick*="incrementCounter"]');
+
+      if (decrementBtn) {
+        decrementBtn.setAttribute("onclick", `decrementCounter('${count.id}')`);
+      }
+      if (incrementBtn) {
+        incrementBtn.setAttribute("onclick", `incrementCounter('${count.id}')`);
+      }
+    } else if (qType == "slider") {
+      //slider
+      const slider = element.querySelector("#range");
+      const value = element.querySelector("#slider-value");
+      const min = element.querySelector("#min-label");
+      const max = element.querySelector("#max-label");
+
+      slider.id = `${id}-${index}-slider`;
+      value.id = `${id}-${index}-slider-value`;
+
+      slider.min = questionInfo.min;
+      slider.max = questionInfo.max;
+      slider.step = questionInfo.step;
+      slider.value = questionInfo.state;
+      value.textContent = questionInfo.state;
+      min.textContent = questionInfo["label-min"];
+      max.textContent = questionInfo["label-max"];
+
+      slider.addEventListener("input", (e) => {
+        value.textContent = e.target.value;
+        updateResponse(e.target.id, Number(e.target.value));
+      });
+    } else if (qType == "timer") {
+      //timer
+      const timeInput = element.querySelector("#time");
+      timeInput.id = `${id}-${index}-time`;
+      timeInput.value = questionInfo.state;
+
+      const playPauseBtn = element.querySelector("#play-pause-btn");
+      const restartBtn = element.querySelector("#restart-btn");
+      const playPauseIcon = playPauseBtn.querySelector("ion-icon");
+
+      playPauseBtn.id = `${id}-${index}-play-pause`;
+      restartBtn.id = `${id}-${index}-restart`;
+
+      let isRunning = false;
+      let startTime = 0;
+      let elapsedTime = 0;
+      let intervalId = null;
+
+      playPauseBtn.addEventListener("click", () => {
+        if (isRunning) {
+          // pause
+          clearInterval(intervalId);
+          isRunning = false;
+          updateResponse(timeInput.id, (elapsedTime / 1000).toFixed(2));
+          playPauseIcon.setAttribute("name", "play");
+        } else {
+          // play
+          startTime = Date.now() - elapsedTime;
+          intervalId = setInterval(() => {
+            elapsedTime = Date.now() - startTime;
+            const seconds = (elapsedTime / 1000).toFixed(2);
+            timeInput.value = seconds;
+            updateResponse(timeInput.id, seconds, true);
+          }, 10); //ms
+          isRunning = true;
+          playPauseIcon.setAttribute("name", "pause");
+        }
+      });
+
+      restartBtn.addEventListener("click", () => {
+        clearInterval(intervalId);
+        isRunning = false;
+        elapsedTime = 0;
+        timeInput.value = "0.00";
+        playPauseIcon.setAttribute("name", "play");
+        updateResponse(timeInput.id, "0.00");
+      });
+
+      timeInput.addEventListener("input", (e) => {
+        // this'll prob lag like hell so might have to change later
+        if (isRunning) {
+          clearInterval(intervalId);
+          isRunning = false;
+          playPauseIcon.setAttribute("name", "play");
+        }
+        // oh lord idk here
+        const manualValue = parseFloat(e.target.value) || 0;
+        elapsedTime = manualValue * 1000;
+        updateResponse(e.target.id, e.target.value, true);
+      });
+    } else {
+      console.warn("missing case or element for type:", qType);
+    }
+
+    if (questionInfo.id) {
+      questionLookup[questionInfo.id] = {
+        defaultState: questions[id][index].state,
+        categoryId: id,
+        questionIndex: index,
+      };
+    }
+    if (questionInfo.depends || questionInfo.offline) {
+      dependentElements.push({
+        element,
+        depends: questionInfo.depends || [],
+        isOffline: questionInfo.offline === true,
+      });
+    }
+
+    categoryFormElement.appendChild(element);
+    element.classList.remove("form-template");
+  });
+  return { responses, questionLookup };
 }
 
 export async function newEventCache(eventKey, questionsFetcher) {

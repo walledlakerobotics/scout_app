@@ -5,13 +5,17 @@
 .tablist {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  align-content: center;
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 5px;
-  margin-bottom: 15px;
+  width: 100%;
+  margin: 0 15px 15px 15px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
+
 .mainBtn,
 #new-tab-btn {
   width: fit-content;
@@ -19,6 +23,7 @@
   font-size: 18px;
   height: 40px;
   background-color: rgba(124, 142, 255, 0.096);
+  white-space: nowrap;
 }
 .mainBtn:hover:not(.needs-selection):not(:disabled) {
   padding: 5px 30px;
@@ -48,18 +53,63 @@
 /*  WHERE QUESTIONS ARE POPULATED  */
 
 .manage-header-buttons {
-  width: 100%;
-  height: fit-content;
+  width: fit-content;
   display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 5px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  scrollbar-gutter: stable;
+  min-height: 40px;
 }
 
-.input-list {
-  width: 100%;
-  min-width: fit-content;
-  height: fit-content;
+#input-list {
+  min-width: 0;
+  height: fit-content !important;
+  max-height: 60dvh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-width: 600px;
+}
+.form {
+  padding: 10px !important;
+}
+.form-wrapper {
+  overflow-x: hidden;
+}
+.form-template-container {
+  display: none;
+}
+
+.form-input {
+  width: 50% !important;
+  flex-grow: 1;
+}
+
+.question {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  align-items: center;
+  max-width: 100%;
+}
+
+.question h3 {
+  width: 25px;
+  font-size: 1.3em;
+  margin: 0;
+}
+
+.q-wrapper-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: min-content;
 }
 
 .edit-container {
@@ -67,9 +117,10 @@
   flex-direction: column;
   width: 100%;
   height: fit-content;
+  align-items: center;
   padding: 20px;
   border-radius: 40px;
-  gap: 20px;
+  gap: 10px;
 }
 
 .edit-main {
@@ -107,4 +158,11 @@ hr {
 
 #tab-template {
   display: none;
+}
+
+.descriptor {
+  padding: 0 12px;
+}
+
+@media (max-width: 800px) {
 }

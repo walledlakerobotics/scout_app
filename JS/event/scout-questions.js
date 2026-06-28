@@ -1,6 +1,6 @@
-import { submitQuestionsOnline, questionDB } from "/JS/DB.js";
+﻿import { submitQuestionsOnline, questionDB } from "/JS/DB.js";
 import { popupError, showPopup } from "/JS/event/scout.js";
-import { retagResponses, isActiveEvent, newEventCache } from "/JS/utils.js";
+import { retagResponses, isActiveEvent, newEventCache, populateQuestions } from "/JS/utils.js";
 const uploadBtn = document.getElementById("uploadBtn");
 const resetBtn = document.getElementById("resetBtn");
 const qrPopup = document.getElementById("qr-popup");
@@ -23,16 +23,6 @@ const questionLookup = {}; // id { defaultState, categoryId, questionIndex }
 const dependentElements = []; // { element, depends, isOffline }
 var reset = false;
 
-function newTemplateFromID(id) {
-  const templates = Array.from(document.querySelectorAll(".form-template"));
-  const foundEl = templates.find((template) => template.id === id) || null;
-  if (foundEl) {
-    const newEl = foundEl.cloneNode(true);
-    return newEl;
-  }
-  return;
-}
-
 function incrementCounter(id) {
   const counter = document.getElementById(id);
   const newValue = parseInt(counter.value) + 1;
@@ -54,12 +44,12 @@ function decrementCounter(id) {
   }
 }
 
-function updateResponse(elementId, value, dontupdate) {
+export async function updateResponse(elementId, value, dontupdate) {
   const element = document.getElementById(elementId);
   const formInput = element.closest(".form-input");
   const categoryElement = formInput.closest(".category");
 
-  const categoryId = categoryElement.id;
+  const categoryId = categoryElement?.id;
   const questionIndex = parseInt(formInput.dataset.questionIndex);
 
   if (questionIndex === undefined || isNaN(questionIndex)) return;
@@ -70,7 +60,7 @@ function updateResponse(elementId, value, dontupdate) {
 
   responses[categoryId][questionIndex] = value;
   updateDependencyVisibility();
-  if (resetBtn.disabled) {
+  if (resetBtn?.disabled) {
     resetBtn.disabled = false;
   }
   if (!(dontupdate || false)) {
@@ -146,7 +136,7 @@ function getDisabledQuestionIds() {
   return disabledIds;
 }
 
-uploadBtn.addEventListener("click", async () => {
+uploadBtn?.addEventListener("click", async () => {
   const offlineEnabled = localStorage.getItem("offlineQuestions") === "true";
   const finalData = {
     questions: {
@@ -176,7 +166,7 @@ uploadBtn.addEventListener("click", async () => {
 
 // the following 2 functions are purely claude. dont ask me about this, i hate qr codes
 
-qrBtn.addEventListener("click", () => {
+qrBtn?.addEventListener("click", () => {
   var data = JSON.stringify(responses);
   const userData = JSON.parse(localStorage.getItem("userProfile"));
 
@@ -248,17 +238,17 @@ function getOptimalTypeNumber(dataLength, errorLevel) {
   return 40;
 }
 
-qrPopup.addEventListener("click", () => {
+qrPopup?.addEventListener("click", () => {
   qrPopup.classList.add("popup-hidden");
 });
 
-reloadBtn.addEventListener("click", () => {
+reloadBtn?.addEventListener("click", () => {
   reloadBtn.disabled = true;
   localStorage.setItem("reloadQuestions", "true");
   location.reload();
 });
 
-resetBtn.addEventListener("click", () => {
+resetBtn?.addEventListener("click", () => {
   const responses = JSON.parse(localStorage.getItem("responses") || "{}");
   if (Object.keys(responses).length > 0) {
     if (confirm("Are you sure? this cannot be undone.")) {
@@ -308,217 +298,33 @@ async function init() {
   questions = structuredClone(data); // long story on why this needs structuredclone.
 
   const categoryKeys = Object.keys(data);
-  try {
-    const prevResponses = JSON.parse(localStorage.getItem("responses") || "{}");
-    if (Object.keys(prevResponses).length > 0) {
-      for (const category in prevResponses) {
-        prevResponses[category].forEach((question, i) => {
-          data[category][i].state = question;
-        });
-      }
+  //try {
+  const prevResponses = JSON.parse(localStorage.getItem("responses") || "{}");
+  if (Object.keys(prevResponses).length > 0) {
+    for (const category in prevResponses) {
+      console.log(prevResponses[category]);
+      prevResponses[category].forEach((question, i) => {
+        (data[category] ??= [])[i].state = question;
+      });
     }
-
-    categories.forEach((category) => {
-      const id = category.id;
-      const categoryFormElement = document.getElementById(category.id).querySelector(".form");
-      if (categoryKeys.includes(id)) {
-        const categoryData = data[id];
-
-        responses[id] = []; // responses for this category
-
-        categoryData.forEach((questionInfo, index) => {
-          const qType = questionInfo.type;
-          const element = newTemplateFromID(qType);
-
-          element.dataset.questionIndex = index; // array position
-
-          const qHeader = element.querySelector("#question-header");
-          qHeader.textContent = questionInfo.header;
-          responses[id][index] = questionInfo.state;
-
-          if (questionInfo.offline == true) {
-            element.classList.add("offlineQuestion");
-          }
-
-          const infoBtn = element.querySelector(".infobtn");
-          if (questionInfo.info) {
-            infoBtn.addEventListener("click", (e) => {
-              showPopup(true, questionInfo.info.header, questionInfo.info.body);
-            });
-          } else {
-            infoBtn.style.display = "none";
-          }
-
-          if (qType == "toggle") {
-            //toggle
-            const qText = element.querySelector("#question-text");
-            if (!questionInfo.text || questionInfo.text === "") {
-              qText.remove();
-            } else {
-              qText.textContent = questionInfo.text;
-            }
-            const checkbox = element.querySelector("input[type=checkbox]");
-            checkbox.id = `${id}-${index}-toggle`;
-            if (questionInfo.state) {
-              checkbox.checked = true;
-            }
-
-            checkbox.addEventListener("change", (e) => {
-              updateResponse(e.target.id, e.target.checked);
-            });
-          } else if (qType == "dropdown") {
-            //dropdown
-            const placeholder = element.querySelector("#option-placeholder");
-            const select = element.querySelector("select");
-            select.id = `${id}-${index}-select`;
-
-            for (const optionIndex in questionInfo["dropdown-options"]) {
-              const option = placeholder.cloneNode(true);
-              option.textContent = questionInfo["dropdown-options"][optionIndex];
-              placeholder.parentNode.appendChild(option);
-            }
-            placeholder.textContent = questionInfo.state;
-
-            select.addEventListener("change", (e) => {
-              updateResponse(e.target.id, e.target.value);
-            });
-            select.value = questionInfo.state;
-          } else if (qType == "text" || qType == "textarea") {
-            //text inputs
-            const input = element.querySelector("#text");
-            input.id = `${id}-${index}-text`;
-            input.placeholder = questionInfo.placeholder;
-            input.value = questionInfo.state;
-
-            input.addEventListener("input", (e) => {
-              updateResponse(e.target.id, e.target.value);
-            });
-          } else if (qType == "counter") {
-            //counter
-            const count = element.querySelector("#count");
-            count.id = `${id}-${index}-count`;
-            count.value = questionInfo.state;
-            count.textContent = questionInfo.state;
-
-            const decrementBtn = element.querySelector('button[onclick*="decrementCounter"]');
-            const incrementBtn = element.querySelector('button[onclick*="incrementCounter"]');
-
-            if (decrementBtn) {
-              decrementBtn.setAttribute("onclick", `decrementCounter('${count.id}')`);
-            }
-            if (incrementBtn) {
-              incrementBtn.setAttribute("onclick", `incrementCounter('${count.id}')`);
-            }
-          } else if (qType == "slider") {
-            //slider
-            const slider = element.querySelector("#range");
-            const value = element.querySelector("#slider-value");
-            const min = element.querySelector("#min-label");
-            const max = element.querySelector("#max-label");
-
-            slider.id = `${id}-${index}-slider`;
-            value.id = `${id}-${index}-slider-value`;
-
-            slider.min = questionInfo.min;
-            slider.max = questionInfo.max;
-            slider.step = questionInfo.step;
-            slider.value = questionInfo.state;
-            value.textContent = questionInfo.state;
-            min.textContent = questionInfo["label-min"];
-            max.textContent = questionInfo["label-max"];
-
-            slider.addEventListener("input", (e) => {
-              value.textContent = e.target.value;
-              updateResponse(e.target.id, Number(e.target.value));
-            });
-          } else if (qType == "timer") {
-            //timer
-            const timeInput = element.querySelector("#time");
-            timeInput.id = `${id}-${index}-time`;
-            timeInput.value = questionInfo.state;
-
-            const playPauseBtn = element.querySelector("#play-pause-btn");
-            const restartBtn = element.querySelector("#restart-btn");
-            const playPauseIcon = playPauseBtn.querySelector("ion-icon");
-
-            playPauseBtn.id = `${id}-${index}-play-pause`;
-            restartBtn.id = `${id}-${index}-restart`;
-
-            let isRunning = false;
-            let startTime = 0;
-            let elapsedTime = 0;
-            let intervalId = null;
-
-            playPauseBtn.addEventListener("click", () => {
-              if (isRunning) {
-                // pause
-                clearInterval(intervalId);
-                isRunning = false;
-                updateResponse(timeInput.id, (elapsedTime / 1000).toFixed(2));
-                playPauseIcon.setAttribute("name", "play");
-              } else {
-                // play
-                startTime = Date.now() - elapsedTime;
-                intervalId = setInterval(() => {
-                  elapsedTime = Date.now() - startTime;
-                  const seconds = (elapsedTime / 1000).toFixed(2);
-                  timeInput.value = seconds;
-                  updateResponse(timeInput.id, seconds, true);
-                }, 10); //ms
-                isRunning = true;
-                playPauseIcon.setAttribute("name", "pause");
-              }
-            });
-
-            restartBtn.addEventListener("click", () => {
-              clearInterval(intervalId);
-              isRunning = false;
-              elapsedTime = 0;
-              timeInput.value = "0.00";
-              playPauseIcon.setAttribute("name", "play");
-              updateResponse(timeInput.id, "0.00");
-            });
-
-            timeInput.addEventListener("input", (e) => {
-              // this'll prob lag like hell so might have to change later
-              if (isRunning) {
-                clearInterval(intervalId);
-                isRunning = false;
-                playPauseIcon.setAttribute("name", "play");
-              }
-              // oh lord idk here
-              const manualValue = parseFloat(e.target.value) || 0;
-              elapsedTime = manualValue * 1000;
-              updateResponse(e.target.id, e.target.value, true);
-            });
-          } else {
-            console.warn("missing case or element for type:", qType);
-          }
-
-          if (questionInfo.id) {
-            questionLookup[questionInfo.id] = {
-              defaultState: questions[id][index].state,
-              categoryId: id,
-              questionIndex: index,
-            };
-          }
-          if (questionInfo.depends || questionInfo.offline) {
-            dependentElements.push({
-              element,
-              depends: questionInfo.depends || [],
-              isOffline: questionInfo.offline === true,
-            });
-          }
-
-          categoryFormElement.appendChild(element);
-          element.classList.remove("form-template");
-        });
-      }
-    });
-    updateDependencyVisibility();
-  } catch (error) {
-    console.error("Could not fetch questions:", error);
   }
+
+  for (const category of categories) {
+    const id = category.id;
+    console.log(id);
+    const categoryFormElement = document.getElementById(category.id).querySelector(".form");
+    if (categoryKeys.includes(id)) {
+      const categoryData = data[id];
+      console.log(questions);
+      responses[id] = [];
+      const { questionLookup: newLookup } = await populateQuestions(questions, id, categoryFormElement, responses, dependentElements);
+      Object.assign(questionLookup, newLookup);
+    }
+  }
+  updateDependencyVisibility();
+  //} catch (error) {
+  //  console.error("Could not fetch questions:", error);
+  //}
 }
 
 if (document.readyState === "loading") {

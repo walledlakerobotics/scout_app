@@ -4,6 +4,9 @@
   <link rel="stylesheet" type="text/css" href="../CSS/global.css" />
   <link rel="stylesheet" type="text/css" href="../CSS/Index-login.css" />
   <link rel="stylesheet" type="text/css" href="../CSS/question-edit.css" />
+
+  <link rel="stylesheet" type="text/css" href="../CSS/event-frc/scout.css" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -20,7 +23,7 @@
   <div class="main">
     <div class="text-container">
       <h2 id="tab-header" style="margin: 5px;">Choose a Category</h2>
-      <div class="tablist">
+      <div class="tablist" style="flex-wrap: wrap; justify-content: center;">
         <button class="mainBtn tab-btn" id="tab-template">
           <ion-icon name="create"></ion-icon>
           Example Tab 1
@@ -36,7 +39,7 @@
             New
           </button>
           <button class="mainBtn manage-btn needs-selection">
-            <ion-icon name="create"></ion-icon>
+            <ion-icon name="options"></ion-icon>
             Edit
           </button>
           <button class="mainBtn manage-btn needs-selection">
@@ -52,11 +55,116 @@
             Delete
           </button>
         </div>
-        <div class="edit-main">
+        <div class="form-template-container">
+          <div class="form-input form-template" id="toggle">
+            <div class="descriptor">
+              <h2 id="question-header">TEMPLATE: Toggle</h2>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+            </div>
+            <div class="body row" style="justify-content: center">
+              <input type="checkbox" />
+              <h2 id="question-text">Deleting this text centers the button</h2>
+            </div>
+          </div>
+
+          <div class="form-input form-template" id="dropdown">
+            <div class="descriptor">
+              <h2 id="question-header">TEMPLATE: Dropdown</h2>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+            </div>
+            <div class="body column">
+              <select id="select-performance">
+                <option id="option-placeholder">placeholder</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-input form-template" id="text">
+            <div class="descriptor">
+              <h2 id="question-header">TEMPLATE: Short Text Input</h2>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+            </div>
+            <div class="body column">
+              <input type="text" id="text" placeholder="You could probably add a few things here" maxlength="25" />
+            </div>
+          </div>
+
+          <div class="form-input form-template" id="textarea">
+            <div class="descriptor">
+              <h2 id="question-header">TEMPLATE: Long Textarea Input</h2>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+            </div>
+            <div class="body column">
+              <textarea id="text" placeholder="You could probably add a lot of things here" rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="form-input form-template" id="slider">
+            <div class="descriptor">
+              <h2 id="question-header">TEMPLATE: Slider</h2>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+            </div>
+            <div class="body column">
+              <div class="slider-container">
+                <input type="range" id="range" min="0" max="10" value="5" step="1" />
+                <div class="slider-value">
+                  <h2 id="min-label">Blind</h2>
+                  <div class="spacer"></div>
+                  <span id="slider-value">5</span>
+                  <div class="spacer"></div>
+                  <h2 id="max-label">Pro</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-input form-template" id="timer">
+            <div class="descriptor">
+              <h2 id="question-header">TEMPLATE: Timer</h2>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+            </div>
+            <div class="body row">
+              <button id="play-pause-btn" class="mini-btn">
+                <ion-icon name="play"></ion-icon>
+              </button>
+              <div>
+                <h1><input type="text" id="time" value="12.34" inputmode="decimal" /></h1>
+                <h2>
+                  Seconds
+                  <ion-icon name="time"></ion-icon>
+                </h2>
+              </div>
+              <button id="restart-btn" class="mini-btn">
+                <ion-icon name="arrow-undo"></ion-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="edit-main form-wrapper">
           <div class="edit-params">
 
           </div>
-          <div id="input-list">
+          <div id="input-list" class="form">
+            <div class="question">
+              <h3>1</h3>
+
+            </div>
+            <div class="question">
+              <h3>2</h3>
+
+            </div>
             <!--questions get populated here-->
           </div>
         </div>
