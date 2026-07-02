@@ -153,16 +153,12 @@
           </div>
         </div>
         <div class="edit-main form-wrapper">
-          <div class="edit-params">
-
+          <div class="edit-params themed-frosted">
+            <h2 class="edit-header">Edit Question</h2>
           </div>
           <div id="input-list" class="form">
             <div class="question">
-              <h3>1</h3>
-
-            </div>
-            <div class="question">
-              <h3>2</h3>
+              <h3>LOADING...</h3>
 
             </div>
             <!--questions get populated here-->
@@ -171,7 +167,33 @@
 
       </div>
     </div>
-
+    <div class="info-popup themed-frosted popup-hidden" id="popup" style="z-index: 5000;">
+      <div class="descriptor">
+        <h2 id="popup-header">Popup</h2>
+        <button class="infobtn">
+          <ion-icon name="close-circle" onclick="showPopup(false)"></ion-icon>
+        </button>
+      </div>
+      <div class="body">
+        <pre id="popup-text">text</pre>
+        <div class="form-input hidden" id="toggle">
+          <div class="descriptor">
+            <h2 id="question-header">Offline Questions</h2>
+            <button class="infobtn">
+              <ion-icon name="help-circle"></ion-icon>
+            </button>
+            <button class="infobtn">
+              <ion-icon name="help-circle"></ion-icon>
+            </button>
+          </div>
+          <div class="body row" style="justify-content: center">
+            <input type="checkbox" />
+            <h2 id="question-text">Show questions that only need to be answered if offline</h2>
+          </div>
+        </div>
+        <h2 class="btm">. . .</h2>
+      </div>
+    </div>
     <footer>
       <div class="footer">
         <button class="mini-btn" onclick="history.back()">

@@ -76,7 +76,9 @@ function updateDependencyVisibility() {
       const meta = questionLookup[depId];
       if (!meta) return false;
       const currentValue = responses[meta.categoryId]?.[meta.questionIndex];
-      return currentValue !== meta.defaultState;
+      return meta.hideDependencies
+        ? meta.hideDependencies.includes(currentValue)
+        : currentValue !== meta.defaultState;
     });
     const offlineHidden = isOffline && !offlineEnabled;
 
@@ -317,7 +319,7 @@ async function init() {
       const categoryData = data[id];
       console.log(questions);
       responses[id] = [];
-      const { questionLookup: newLookup } = await populateQuestions(questions, id, categoryFormElement, responses, dependentElements);
+      const { questionLookup: newLookup } = await populateQuestions(questions, id, categoryFormElement, responses, dependentElements, updateResponse);
       Object.assign(questionLookup, newLookup);
     }
   }

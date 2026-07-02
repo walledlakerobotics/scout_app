@@ -42,7 +42,7 @@ async function selectQuestion(questionID) {
 
   selectedQuestionEl.classList.add("q-selected");
 
-  console.log(getQuestionElementByID(questionID));
+  // selection logic and stuff past here
 }
 
 async function selectTab(key) {
@@ -82,7 +82,7 @@ async function selectTab(key) {
     interactBtn.innerHTML = `<ion-icon name="finger-print"></ion-icon>`;
 
     interactBtn.addEventListener("click", () => {
-      interactBtn.innerHTML = `<ion-icon name="close"></ion-icon>`;
+      interactBtn.innerHTML = `<ion-icon name="checkbox"></ion-icon>`;
       selectQuestion(el.dataset.questionId);
     });
 

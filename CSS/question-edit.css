@@ -23,7 +23,7 @@
   padding: 6px 20px;
   font-size: 18px;
   height: 40px;
-  background-color: rgba(124, 142, 255, 0.096);
+  background-color: rgb(196 217 255 / 11%);
   white-space: nowrap;
 }
 .mainBtn:hover:not(.needs-selection):not(:disabled) {
@@ -71,11 +71,12 @@
 
 #input-list {
   min-width: 0;
+  width: 100%;
+  max-width: 600px;
   height: fit-content !important;
   max-height: 60dvh;
   overflow-y: scroll;
-  overflow-x: visible !important;
-  max-width: 600px;
+  overflow-x: hidden;
 }
 .form {
   padding: 10px !important;
@@ -88,8 +89,8 @@
 }
 
 .form-input {
-  width: 50% !important;
-  flex-grow: 1;
+  flex: 1;
+  min-width: 0;
 }
 
 .question {
@@ -97,6 +98,7 @@
   flex-direction: row;
   gap: 15px;
   align-items: center;
+  width: 100%;
   max-width: 100%;
 }
 
@@ -107,7 +109,7 @@
 }
 
 .q-selected {
-  box-shadow: 0 3px 10px 0px #c4d9ff8f;
+  box-shadow: 0 3px 10px 0px var(--theme-main-accent);
 }
 
 .q-wrapper-right {
@@ -131,8 +133,24 @@
 .edit-main {
   display: flex;
   flex-direction: row;
+  align-items: center;
   justify-content: center;
   width: 100%;
+  gap: 5px;
+  height: fit-content;
+}
+
+.edit-params {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 10px;
+  min-width: 200px;
+  min-height: 100px;
+  max-width: 500px;
+}
+.edit-header {
+  margin: 0;
   height: fit-content;
 }
 
@@ -169,5 +187,8 @@ hr {
   padding: 0 12px;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1100px) {
+  .edit-params {
+    display: none;
+  }
 }

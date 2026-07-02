@@ -3,8 +3,6 @@
 import { questionDB } from "/JS/DB.js";
 import { getDB } from "/JS/DB.js";
 
-import { updateResponse } from "/JS/event/scout-questions.js";
-
 export async function TBA_GET(endpoint) {
   // fetch the blue alliance with cloudflare auth worker
   // note if TBA adds any sort of rate limiting this will probably need to be changed
@@ -129,7 +127,7 @@ export function retagResponses(untaggedResponses, questions, offlineEnabled = tr
   return retaggedResponses;
 }
 
-export async function populateQuestions(questions, categoryID, categoryFormElement, responses = {}, dependentElements = []) {
+export async function populateQuestions(questions, categoryID, categoryFormElement, responses = {}, dependentElements = [], onResponseChange = () => {}) {
   const id = categoryID;
   const categoryData = questions[categoryID];
   let questionLookup = {};
@@ -181,7 +179,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
       }
 
       checkbox.addEventListener("change", (e) => {
-        updateResponse(e.target.id, e.target.checked);
+        onResponseChange(e.target.id, e.target.checked);
       });
     } else if (qType == "dropdown") {
       //dropdown
@@ -197,7 +195,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
       placeholder.textContent = questionInfo.state;
 
       select.addEventListener("change", (e) => {
-        updateResponse(e.target.id, e.target.value);
+        onResponseChange(e.target.id, e.target.value);
       });
       select.value = questionInfo.state;
     } else if (qType == "text" || qType == "textarea") {
@@ -208,7 +206,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
       input.value = questionInfo.state;
 
       input.addEventListener("input", (e) => {
-        updateResponse(e.target.id, e.target.value);
+        onResponseChange(e.target.id, e.target.value);
       });
     } else if (qType == "counter") {
       //counter
@@ -246,7 +244,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
 
       slider.addEventListener("input", (e) => {
         value.textContent = e.target.value;
-        updateResponse(e.target.id, Number(e.target.value));
+        onResponseChange(e.target.id, Number(e.target.value));
       });
     } else if (qType == "timer") {
       //timer
@@ -271,7 +269,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
           // pause
           clearInterval(intervalId);
           isRunning = false;
-          updateResponse(timeInput.id, (elapsedTime / 1000).toFixed(2));
+          onResponseChange(timeInput.id, (elapsedTime / 1000).toFixed(2));
           playPauseIcon.setAttribute("name", "play");
         } else {
           // play
@@ -280,7 +278,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
             elapsedTime = Date.now() - startTime;
             const seconds = (elapsedTime / 1000).toFixed(2);
             timeInput.value = seconds;
-            updateResponse(timeInput.id, seconds, true);
+            onResponseChange(timeInput.id, seconds, true);
           }, 10); //ms
           isRunning = true;
           playPauseIcon.setAttribute("name", "pause");
@@ -293,7 +291,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
         elapsedTime = 0;
         timeInput.value = "0.00";
         playPauseIcon.setAttribute("name", "play");
-        updateResponse(timeInput.id, "0.00");
+        onResponseChange(timeInput.id, "0.00");
       });
 
       timeInput.addEventListener("input", (e) => {
@@ -306,7 +304,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
         // oh lord idk here
         const manualValue = parseFloat(e.target.value) || 0;
         elapsedTime = manualValue * 1000;
-        updateResponse(e.target.id, e.target.value, true);
+        onResponseChange(e.target.id, e.target.value, true);
       });
     } else {
       console.warn("missing case or element for type:", qType);
@@ -315,6 +313,7 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
     if (questionInfo.id) {
       questionLookup[questionInfo.id] = {
         defaultState: questions[id][index].state,
+        hideDependencies: questions[id][index]["hide-dependencies"] ?? null,
         categoryId: id,
         questionIndex: index,
       };
