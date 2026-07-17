@@ -1,0 +1,156 @@
+{
+  "toggle": {
+    "type__R": "toggle",
+    "header__R": "New Toggle Question",
+    "state__R": false,
+    "id__R": "new_toggle",
+    "text": "Optional description shown under the toggle.",
+    "required": false,
+    "offline": false,
+    "depends": [],
+    "info": {
+      "header": "About This Question",
+      "body": "Optional help text shown when the user taps the info icon."
+    },
+    "leaderboard__R": {
+      "lb-header": "Custom Leaderboard Header",
+      "lb-bool-inverted": false,
+      "title-avg": "Toggle (Average)",
+      "title-single": "Toggle (Single Match)",
+      "category-override": false,
+      "visibility": "both",
+      "type": "bar"
+    }
+  },
+  "dropdown": {
+    "type__R": "dropdown",
+    "header__R": "New Dropdown Question",
+    "state__R": "Choose an option..",
+    "dropdown-options__R": ["Option 1", "Option 2", "Option 3"],
+    "id__R": "new_dropdown",
+    "required": false,
+    "offline": false,
+    "depends": [],
+    "info": {
+      "header": "About This Question",
+      "body": "Optional help text shown when the user taps the info icon."
+    },
+    "leaderboard__R": {
+      "lb-header": "Custom Leaderboard Header",
+      "title-avg": "Dropdown (Average)",
+      "title-single": "Dropdown (Single Match)",
+      "category-override": false,
+      "visibility": "both",
+      "type": "pill"
+    }
+  },
+  "text": {
+    "type__R": "text",
+    "header__R": "New Text Question",
+    "state__R": "",
+    "placeholder__R": "Enter text..",
+    "text-restrictions": "number",
+    "id__R": "new_text",
+    "required": false,
+    "offline": false,
+    "depends": [],
+    "info": {
+      "header": "About This Question",
+      "body": "Optional help text shown when the user taps the info icon."
+    },
+    "leaderboard__R": {
+      "lb-header": "Custom Leaderboard Header",
+      "title-avg": "Text (Average)",
+      "title-single": "Text (Single Match)",
+      "category-override": false,
+      "visibility": "both",
+      "type": "pill"
+    }
+  },
+  "slider": {
+    "type__R": "slider",
+    "header__R": "New Slider Question",
+    "state__R": 5,
+    "min__R": 0,
+    "max__R": 10,
+    "step__R": 1,
+    "label-min__R": "Low",
+    "label-max__R": "High",
+    "id__R": "new_slider",
+    "required": false,
+    "offline": false,
+    "depends": [],
+    "hide-dependencies": [],
+    "info": {
+      "header": "About This Question",
+      "body": "Optional help text shown when the user taps the info icon."
+    },
+    "leaderboard__R": {
+      "lb-header": "Custom Leaderboard Header",
+      "title-avg": "Slider (Average)",
+      "title-single": "Slider (Single Match)",
+      "category-override": false,
+      "visibility": "both",
+      "type": "bar"
+    }
+  },
+  "counter": {
+    "type__R": "counter",
+    "header__R": "New Counter Question",
+    "state__R": 0,
+    "id__R": "new_counter",
+    "required": false,
+    "offline": false,
+    "depends": [],
+    "info": {
+      "header": "About This Question",
+      "body": "Optional help text shown when the user taps the info icon."
+    },
+    "leaderboard__R": {
+      "lb-header": "Custom Leaderboard Header",
+      "title-avg": "Counter (Average)",
+      "title-single": "Counter (Single Match)",
+      "category-override": false,
+      "visibility": "both",
+      "type": "bar"
+    }
+  },
+  "timer": {
+    "type__R": "timer",
+    "header__R": "New Timer Question",
+    "state__R": 0.0,
+    "id__R": "new_timer",
+    "required": false,
+    "offline": false,
+    "depends": [],
+    "info": {
+      "header": "About This Question",
+      "body": "Optional help text shown when the user taps the info icon."
+    },
+    "leaderboard__R": {
+      "lb-header": "Custom Leaderboard Header",
+      "title-avg": "Timer (Average)",
+      "title-single": "Timer (Single Match)",
+      "category-override": false,
+      "visibility": "both",
+      "type": "bar"
+    }
+  },
+  "textarea": {
+    "type__R": "textarea",
+    "header__R": "New Notes Question",
+    "state__R": "",
+    "placeholder__R": "Enter any important notes here..",
+    "id__R": "new_textarea",
+    "required": false,
+    "offline": false,
+    "depends": [],
+    "leaderboard__R": {
+      "lb-header": "Custom Leaderboard Header",
+      "title-single": "Notes",
+      "category-override": "general",
+      "visibility": "single",
+      "type": "txt"
+    }
+  }
+}

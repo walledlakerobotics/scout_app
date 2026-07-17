@@ -20,6 +20,7 @@
 </head>
 
 <body>
+
   <div class="main">
     <div class="text-container">
       <h2 id="tab-header" style="margin: 5px;">Choose a Category</h2>
@@ -153,8 +154,21 @@
           </div>
         </div>
         <div class="edit-main form-wrapper">
-          <div class="edit-params themed-frosted">
+          <div class="edit-params themed-frosted panel-hidden" id="edit-panel">
             <h2 class="edit-header">Edit Question</h2>
+            <div id="param-list" class="themed-frosted">
+              <div id="param-template" class="param" style="display: none;">
+
+              </div>
+              <button class="mainBtn" id="add-param-btn">
+                <ion-icon name="add-circle"></ion-icon>
+                General
+              </button>
+            </div>
+            <button class="mainBtn" id="add-category-btn">
+              <ion-icon name="add-circle"></ion-icon>
+              Add Category
+            </button>
           </div>
           <div id="input-list" class="form">
             <div class="question">
@@ -193,6 +207,24 @@
         </div>
         <h2 class="btm">. . .</h2>
       </div>
+    </div>
+
+    <div id="choice-popup" class="choice-hidden">
+      <div class="c-frame themed-frosted">
+        <h2 id="choice-header">Choose a Parameter to Add..</h2>
+        <hr>
+        <div class="c-list">
+          <button class="mainBtn" id="choice-btn-template">
+            <ion-icon name="add-circle"></ion-icon>
+            Example Parameter (i.e REQUIRED)
+          </button>
+
+        </div>
+      </div>
+      <button class="mainBtn" id="close-frame-btn">
+        <ion-icon name="close-circle"></ion-icon>
+        Cancel
+      </button>
     </div>
     <footer>
       <div class="footer">

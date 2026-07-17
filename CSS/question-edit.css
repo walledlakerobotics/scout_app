@@ -2,6 +2,10 @@
   user-select: none;
 }
 
+ion-icon {
+  max-height: 100%;
+}
+
 .tablist {
   display: flex;
   flex-direction: row;
@@ -146,9 +150,33 @@
   flex-grow: 1;
   padding: 10px;
   min-width: 200px;
-  min-height: 100px;
+  /*min-height: 100px;*/
   max-width: 500px;
+  gap: 10px;
+  align-items: center;
+  transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
+
+#param-list hr {
+  margin: 5px;
+}
+
+#param-list {
+  height: fit-content;
+  width: 100%;
+  gap: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.param {
+  height: 45px;
+  border-radius: 8px;
+}
+
 .edit-header {
   margin: 0;
   height: fit-content;
@@ -185,6 +213,69 @@ hr {
 
 .descriptor {
   padding: 0 12px;
+}
+
+/* CHOICE POPUP STUFF */
+
+#choice-popup {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  position: absolute;
+  width: 200dvw;
+  height: 200dvh;
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+}
+#choice-popup > * {
+  transition: transform 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+#choice-popup.choice-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#choice-popup.choice-hidden > * {
+  transform: translateY(30px) scale(0.9);
+}
+#choice-popup button {
+  background-color: rgba(var(--theme-main-rgb-inverted), 0.7);
+}
+.c-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: max-content;
+  min-height: fit-content;
+  background-color: rgba(var(--popup-bg), 0.6);
+  padding: 10px;
+  max-width: 67%;
+}
+.c-frame h2 {
+  margin: 5px 50px 0;
+}
+.c-frame hr {
+  margin: 0;
+}
+.c-list {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.c-list button {
+  width: 100% !important;
+}
+
+/* OTHERS */
+
+.panel-hidden {
+  margin-right: -50%;
+  opacity: 0;
 }
 
 @media (max-width: 1100px) {

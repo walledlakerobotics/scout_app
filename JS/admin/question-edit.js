@@ -6,6 +6,12 @@ const newTabBtn = document.getElementById("new-tab-btn");
 const tabHeader = document.getElementById("tab-header");
 const tabList = document.querySelector(".tablist");
 const inputList = document.getElementById("input-list");
+const editPanel = document.getElementById("edit-panel");
+
+const choicePopup = document.getElementById("choice-popup");
+const closeCFrameBtn = document.getElementById("close-frame-btn");
+const addParamBtn = document.getElementById("add-param-btn");
+const addCategoryBtn = document.getElementById("add-category-btn");
 
 var eventKey = localStorage.getItem("currentEventKey") || null;
 
@@ -16,6 +22,8 @@ var lastSelectedTabKey = null;
 var selectedQuestionID = null;
 var lastSelectedQuestionID = null;
 
+const questionParams = await fetch("/config/sample.json").then((res) => res.json());
+console.log(questionParams);
 function getQuestionElementByID(questionID) {
   if (!questionID) return null;
   const match = Array.from(inputList.children).find((el) => el.querySelector(".form-input").dataset.questionId == questionID);
@@ -37,11 +45,13 @@ async function selectQuestion(questionID) {
     // user wants to cancel selection of the current question
     selectedQuestionID = null;
     selectedQuestionEl.classList.remove("q-selected");
+    editPanel.classList.add("panel-hidden");
     return;
   }
 
   selectedQuestionEl.classList.add("q-selected");
 
+  editPanel.classList.remove("panel-hidden");
   // selection logic and stuff past here
 }
 
@@ -114,6 +124,22 @@ newTabBtn.addEventListener("click", () => {
   if (res) {
     createNewTab(res);
   }
+});
+
+function showChoicePopup(show) {
+  choicePopup.classList.toggle("choice-hidden", !show);
+}
+
+addParamBtn.addEventListener("click", () => {
+  showChoicePopup(true);
+});
+
+addCategoryBtn.addEventListener("click", () => {
+  showChoicePopup(true);
+});
+
+closeCFrameBtn.addEventListener("click", () => {
+  showChoicePopup(false);
 });
 
 async function init() {
