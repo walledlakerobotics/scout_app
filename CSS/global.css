@@ -185,7 +185,7 @@ ion-icon,
   max-width: 60%;
   max-height: 60%;
   width: 60%;
-  height: 60%;
+  height: 100%;
   color: var(--theme-main-text);
 }
 ion-icon svg {

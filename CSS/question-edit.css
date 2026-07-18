@@ -138,7 +138,7 @@ ion-icon {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
   width: 100%;
   gap: 5px;
   height: fit-content;
@@ -228,10 +228,10 @@ hr {
   height: 200dvh;
   backdrop-filter: blur(5px);
   z-index: 100;
-  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+  transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 #choice-popup > * {
-  transition: transform 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: all 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 #choice-popup.choice-hidden {
   opacity: 0;
@@ -239,7 +239,7 @@ hr {
   pointer-events: none;
 }
 #choice-popup.choice-hidden > * {
-  transform: translateY(30px) scale(0.9);
+  transform: translateY(30px) scale(0.6);
 }
 #choice-popup button {
   background-color: rgba(var(--theme-main-rgb-inverted), 0.7);
