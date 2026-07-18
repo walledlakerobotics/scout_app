@@ -49,6 +49,12 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
+.footer button {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
 :root {
   --font: "Nunito Sans", "Trebuchet MS", "Segoe UI", Helvetica, Arial, sans-serif;
   --grid-size: 25px;

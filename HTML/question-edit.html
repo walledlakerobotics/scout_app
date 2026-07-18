@@ -39,9 +39,10 @@
             <ion-icon name="add-circle"></ion-icon>
             New
           </button>
-          <button class="mainBtn manage-btn needs-selection">
-            <ion-icon name="options"></ion-icon>
-            Edit
+          <button class="mainBtn manage-btn needs-selection" <button class="mainBtn" id="edit-json-btn"
+            style="background-image: var(--striped-bg-img); filter: sepia(.5);">
+            <ion-icon name="warning"></ion-icon>
+            Edit Advanced
           </button>
           <button class="mainBtn manage-btn needs-selection">
             <ion-icon name="chevron-up-circle"></ion-icon>
@@ -157,12 +158,23 @@
           <div class="edit-params themed-frosted panel-hidden" id="edit-panel">
             <h2 class="edit-header">Edit Question</h2>
             <div id="param-list" class="themed-frosted">
-              <div id="param-template" class="param" style="display: none;">
+              <div id="param-template" class="param themed-frosted">
+                <div class="param-row">
+                  <ion-icon name="medical"></ion-icon>
+                  <h3 class="param-label">REQUIRED</h3>
+                </div>
+
+                <div class="param-row">
+                  <input type="checkbox"></input>
+                  <button class="mini-btn" style="height: 30px; width: auto; aspect-ratio: 1;">
+                    <ion-icon name="close"></ion-icon>
+                  </button>
+                </div>
 
               </div>
               <button class="mainBtn" id="add-param-btn">
                 <ion-icon name="add-circle"></ion-icon>
-                General
+                Add General Parameter
               </button>
             </div>
             <button class="mainBtn" id="add-category-btn">
