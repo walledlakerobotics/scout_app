@@ -490,7 +490,6 @@ reloadPreviewBtn.addEventListener("click", () => {
 });
 
 submitChangesBtn.addEventListener("click", async () => {
-  // questionsData only holds what was fetched at page load; edits live in the cache, so that's the source of truth to submit
   const cache = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`) ?? "null");
   const categories = cache?.questionsData?.data;
   if (!categories) return;
@@ -536,4 +535,5 @@ async function init() {
     createNewTab(key);
   });
 }
+
 init();
