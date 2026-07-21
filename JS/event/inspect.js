@@ -261,7 +261,8 @@ function renderStats(teamData) {
   for (const categoryID in teamData) {
     for (const questionID in teamData[categoryID]) {
       const lb = questionLookup[questionID];
-      if (!lb) continue;
+      // spreading leaves lb truthy even with no leaderboard config, so check for titles instead
+      if (!lb || (!lb["title-avg"] && !lb["title-single"])) continue;
 
       if (lb.visibility === "avg" && !isAvgMode) continue;
       if (lb.visibility === "single" && isAvgMode) continue;

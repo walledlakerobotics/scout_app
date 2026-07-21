@@ -39,20 +39,20 @@
             <ion-icon name="add-circle"></ion-icon>
             New
           </button>
-          <button class="mainBtn manage-btn needs-selection" <button class="mainBtn" id="edit-json-btn"
-            style="background-image: var(--striped-bg-img); filter: sepia(.5);">
-            <ion-icon name="warning"></ion-icon>
-            Edit Advanced
+          <button class="mainBtn manage-btn needs-selection" id="edit-advanced-btn" disabled
+            style="background-image: var(--striped-bg-img);">
+            <ion-icon name="information-circle"></ion-icon>
+            Show JSON
           </button>
-          <button class="mainBtn manage-btn needs-selection">
+          <button class="mainBtn manage-btn needs-selection" id="shift-up-btn" disabled>
             <ion-icon name="chevron-up-circle"></ion-icon>
             Shift Up
           </button>
-          <button class="mainBtn manage-btn needs-selection">
+          <button class="mainBtn manage-btn needs-selection" id="shift-down-btn" disabled>
             <ion-icon name="chevron-down-circle"></ion-icon>
             Shift Down
           </button>
-          <button class="mainBtn manage-btn needs-selection">
+          <button class="mainBtn manage-btn needs-selection" id="delete-question-btn" disabled>
             <ion-icon name="trash"></ion-icon>
             Delete
           </button>
@@ -109,6 +109,26 @@
             </div>
           </div>
 
+          <div class="form-input form-template" id="counter">
+            <div class="descriptor">
+              <h2 id="question-header">TEMPLATE: Counter</h2>
+              <button class="infobtn">
+                <ion-icon name="help-circle"></ion-icon>
+              </button>
+            </div>
+            <div class="body row">
+              <button class="mini-btn" onclick="decrementCounter('counter-test1')">
+                <ion-icon name="remove"></ion-icon>
+              </button>
+              <div class="counter-display">
+                <input type="text" id="count" value="0" inputmode="numeric" />
+              </div>
+              <button class="mini-btn" onclick="incrementCounter('counter-test1')">
+                <ion-icon name="add"></ion-icon>
+              </button>
+            </div>
+          </div>
+
           <div class="form-input form-template" id="slider">
             <div class="descriptor">
               <h2 id="question-header">TEMPLATE: Slider</h2>
@@ -156,27 +176,47 @@
         </div>
         <div class="edit-main form-wrapper">
           <div class="edit-params themed-frosted panel-hidden" id="edit-panel">
-            <h2 class="edit-header">Edit Question</h2>
-            <div id="param-list" class="themed-frosted">
-              <div id="param-template" class="param themed-frosted">
-                <div class="param-row">
-                  <ion-icon name="medical"></ion-icon>
-                  <h3 class="param-label">REQUIRED</h3>
+            <h2 class="edit-header">Edit Question: [questionID]</h2>
+            <div class="param-scroll" id="param-view">
+              <div id="param-list" class="themed-frosted">
+
+                <div id="param-toggle-template" class="param themed-frosted hidden">
+                  <div class="param-row">
+                    <ion-icon name="medical"></ion-icon>
+                    <h3 class="param-label">KEY</h3>
+                  </div>
+                  <div class="param-row">
+                    <input type="checkbox"></input>
+                    <button class="mini-btn" style="height: 30px; width: auto; aspect-ratio: 1;">
+                      <ion-icon name="close"></ion-icon>
+                    </button>
+                  </div>
                 </div>
 
-                <div class="param-row">
-                  <input type="checkbox"></input>
-                  <button class="mini-btn" style="height: 30px; width: auto; aspect-ratio: 1;">
-                    <ion-icon name="close"></ion-icon>
-                  </button>
+                <div id="param-text-template" class="param param-text themed-frosted hidden">
+                  <div class="param-top">
+                    <div class="param-row">
+                      <ion-icon name="medical"></ion-icon>
+                      <h3 class="param-label">HEADER</h3>
+                    </div>
+                    <div class="param-row">
+                      <button class="mini-btn" style="height: 30px; width: auto; aspect-ratio: 1;">
+                        <ion-icon name="close"></ion-icon>
+                      </button>
+                    </div>
+                  </div>
+                  <input type="text" class="param-text-input" />
                 </div>
 
+                <button class="mainBtn" id="add-param-btn">
+                  <ion-icon name="add-circle"></ion-icon>
+                  Add General Parameter
+                </button>
               </div>
-              <button class="mainBtn" id="add-param-btn">
-                <ion-icon name="add-circle"></ion-icon>
-                Add General Parameter
-              </button>
             </div>
+            <textarea class="param-scroll param" id="edit-advanced">
+
+            </textarea>
             <button class="mainBtn" id="add-category-btn">
               <ion-icon name="add-circle"></ion-icon>
               Add Category
@@ -190,8 +230,23 @@
             <!--questions get populated here-->
           </div>
         </div>
-
+        <div class="manage-header-buttons">
+          <button class="mainBtn manage-btn" id="reload-preview-btn">
+            <ion-icon name="reload"></ion-icon>
+            Reload Preview
+          </button>
+          <button class="mainBtn manage-btn" id="submit-changes-btn">
+            <ion-icon name="save"></ion-icon>
+            Submit Changes
+          </button>
+          <button class="mainBtn manage-btn" id="delete-changes-btn"
+            style="background-image: var(--striped-bg-img); filter: sepia(.5);">
+            <ion-icon name="trash"></ion-icon>
+            Delete Changes
+          </button>
+        </div>
       </div>
+      <h3 class="footnote">Don't edit question IDs mid-tournament. I'm not giving you a tutorial.. you got this!!!</h3>
     </div>
     <div class="info-popup themed-frosted popup-hidden" id="popup" style="z-index: 5000;">
       <div class="descriptor">
@@ -226,7 +281,7 @@
         <h2 id="choice-header">Choose a Parameter to Add..</h2>
         <hr>
         <div class="c-list">
-          <button class="mainBtn" id="choice-btn-template">
+          <button class="mainBtn hidden" id="choice-btn-template">
             <ion-icon name="add-circle"></ion-icon>
             Example Parameter (i.e REQUIRED)
           </button>

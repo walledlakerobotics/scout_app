@@ -1,9 +1,9 @@
 {
   "prematch": [
-    { "type": "toggle", "header": "No-Show?", "state": false, "text": "Did the robot not show up?", "id": "noshow", "leaderboard": false },
+    { "type": "toggle", "header": "No-Show?", "state": false, "text": "Did the robot not show up?", "id": "noshow", "leaderboard": {} },
     { "type": "dropdown", "header": "Starting Position", "state": "Choose a side..", "dropdown-options": ["Human Player", "Center", "Depot"], "leaderboard": { "title-avg": "Usual Start", "title-single": "Start Position", "category-override": "prematch", "visibility": "both", "type": "pill" }, "depends": ["noshow"], "id": "startpos", "required": true },
-    { "type": "text", "header": "Team Number", "state": "", "placeholder": "Enter text..", "text-restrictions": "number", "id": "team", "required": true, "leaderboard": false },
-    { "type": "text", "header": "Match Number", "state": "", "placeholder": "Enter text..", "text-restrictions": "number", "id": "match", "required": true, "leaderboard": false }
+    { "type": "text", "header": "Team Number", "state": "", "placeholder": "Enter text..", "text-restrictions": "number", "id": "team", "required": true, "leaderboard": {} },
+    { "type": "text", "header": "Match Number", "state": "", "placeholder": "Enter text..", "text-restrictions": "number", "id": "match", "required": true, "leaderboard": {} }
   ],
   "autonomous": [
     { "type": "toggle", "header": "Robot Moved?", "state": true, "text": "Did the robot do anything at all?", "id": "moved", "depends": ["noshow"], "leaderboard": { "title-avg": "Moved", "title-single": "Moved", "category-override": false, "visibility": "both", "type": "bar" } },
@@ -23,8 +23,8 @@
     { "type": "toggle", "header": "Alliance Won Autonomous?", "state": false, "id": "won_auto", "offline": true, "depends": ["noshow"], "leaderboard": { "title-avg": "Auton Winrate", "title-single": "Auton Win", "category-override": false, "visibility": "both", "type": "bar" } }
   ],
   "teleop": [
-    { "type": "toggle", "header": "Robot Can Move?", "state": true, "id": "moved_teleop", "depends": ["noshow"], "leaderboard": false },
-    { "type": "toggle", "header": "Working Shooter?", "state": true, "id": "shooter", "depends": ["noshow"], "leaderboard": false },
+    { "type": "toggle", "header": "Robot Can Move?", "state": true, "id": "moved_teleop", "depends": ["noshow"], "leaderboard": {} },
+    { "type": "toggle", "header": "Working Shooter?", "state": true, "id": "shooter", "depends": ["noshow"], "leaderboard": {} },
     { "type": "slider", "header": "Robot Speed", "state": 3, "min": 0, "max": 5, "step": 1, "label-min": "Tank", "label-max": "Fast", "id": "speed", "depends": ["moved_teleop", "noshow"], "leaderboard": { "title-avg": "Avg Bot Speed", "title-single": "Bot Speed", "category-override": false, "visibility": "both", "type": "bar" } },
     { "type": "toggle", "header": "Can Fire While Moving?", "state": false, "text": "AND scores these shots accurately and reliably?", "id": "moving_fire", "depends": ["shooter", "noshow"], "leaderboard": { "title-avg": "Moving Fire", "title-single": "Moving Fire", "category-override": "Bot & Driver", "visibility": "both", "type": "pill" } },
     {

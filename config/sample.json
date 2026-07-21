@@ -1,6 +1,6 @@
 {
   "toggle": {
-    "type__R": "toggle",
+    "type__D": "toggle",
     "header__R": "New Toggle Question",
     "state__R": false,
     "id__R": "new_toggle",
@@ -23,7 +23,7 @@
     }
   },
   "dropdown": {
-    "type__R": "dropdown",
+    "type__D": "dropdown",
     "header__R": "New Dropdown Question",
     "state__R": "Choose an option..",
     "dropdown-options__R": ["Option 1", "Option 2", "Option 3"],
@@ -45,7 +45,7 @@
     }
   },
   "text": {
-    "type__R": "text",
+    "type__D": "text",
     "header__R": "New Text Question",
     "state__R": "",
     "placeholder__R": "Enter text..",
@@ -68,7 +68,7 @@
     }
   },
   "slider": {
-    "type__R": "slider",
+    "type__D": "slider",
     "header__R": "New Slider Question",
     "state__R": 5,
     "min__R": 0,
@@ -95,7 +95,7 @@
     }
   },
   "counter": {
-    "type__R": "counter",
+    "type__D": "counter",
     "header__R": "New Counter Question",
     "state__R": 0,
     "id__R": "new_counter",
@@ -116,7 +116,7 @@
     }
   },
   "timer": {
-    "type__R": "timer",
+    "type__D": "timer",
     "header__R": "New Timer Question",
     "state__R": 0.0,
     "id__R": "new_timer",
@@ -137,7 +137,7 @@
     }
   },
   "textarea": {
-    "type__R": "textarea",
+    "type__D": "textarea",
     "header__R": "New Notes Question",
     "state__R": "",
     "placeholder__R": "Enter any important notes here..",
