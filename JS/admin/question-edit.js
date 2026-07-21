@@ -7,6 +7,8 @@ const tabHeader = document.getElementById("tab-header");
 const tabList = document.querySelector(".tablist");
 const inputList = document.getElementById("input-list");
 const editPanel = document.getElementById("edit-panel");
+const closeEditorBtn = document.getElementById("close-editor-btn");
+const reopenEditorBtn = document.getElementById("reopen-editor-btn");
 
 const choicePopup = document.getElementById("choice-popup");
 const choiceHeader = document.getElementById("choice-header");
@@ -52,6 +54,15 @@ function updateSelectionButtons() {
   });
 }
 
+function setEditPanelVisible(visible) {
+  editPanel.classList.toggle("panel-hidden", !visible);
+  reopenEditorBtn.classList.toggle("hidden", visible);
+  if (!visible) {
+    reopenEditorBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+  }
+}
+reopenEditorBtn.classList.toggle("hidden", !editPanel.classList.contains("panel-hidden"));
+
 function setAdvancedMode(show) {
   editPanel.classList.toggle("advanced-mode", show);
   if (show) {
@@ -81,7 +92,7 @@ async function selectQuestion(questionID) {
     // person wants to cancel selection of the current question
     selectedQuestionID = null;
     selectedQuestionEl.classList.remove("q-selected");
-    editPanel.classList.add("panel-hidden");
+    setEditPanelVisible(false);
     setAdvancedMode(false);
     updateSelectionButtons();
     return;
@@ -89,7 +100,7 @@ async function selectQuestion(questionID) {
 
   selectedQuestionEl.classList.add("q-selected");
 
-  editPanel.classList.remove("panel-hidden");
+  setEditPanelVisible(true);
   setAdvancedMode(false);
   updateSelectionButtons();
   populateEditPanel();
@@ -452,7 +463,7 @@ function shiftSelectedQuestion(offset) {
 function clearQuestionSelection() {
   selectedQuestionID = null;
   lastSelectedQuestionID = null;
-  editPanel.classList.add("panel-hidden");
+  setEditPanelVisible(false);
   setAdvancedMode(false);
   updateSelectionButtons();
 }
@@ -479,6 +490,14 @@ function deleteSelectedQuestion() {
 
 editAdvancedBtn.addEventListener("click", () => {
   setAdvancedMode(!editPanel.classList.contains("advanced-mode"));
+});
+
+closeEditorBtn.addEventListener("click", () => {
+  setEditPanelVisible(false);
+});
+
+reopenEditorBtn.addEventListener("click", () => {
+  setEditPanelVisible(true);
 });
 
 shiftUpBtn.addEventListener("click", () => shiftSelectedQuestion(-1));

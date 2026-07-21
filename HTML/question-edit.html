@@ -39,6 +39,10 @@
             <ion-icon name="add-circle"></ion-icon>
             New
           </button>
+          <button class="mainBtn manage-btn" id="reopen-editor-btn">
+            <ion-icon name="options"></ion-icon>
+            Edit
+          </button>
           <button class="mainBtn manage-btn needs-selection" id="edit-advanced-btn" disabled
             style="background-image: var(--striped-bg-img);">
             <ion-icon name="information-circle"></ion-icon>
@@ -176,7 +180,12 @@
         </div>
         <div class="edit-main form-wrapper">
           <div class="edit-params themed-frosted panel-hidden" id="edit-panel">
-            <h2 class="edit-header">Edit Question: [questionID]</h2>
+            <div class="edit-header-row">
+              <h2 class="edit-header">Edit Question: [questionID]</h2>
+              <button class="mini-btn" id="close-editor-btn" style="height: 30px; width: auto; aspect-ratio: 1;">
+                <ion-icon name="close"></ion-icon>
+              </button>
+            </div>
             <div class="param-scroll" id="param-view">
               <div id="param-list" class="themed-frosted">
 

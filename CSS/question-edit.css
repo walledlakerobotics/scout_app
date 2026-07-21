@@ -311,6 +311,15 @@ ion-icon {
   height: fit-content;
 }
 
+.edit-header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+}
+
 .needs-selection {
   opacity: 0.4;
   scale: 1;
