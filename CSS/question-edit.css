@@ -138,7 +138,7 @@ ion-icon {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: center;
   width: 100%;
   gap: 5px;
   height: fit-content;
