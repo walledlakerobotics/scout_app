@@ -1,8 +1,10 @@
 <!doctype html>
 
 <head>
-  <link rel="stylesheet" type="text/css" href="../CSS/global.css" />
-  <link rel="stylesheet" type="text/css" href="../CSS/Index-login.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/global.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/Index-login.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/admin/admin.css" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -18,28 +20,27 @@
 <body>
   <div class="main">
     <div class="text-container">
-      <h1 class="tc-formatted">WLRSCOUT 2026</h1>
-      <h2 class="tc-formatted">Match Data & Tournament Standings</h2>
+      <h1 class="tc-formatted" id="header">Head Scout Panel</h1>
       <div class="main-buttons">
-        <button class="mainBtn" id="eventBtn">Loading Event Details..</button>
-        <button class="mainBtn hidden" onclick="location.pathname = '/HTML/admin/admin.html'" id="adminBtn">
-          <ion-icon class="ionicon" name="shield-half-outline"></ion-icon>
-          For Head Scouts →
+        <button class="mainBtn" id="editJsonBtn">
+          <ion-icon name="book"></ion-icon>
+          Edit Questionnaires
         </button>
-        <button class="mainBtn" id="setupBtn">
-          <ion-icon class="ionicon" name="cloud-download-outline"></ion-icon>
-          Set Up This Device →
+        <button class="mainBtn" id="editJsonBtn" onclick="location.href = `/HTML/admin/manage-scouters.html`">
+          <ion-icon name="people"></ion-icon>
+          Manage Scouters
+        </button>
+        <button class="mainBtn" id="editJsonBtn" onclick="location.href = `/HTML/admin/manage-events.html`">
+          <ion-icon name="calendar"></ion-icon>
+          Manage Events
         </button>
       </div>
-      <div class="error blue hidden" style="filter: hue-rotate(13deg)" id="errMsg"></div>
     </div>
     <footer>
       <div class="footer">
-        <a href="https://walledlakerobotics.com">
-          <button class="mini-btn">
-            <ion-icon name="arrow-back-circle-outline"></ion-icon>
-          </button>
-        </a>
+        <button class="mini-btn" onclick="location.href = `/HTML/index.html`">
+          <ion-icon name="arrow-back-circle-outline"></ion-icon>
+        </button>
         <a href="https://github.com/walledlakerobotics/walledlakerobotics.github.io">
           <button class="mini-btn">
             <ion-icon name="logo-github"></ion-icon>
@@ -47,9 +48,6 @@
         </a>
         <button class="mini-btn" onclick="toggleTheme()">
           <ion-icon name="sunny"></ion-icon>
-        </button>
-        <button class="mini-btn" onclick="toggleDebug()">
-          <ion-icon name="code"></ion-icon>
         </button>
         <button class="mini-btn" style="border-color: #3f51b5" onclick="window.open('https://www.thebluealliance.com')">
           <img class="ionicon blue" src="https://www.thebluealliance.com/images/tba_lamp.svg" />
@@ -62,8 +60,8 @@
       <p class="tc-formatted">© 2026 Walled Lake Robotics</p>
     </footer>
   </div>
-  <script type="module" src="../JS/utils.js"></script>
-  <script src="../JS/theme.js"></script>
-  <script src="../JS/check-auth.js"></script>
-  <script type="module" src="../JS/index.js"></script>
+  <script type="module" src="/JS/admin/admin-main.js"></script>
+  <script type="module" src="/JS/utils.js"></script>
+  <script src="/JS/theme.js"></script>
+  <script src="/JS/check-auth.js"></script>
 </body>

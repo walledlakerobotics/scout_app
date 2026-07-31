@@ -189,7 +189,8 @@ a {
 ion-icon,
 .ionicon {
   max-width: 60%;
-  max-height: 60%;
+
+  max-height: 100%; /* 60%; */
   width: 60%;
   height: 100%;
   color: var(--theme-main-text);
@@ -201,6 +202,9 @@ ion-icon svg {
   color: #3f51b5;
   border-color: #3f51b5;
   filter: invert(33%) sepia(100%) saturate(2826%) hue-rotate(200deg) brightness(97%);
+}
+img.ionicon {
+  max-height: 60% !important;
 }
 
 .tc-formatted {

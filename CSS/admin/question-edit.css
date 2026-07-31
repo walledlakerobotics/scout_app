@@ -282,6 +282,10 @@ ion-icon {
 .param-text-input::placeholder {
   color: rgba(var(--theme-main-rgb), 0.4);
 }
+.param-text-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 .param-category {
   height: fit-content;

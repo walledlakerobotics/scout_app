@@ -107,6 +107,10 @@ async function selectQuestion(questionID) {
 }
 
 async function selectTab(key) {
+  if (currentSelectedTabKey !== null && currentSelectedTabKey !== key) {
+    clearQuestionSelection();
+  }
+
   lastSelectedTabKey = currentSelectedTabKey;
   currentSelectedTabKey = key;
   tabHeader.textContent = key.toUpperCase();
@@ -232,7 +236,35 @@ const parseArrayInput = (str) =>
 
 function newParamFromKey(key, value, category = null, container = paramList) {
   let el;
-  if (typeof value == "boolean") {
+  if (key == "category-override") {
+    // false OR a category name string: a checkbox to enable/disable + a text field makes that relationship obvious
+    el = paramTextTemplate.cloneNode(true);
+    const input = el.querySelector(".param-text-input");
+    const toggle = document.createElement("input");
+    toggle.type = "checkbox";
+    toggle.title = "Override this question's leaderboard category";
+    toggle.checked = typeof value == "string";
+
+    input.placeholder = "Category name..";
+    input.value = typeof value == "string" ? value : "";
+    input.disabled = !toggle.checked;
+
+    toggle.addEventListener("change", () => {
+      input.disabled = !toggle.checked;
+      if (toggle.checked) {
+        input.focus();
+        setParamValue(category, key, input.value);
+      } else {
+        input.value = "";
+        setParamValue(category, key, false);
+      }
+    });
+    input.addEventListener("change", () => {
+      if (toggle.checked) setParamValue(category, key, input.value);
+    });
+
+    el.querySelector(".param-top .param-row").appendChild(toggle);
+  } else if (typeof value == "boolean") {
     //checkbox
     el = paramToggleTemplate.cloneNode(true);
     const checkbox = el.querySelector("input[type='checkbox']");
@@ -349,9 +381,20 @@ function addParamToQuestion(subject, key, value) {
 
 newTabBtn.addEventListener("click", () => {
   const res = prompt("New Category's Name:");
-  if (res) {
-    createNewTab(res);
+  if (!res) return;
+
+  const cache = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`) ?? "null");
+  if (!cache?.questionsData?.data) return;
+
+  if (cache.questionsData.data[res]) {
+    alert(`Category "${res}" already exists.`);
+    return;
   }
+
+  cache.questionsData.data[res] = [];
+  localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
+
+  createNewTab(res);
 });
 
 function getSelectedQuestion() {
@@ -527,8 +570,7 @@ deleteChangesBtn.addEventListener("click", async () => {
   cache.questionsData = data;
   localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
 
-  clearQuestionSelection();
-  refreshQuestionList(false);
+  location.reload();
 });
 
 addParamBtn.addEventListener("click", () => {
