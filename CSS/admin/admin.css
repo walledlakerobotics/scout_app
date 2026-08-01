@@ -1,0 +1,55 @@
+/* CHOICE POPUP STUFF (shared across admin pages) */
+
+#choice-popup {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  position: absolute;
+  width: 200dvw;
+  height: 200dvh;
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+#choice-popup > * {
+  transition: all 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+#choice-popup.choice-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#choice-popup.choice-hidden > * {
+  transform: translateY(30px) scale(0.6);
+}
+#choice-popup button {
+  background-color: rgba(var(--theme-main-rgb-inverted), 0.7);
+}
+.c-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: max-content;
+  min-height: fit-content;
+  background-color: rgba(var(--popup-bg), 0.6);
+  padding: 10px;
+  max-width: 67%;
+}
+.c-frame h2 {
+  margin: 5px 50px 0;
+}
+.c-frame hr {
+  margin: 0;
+}
+.c-list {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.c-list button {
+  width: 100% !important;
+}

@@ -460,6 +460,48 @@ export function getAllTeamAverages(scoutedData, questionsData) {
 
 export async function getAllScoutedLbColums() {}
 
+// #choice-popup used in /admin files
+// [{ label, onClick }]
+export function showChoicePopup(headerText, choices) {
+  const popup = document.getElementById("choice-popup");
+  const header = document.getElementById("choice-header");
+  const list = popup.querySelector(".c-list");
+  const template = document.getElementById("choice-btn-template");
+  const closeBtn = document.getElementById("close-frame-btn");
+
+  header.textContent = headerText;
+  list.querySelectorAll(".choice-btn").forEach((el) => el.remove());
+
+  choices.forEach(({ label, icon, onClick }) => {
+    const btn = template.cloneNode(true);
+    const thing = btn.querySelector(".btn-icon");
+    btn.removeAttribute("id");
+    btn.classList.remove("hidden");
+    if (icon == "none") {
+      thing.remove();
+    }
+    thing.name = icon || "add-circle";
+    btn.classList.add("choice-btn");
+    btn.lastChild.textContent = label;
+    btn.addEventListener("click", () => {
+      hideChoicePopup();
+      onClick?.();
+    });
+    list.appendChild(btn);
+  });
+
+  if (!closeBtn.dataset.wired) {
+    closeBtn.addEventListener("click", hideChoicePopup);
+    closeBtn.dataset.wired = "true";
+  }
+
+  popup.classList.remove("choice-hidden");
+}
+
+export function hideChoicePopup() {
+  document.getElementById("choice-popup")?.classList.add("choice-hidden");
+}
+
 window.reloadPage = function () {
   const eventKey = localStorage.getItem("currentEventKey");
   const CACHE_KEY = `eventCache_${eventKey}`;
