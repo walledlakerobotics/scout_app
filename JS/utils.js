@@ -473,10 +473,10 @@ window.logout = (param) => {
     localStorage.removeItem("userProfile");
     const eventKey = localStorage.getItem("currentEventKey");
     const eventParam = eventKey ? `&eventKey=${eventKey}` : "";
-    window.location = `../HTML/profiles.html?redirect=scout${eventParam}`;
+    window.location = `/HTML/profiles.html?redirect=scout${eventParam}`;
     return;
   }
   localStorage.removeItem("scoutingAuthToken");
   localStorage.removeItem("userProfile");
-  window.location = `../HTML/login.html`;
+  window.location = `/HTML/login.html`;
 };
