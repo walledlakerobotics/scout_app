@@ -1,3 +1,6 @@
+// AAAAUUUUUUUUUUUUUUUUUUUUUUUUUUUUUGGHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+// LIKE 90% OF THIS IS CLAUDE OH MY GOD
+
 import { showChoicePopup } from "/JS/utils.js";
 import { getUsers, updateUser, addUser, deleteUser } from "/JS/DB.js";
 
@@ -74,7 +77,6 @@ function position(user) {
     positions.map((label) => ({
       label,
       icon: label.startsWith("Blue") ? "arrow-back" : "arrow-forward",
-      // remove spaces and lowercase before storing, per convention
       onClick: () => applyUpdate(user, { scouting: label.replace(/\s+/g, "").toLowerCase() }),
     }))
   );
