@@ -511,7 +511,7 @@ window.reloadPage = function () {
 
 window.logout = (param) => {
   if (param === "redirect=scout") {
-    // Switch profile without re-login — keep auth token
+    // switch profile
     localStorage.removeItem("userProfile");
     const eventKey = localStorage.getItem("currentEventKey");
     const eventParam = eventKey ? `&eventKey=${eventKey}` : "";

@@ -1,0 +1,77 @@
+button {
+  text-size-adjust: 80%;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: visible;
+  max-width: 100%;
+}
+.main-buttons {
+  overflow: visible;
+}
+.form h4,
+.form p {
+  margin: 2px;
+  text-align: left;
+  font-weight: bold;
+  color: var(--theme-main-text);
+  font-size: 16px;
+}
+
+.events {
+  display: flex;
+  gap: 10px;
+  flex-direction: row;
+  width: 100%;
+  min-height: 250px;
+  height: fit-content;
+}
+
+.vr {
+  margin: auto;
+}
+
+.readout {
+  display: flex;
+  flex-direction: column;
+}
+
+.events-list {
+  width: auto;
+  height: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 25px 5px 5px;
+  min-width: 50px;
+  align-items: center;
+}
+.noneditable {
+  color: var(--theme-secondary-text) !important;
+}
+
+.list-header {
+  position: fixed;
+  top: 3px;
+  left: 50%;
+  width: fit-content;
+  height: fit-content;
+  margin: 0;
+  transform: translateX(-50%);
+  color: var(--theme-secondary-text);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(var(--theme-isdarkmode));
+}
+input[type="date"] {
+  max-width: 100%;
+}
+
+@media (max-width: 500px) {
+  .events {
+    flex-direction: column;
+  }
+}

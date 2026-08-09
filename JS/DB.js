@@ -34,6 +34,16 @@ export async function deleteUser(id) {
   if (!res.ok) throw new Error(`Failed to delete user (${res.status})`);
 }
 
+export async function newEvent(data) {
+  const res = await fetch("https://data.bheitz780.workers.dev/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`Failed to add new event (${res.status})`);
+  return res.json();
+}
+
 export async function questionDB(method, data, fetchOptions = {}) {
   if (method === "GET") {
     const res = await fetch("https://data.bheitz780.workers.dev/questions", fetchOptions);

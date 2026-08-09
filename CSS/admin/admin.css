@@ -53,3 +53,11 @@
 .c-list button {
   width: 100% !important;
 }
+
+.footnote {
+  margin: 0;
+  height: fit-content;
+  font-size: medium;
+  margin: 10px 0 -10px 0;
+  color: var(--theme-secondary-text);
+}

@@ -21,13 +21,13 @@ async function checkAuth() {
         }
       } else {
         //kick and let login.js do all the errors n stuff
-        window.location = "../HTML/login.html";
+        window.location = "/HTML/login.html";
       }
     } catch (error) {
       console.error("Auth check failed:", error);
     }
   } else {
-    window.location = "../HTML/login.html";
+    window.location = "/HTML/login.html";
   }
 }
 

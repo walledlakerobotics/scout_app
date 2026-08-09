@@ -21,6 +21,7 @@ a {
   border: var(--theme-main-border);
   background-color: var(--theme-main-button);
   backdrop-filter: blur(50px);
+  box-shadow: 0 3px 30px rgba(var(--theme-main-rgb), 0.06);
   cursor: pointer;
   width: 500px;
   max-width: 100%;

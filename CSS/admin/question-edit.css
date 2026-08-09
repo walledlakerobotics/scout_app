@@ -342,13 +342,6 @@ hr {
   width: 100%;
   margin: 20px;
 }
-.vr {
-  height: 100%;
-  background-color: var(--theme-main-border-color);
-  border: none;
-  width: 1px;
-  margin: 0 20px 0 20px;
-}
 
 #tab-template {
   display: none;
@@ -375,15 +368,6 @@ hr {
 .edit-main:has(> .edit-params.panel-hidden) {
   justify-content: center;
 }
-
-.footnote {
-  margin: 0;
-  height: fit-content;
-  font-size: medium;
-  margin: 10px 0 -10px 0;
-  color: var(--theme-secondary-text);
-}
-
 @media (max-width: 1100px) {
   .edit-main {
     position: relative;

@@ -1,5 +1,5 @@
 // AAAAUUUUUUUUUUUUUUUUUUUUUUUUUUUUUGGHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-// LIKE 90% OF THIS IS CLAUDE OH MY GOD
+// LIKE 80% OF THIS IS CLAUDE OH MY GOD
 
 import { showChoicePopup } from "/JS/utils.js";
 import { getUsers, updateUser, addUser, deleteUser } from "/JS/DB.js";
@@ -32,7 +32,7 @@ function renderRows() {
 }
 
 async function applyUpdate(user, updates) {
-  Object.assign(user, updates); // optimistic update
+  Object.assign(user, updates);
   renderRows();
   try {
     await updateUser(user.id, updates);
@@ -71,6 +71,7 @@ function role(user) {
 }
 
 function position(user) {
+  // yes dude obviously
   const positions = ["Blue 1", "Blue 2", "Blue 3", "Red 1", "Red 2", "Red 3"];
   showChoicePopup(
     `Change ${user.name}'s position to:`,
@@ -85,6 +86,10 @@ function position(user) {
 async function deleteScouter(user) {
   if (!confirm(`Delete ${user.name}? This can't be undone.`)) return;
   try {
+    if (Number(user.id) <= 0) {
+      alert("Error: Cannot remove reserved (negative ID) users.");
+      return;
+    }
     await deleteUser(user.id);
     users = users.filter((u) => u.id !== user.id);
     renderRows();
