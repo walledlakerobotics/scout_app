@@ -5,6 +5,7 @@
   <link rel="stylesheet" type="text/css" href="/CSS/Index-login.css" />
   <link rel="stylesheet" type="text/css" href="/CSS/admin/admin.css" />
   <link rel="stylesheet" type="text/css" href="/CSS/admin/events.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/admin/manage-scouters.css" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,11 +29,65 @@
         </div>
         <div class="events-list themed-frosted" id="events-first">
           <h4 class="list-header">OCCRA</h4>
-          <button class="mainBtn">
-            <ion-icon name="checkmark-circle"></ion-icon>
-            UNTITLED EVENT 1
+          <button class="mainBtn striped-bg-img event-btn">
+            <div class="eb-container">
+              <ion-icon name="alert-circle"></ion-icon>
+              UNTITLED EVENT 1
+            </div>
+            <h4>
+              ! UNSET SCHEDULE !!! TAP TO ADD !
+            </h4>
+
           </button>
         </div>
+      </div>
+      <div class="scouters-table-wrapper themed-frosted">
+        <table class="scouters-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>BLUE 1</th>
+              <th>BLUE 2</th>
+              <th>BLUE 3</th>
+              <th>RED 1</th>
+              <th>RED 2</th>
+              <th>RED 3</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="scouters-tbody">
+            <tr id="scouter-row-template" class="hidden">
+              <td class="r-round-num sh"></td>
+              <td class="r-blue1"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                  placeholder="-" /></td>
+              <td class="r-blue2 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                  placeholder="-" /></td>
+              <td class="r-blue3"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                  placeholder="-" /></td>
+              <td class="r-red1 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                  placeholder="-" /></td>
+              <td class="r-red2"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                  placeholder="-" /></td>
+              <td class="r-red3 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                  placeholder="-" /></td>
+              <td class="r-actions">
+                <button class="row-delete-btn" type="button">
+                  <ion-icon name="trash"></ion-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="schedule-actions">
+        <button class="mainBtn" id="add-match-btn">
+          <ion-icon name="add-circle"></ion-icon>
+          Add Match
+        </button>
+        <button class="mainBtn" id="add-match-btn">
+          <ion-icon name="add-circle"></ion-icon>
+          Delete Last
+        </button>
       </div>
       <div class="main-buttons">
         <button class="mainBtn" id="new-event-btn">
