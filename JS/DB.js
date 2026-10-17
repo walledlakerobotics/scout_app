@@ -44,6 +44,36 @@ export async function newEvent(data) {
   return res.json();
 }
 
+// custom (OCCRA) events stored on the worker, shaped like TBA events + a `matches` array
+export async function getEvents() {
+  const res = await fetch("https://data.bheitz780.workers.dev/events", { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to get events (${res.status})`);
+  return res.json();
+}
+
+export async function getEvent(key) {
+  const res = await fetch(`https://data.bheitz780.workers.dev/events?key=${encodeURIComponent(key)}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to get event ${key} (${res.status})`);
+  return res.json();
+}
+
+export async function updateEvent(key, updates) {
+  const res = await fetch("https://data.bheitz780.workers.dev/events", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, ...updates }),
+  });
+  if (!res.ok) throw new Error(`Failed to update event ${key} (${res.status})`);
+  return res.json();
+}
+
+export async function deleteEvent(key) {
+  const res = await fetch(`https://data.bheitz780.workers.dev/events?key=${encodeURIComponent(key)}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(`Failed to delete event ${key} (${res.status})`);
+}
+
 export async function questionDB(method, data, fetchOptions = {}) {
   if (method === "GET") {
     const res = await fetch("https://data.bheitz780.workers.dev/questions", fetchOptions);

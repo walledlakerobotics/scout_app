@@ -169,3 +169,17 @@ td:hover:not(.r-round-num):not(.r-actions) {
     flex-direction: column;
   }
 }
+
+.schedule-editor {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.events-list .event-btn {
+  width: 100%;
+}
+.team-input.invalid {
+  background-color: #ff4d4d26;
+}

@@ -69,7 +69,9 @@ async function renderMatches(mData) {
     redScoreEl.textContent = `${match.alliances.red.score === (-1 || null) ? "-" : match.alliances.red.score}`;
     blueScoreEl.textContent = `${match.alliances.blue.score === (-1 || null) ? "-" : match.alliances.blue.score}`;
 
-    const isCompleted = match.alliances.red.score !== (null || -1) && match.alliances.blue.score !== (null || -1);
+    const hasScores = match.alliances.red.score !== -1 && match.alliances.blue.score !== -1;
+    // _scouted: OCCRA matches count as played once scouted, see markScoutedMatches in utils
+    const isCompleted = match._scouted || hasScores;
 
     if (isCompleted) {
       matchEl.querySelector("#match-status").setAttribute("name", "cloud-done-outline");
@@ -92,17 +94,33 @@ async function renderMatches(mData) {
       matchEl.classList.add("theme-tie");
     }
 
-    const actionBtn = matchEl.querySelector("#action-btn");
+    // a match that's been scouted but has no scores is still being scouted by the others, so offer both
+    const actions = [];
+    if (isCompleted) actions.push({ label: "Review this match", short: "Review", href: `/HTML/inspect.html?type=match&key=${match.key}` });
+    if (!hasScores) actions.push({ label: "Scout This Match", short: "Scout", href: `../HTML/scout.html?eventKey=${eventKey}&matchKey=${match.key}` });
 
-    actionBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!actionBtn.classList.contains("hidden")) {
-        if (isCompleted) {
-          location.href = `/HTML/inspect.html?type=match&key=${match.key}`;
-        } else {
-          location.href = `../HTML/scout.html?eventKey=${eventKey}&matchKey=${match.key}`;
-        }
-      }
+    const actionBtn = matchEl.querySelector("#action-btn");
+    let actionBtns = [actionBtn];
+    if (actions.length > 1) {
+      const group = document.createElement("div");
+      group.className = "action-group";
+      actionBtn.replaceWith(group);
+      actionBtns = actions.map(() => {
+        const btn = actionBtn.cloneNode(true);
+        btn.removeAttribute("id");
+        group.appendChild(btn);
+        return btn;
+      });
+    }
+
+    actionBtns.forEach((btn, i) => {
+      const { label, short, href } = actions[i];
+      btn.innerHTML = `
+        <ion-icon class="ionicon" name="open-outline"></ion-icon> ${actions.length > 1 ? short : label}`;
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!btn.classList.contains("hidden")) location.href = href;
+      });
     });
 
     //inspection toggle
@@ -111,18 +129,11 @@ async function renderMatches(mData) {
         const prevInspectedEl = document.getElementById(`match-${inspectedMatch.key}`);
         prevInspectedEl.querySelector("#teams-table").classList.remove("overlapped");
 
-        prevInspectedEl.querySelector("#action-btn").classList.add("hidden");
+        prevInspectedEl.querySelectorAll(".action-btn").forEach((btn) => btn.classList.add("hidden"));
       }
-      actionBtn.classList.toggle("hidden");
+      actionBtns.forEach((btn) => btn.classList.toggle("hidden"));
       matchEl.querySelector("#teams-table").classList.toggle("overlapped");
       inspectedMatch = match;
-      if (!isCompleted) {
-        actionBtn.innerHTML = `
-        <ion-icon class="ionicon" name="open-outline"></ion-icon> Scout This Match`;
-      } else {
-        actionBtn.innerHTML = `
-        <ion-icon class="ionicon" name="open-outline"></ion-icon> Review this match`;
-      }
     });
 
     lastMatchCompleted = isCompleted;

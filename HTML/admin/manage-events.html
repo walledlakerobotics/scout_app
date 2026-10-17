@@ -24,70 +24,85 @@
     <div class="text-container">
       <h1 class="tc-formatted" id="header">Events</h1>
       <div class="events" id="events">
-        <div class="events-list themed-frosted" id="events-offseason">
+        <div class="events-list themed-frosted" id="events-first">
           <h4 class="list-header">FIRST</h4>
         </div>
-        <div class="events-list themed-frosted" id="events-first">
+        <div class="events-list themed-frosted" id="events-occra">
           <h4 class="list-header">OCCRA</h4>
-          <button class="mainBtn striped-bg-img event-btn">
-            <div class="eb-container">
-              <ion-icon name="alert-circle"></ion-icon>
-              UNTITLED EVENT 1
-            </div>
-            <h4>
-              ! UNSET SCHEDULE !!! TAP TO ADD !
-            </h4>
-
-          </button>
+          <h4 class="noneditable" id="events-occra-status">Loading...</h4>
         </div>
       </div>
-      <div class="scouters-table-wrapper themed-frosted">
-        <table class="scouters-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>BLUE 1</th>
-              <th>BLUE 2</th>
-              <th>BLUE 3</th>
-              <th>RED 1</th>
-              <th>RED 2</th>
-              <th>RED 3</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="scouters-tbody">
-            <tr id="scouter-row-template" class="hidden">
-              <td class="r-round-num sh"></td>
-              <td class="r-blue1"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
-                  placeholder="-" /></td>
-              <td class="r-blue2 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
-                  placeholder="-" /></td>
-              <td class="r-blue3"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
-                  placeholder="-" /></td>
-              <td class="r-red1 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
-                  placeholder="-" /></td>
-              <td class="r-red2"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
-                  placeholder="-" /></td>
-              <td class="r-red3 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
-                  placeholder="-" /></td>
-              <td class="r-actions">
-                <button class="row-delete-btn" type="button">
-                  <ion-icon name="trash"></ion-icon>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="schedule-actions">
-        <button class="mainBtn" id="add-match-btn">
-          <ion-icon name="add-circle"></ion-icon>
-          Add Match
-        </button>
-        <button class="mainBtn" id="add-match-btn">
-          <ion-icon name="add-circle"></ion-icon>
-          Delete Last
-        </button>
+      <button class="mainBtn event-btn hidden" id="event-btn-template">
+        <div class="eb-container">
+          <ion-icon class="eb-icon" name="calendar"></ion-icon>
+          <span class="eb-name">UNTITLED EVENT</span>
+        </div>
+        <h4 class="eb-sub"></h4>
+      </button>
+      <div class="schedule-editor hidden" id="schedule-editor">
+        <h4 class="noneditable" id="schedule-subheader" style="text-align: center;"></h4>
+        <div class="scouters-table-wrapper themed-frosted">
+          <table class="scouters-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>BLUE 1</th>
+                <th>BLUE 2</th>
+                <th>BLUE 3</th>
+                <th>RED 1</th>
+                <th>RED 2</th>
+                <th>RED 3</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="scouters-tbody">
+              <tr id="scouter-row-template" class="hidden">
+                <td class="r-round-num sh"></td>
+                <td class="r-blue1"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                    placeholder="-" /></td>
+                <td class="r-blue2 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                    placeholder="-" /></td>
+                <td class="r-blue3"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                    placeholder="-" /></td>
+                <td class="r-red1 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                    placeholder="-" /></td>
+                <td class="r-red2"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                    placeholder="-" /></td>
+                <td class="r-red3 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                    placeholder="-" /></td>
+                <td class="r-actions">
+                  <button class="row-delete-btn" type="button">
+                    <ion-icon name="trash"></ion-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="schedule-actions">
+          <button class="mainBtn" id="add-match-btn">
+            <ion-icon name="add-circle"></ion-icon>
+            Add Match
+          </button>
+          <button class="mainBtn" id="delete-last-btn">
+            <ion-icon name="remove-circle"></ion-icon>
+            Delete Last
+          </button>
+        </div>
+        <div class="schedule-actions">
+          <button class="mainBtn" id="schedule-back-btn">
+            <ion-icon name="arrow-undo"></ion-icon>
+            Back
+          </button>
+          <button class="mainBtn" id="save-schedule-btn">
+            <ion-icon name="cloud-upload"></ion-icon>
+            Save Schedule
+          </button>
+          <button class="mainBtn" id="delete-event-btn" style="border-color: rgb(255, 0, 0); color: rgb(255, 0, 0);">
+            <ion-icon name="trash"></ion-icon>
+            Delete Event
+          </button>
+        </div>
       </div>
       <div class="main-buttons">
         <button class="mainBtn" id="new-event-btn">
@@ -116,17 +131,17 @@
           <div style="display: flex; flex-direction: row;">
             <div class="readout" style="align-items: flex-start;">
               <h4 class="noneditable">SHORT NAME:</h4>
-              <h4 id="ro-name">Oxford</h4>
+              <h4 id="ro-name">-</h4>
             </div>
             <div class="vr"></div>
             <div class="readout" style="align-items: center;">
               <h4 class="noneditable">EVENT KEY:</h4>
-              <h4 id="ro-key">2026wlros-oxf</h4>
+              <h4 id="ro-key">-</h4>
             </div>
             <div class="vr"></div>
             <div class="readout" style="align-items: flex-end;">
               <h4 class="noneditable">DURATION</h4>
-              <h4 id="ro-duration">5 days</h4>
+              <h4 id="ro-duration">-</h4>
             </div>
           </div>
           <div>

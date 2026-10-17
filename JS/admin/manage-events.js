@@ -1,8 +1,13 @@
-import { newEvent } from "../DB.js";
+import { newEvent, getEvents, getEvent, updateEvent as saveEventChanges, deleteEvent } from "../DB.js";
+import { TBA_GET, getUserTeam } from "../utils.js";
 
 const newEventBtn = document.getElementById("new-event-btn");
 const formContainer = document.getElementById("form");
 const eventsContainer = document.getElementById("events");
+const firstList = document.getElementById("events-first");
+const occraList = document.getElementById("events-occra");
+const occraStatus = document.getElementById("events-occra-status");
+const eventBtnTemplate = document.getElementById("event-btn-template");
 
 const formName = document.getElementById("event-name");
 const formStart = document.getElementById("event-start-date");
@@ -16,43 +21,188 @@ const readoutDur = document.getElementById("ro-duration");
 const cancelBtn = document.getElementById("cancel-creation-btn");
 const createBtn = document.getElementById("create-btn");
 
+const scheduleEditor = document.getElementById("schedule-editor");
+const scheduleSubheader = document.getElementById("schedule-subheader");
+const addMatchBtn = document.getElementById("add-match-btn");
+const deleteLastBtn = document.getElementById("delete-last-btn");
+const scheduleBackBtn = document.getElementById("schedule-back-btn");
+const saveScheduleBtn = document.getElementById("save-schedule-btn");
+const deleteEventBtn = document.getElementById("delete-event-btn");
+
 const header = document.getElementById("header");
-
-var event = {};
-function updateEvent() {
-  event = {
-    name: formName.value,
-    start_date: formStart.value,
-    end_date: formEnd.value,
-    location_name: formLocation.value,
-  };
-
-  var durationDays = (Date.parse(event.end_date) - Date.parse(event.start_date)) / 1000 / 60 / 60 / 24;
-  if (durationDays < 1) durationDays = false;
-
-  readoutDur.textContent = `${durationDays || "INVALID"} Days`;
-
-  const words = event.name.split(" ");
-  const nameWords = [];
-  for (let i = 2; i <= words.length - 2; i++) {
-    nameWords.push(words[i]);
-  }
-  const shortName = nameWords.join(" ");
-  var eventKey;
-  readoutName.textContent = shortName || "-";
-
-  if (shortName) {
-    eventKey = `2026wlros-${shortName.slice(0, 3)}`;
-  }
-  readoutKey.textContent = eventKey || "-";
-
-  event.key = eventKey;
-  event.short_name = shortName;
-}
-updateEvent();
 
 const tbody = document.getElementById("scouters-tbody");
 const rowTemplate = document.getElementById("scouter-row-template");
+
+const DAY_MS = 1000 * 60 * 60 * 24;
+const REQUIRED_FIELDS = { name: "Event name", short_name: "Short name", start_date: "Start date", end_date: "End date", location_name: "Location" };
+
+let customEvents = []; // OCCRA events from the worker
+let activeEvent = null; // event whose schedule is open
+let matches = [];
+var draftEvent = {};
+
+localStorage.removeItem("manageEventsSchedule"); // old global schedule, now stored per event
+
+function showView(view) {
+  eventsContainer.style.display = view === "list" ? "flex" : "none";
+  newEventBtn.style.display = view === "list" ? "flex" : "none";
+  formContainer.style.display = view === "form" ? "flex" : "none";
+  scheduleEditor.classList.toggle("hidden", view !== "schedule");
+
+  if (view === "list") header.textContent = "Events";
+  if (view === "form") header.textContent = "New Event";
+  if (view === "schedule") header.textContent = activeEvent?.name || "Schedule";
+}
+
+function formatDates(ev) {
+  const opts = { month: "short", day: "numeric" };
+  const start = new Date(`${ev.start_date}T00:00:00`).toLocaleDateString(undefined, opts);
+  const end = new Date(`${ev.end_date}T00:00:00`).toLocaleDateString(undefined, opts);
+  return start === end ? start : `${start} - ${end}`;
+}
+
+function createEventButton(ev, subText, icon) {
+  const btn = eventBtnTemplate.cloneNode(true);
+  btn.removeAttribute("id");
+  btn.classList.remove("hidden");
+  btn.querySelector(".eb-name").textContent = ev.name;
+  btn.querySelector(".eb-sub").textContent = subText;
+  btn.querySelector(".eb-icon").setAttribute("name", icon);
+  return btn;
+}
+
+// ---------- event lists ----------
+
+async function loadEvents() {
+  occraList.querySelectorAll(".event-btn").forEach((el) => el.remove());
+  occraStatus.textContent = "Loading...";
+  occraStatus.classList.remove("hidden");
+
+  try {
+    customEvents = await getEvents();
+    if (!Array.isArray(customEvents)) customEvents = [];
+  } catch (err) {
+    console.error("Failed to load events:", err);
+    customEvents = [];
+    occraStatus.textContent = "Couldn't load events.";
+    return;
+  }
+
+  customEvents.sort((a, b) => (a.start_date || "").localeCompare(b.start_date || ""));
+  customEvents.forEach((ev) => {
+    const hasSchedule = ev.matches?.length > 0;
+    const subText = hasSchedule ? `${formatDates(ev)} | ${ev.matches.length} matches` : "! UNSET SCHEDULE !!! TAP TO ADD !";
+    const btn = createEventButton(ev, subText, hasSchedule ? "calendar" : "alert-circle");
+    if (!hasSchedule) btn.classList.add("striped-bg-img");
+    btn.addEventListener("click", () => openSchedule(ev.key));
+    occraList.appendChild(btn);
+  });
+
+  occraStatus.textContent = "No OCCRA events yet.";
+  occraStatus.classList.toggle("hidden", customEvents.length > 0);
+}
+
+// FIRST events come from TBA and are read-only here
+async function loadFirstEvents() {
+  const events = await TBA_GET(`/team/frc${getUserTeam()}/events/${new Date().getFullYear()}`);
+  if (!Array.isArray(events)) return;
+  events
+    .sort((a, b) => a.start_date.localeCompare(b.start_date))
+    .forEach((ev) => {
+      const btn = createEventButton(ev, formatDates(ev), "trophy");
+      btn.style.cursor = "default";
+      firstList.appendChild(btn);
+    });
+}
+
+// ---------- new event form ----------
+
+function uniqueEventKey(year, shortName) {
+  const slug = shortName.toLowerCase().replace(/[^a-z]/g, "").slice(0, 3) || "evt";
+  const base = `${year}wlros-${slug}`;
+  let key = base;
+  for (let n = 2; customEvents.some((ev) => ev.key === key); n++) key = `${base}${n}`;
+  return key;
+}
+
+// returns the event's length in days (inclusive), 0 if the dates are missing/backwards
+function readForm() {
+  const year = formStart.value.slice(0, 4) || String(new Date().getFullYear());
+  // "2026 OCCRA Oxford Event" -> "Oxford"
+  const shortName = formName.value
+    .trim()
+    .replace(/^\d{4}\s+/, "")
+    .replace(/^OCCRA\s+/i, "")
+    .replace(/\s+Event$/i, "")
+    .trim();
+
+  draftEvent = {
+    key: shortName ? uniqueEventKey(year, shortName) : "",
+    name: formName.value.trim(),
+    short_name: shortName,
+    year: Number(year),
+    start_date: formStart.value,
+    end_date: formEnd.value,
+    location_name: formLocation.value.trim(),
+    event_type_string: "Offseason",
+    district: { abbreviation: "occra", display_name: "OCCRA" },
+    matches: [],
+  };
+
+  let durationDays = 0;
+  if (formStart.value && formEnd.value) {
+    durationDays = Math.round((Date.parse(formEnd.value) - Date.parse(formStart.value)) / DAY_MS) + 1;
+    if (durationDays < 1) durationDays = 0;
+  }
+
+  readoutName.textContent = shortName || "-";
+  readoutKey.textContent = draftEvent.key || "-";
+  readoutDur.textContent = durationDays ? `${durationDays} Day${durationDays === 1 ? "" : "s"}` : "INVALID";
+  return durationDays;
+}
+
+function resetForm() {
+  [formName, formStart, formEnd, formLocation].forEach((input) => (input.value = ""));
+  readForm();
+}
+
+newEventBtn.addEventListener("click", () => {
+  readForm();
+  showView("form");
+});
+
+cancelBtn.addEventListener("click", () => showView("list"));
+
+createBtn.addEventListener("click", async () => {
+  const durationDays = readForm();
+  const missing = Object.keys(REQUIRED_FIELDS).filter((field) => !draftEvent[field]);
+  if (missing.length) {
+    alert(`Event not created. Missing: ${missing.map((field) => REQUIRED_FIELDS[field]).join(", ")}`);
+    return;
+  }
+  if (!durationDays) {
+    alert("Event not created. The end date must be on or after the start date.");
+    return;
+  }
+
+  createBtn.disabled = true;
+  try {
+    const res = await newEvent(draftEvent);
+    if (!res?.success) throw new Error(res?.error || "the server rejected the event");
+    const key = res.eventKey || draftEvent.key;
+    resetForm();
+    await loadEvents();
+    await openSchedule(key);
+  } catch (err) {
+    console.error("Failed to create event:", err);
+    alert(`Event not created: ${err.message}`);
+  } finally {
+    createBtn.disabled = false;
+  }
+});
+
+[formName, formStart, formEnd, formLocation].forEach((input) => input.addEventListener("input", readForm));
 
 let TEMPLATE_FULL = [
   {
@@ -192,36 +342,70 @@ let match_template = [
   },
 ];
 
-const addMatchBtn = document.getElementById("add-match-btn");
-const SCHEDULE_STORAGE_KEY = "manageEventsSchedule";
+// ---------- schedule editor ----------
 
-// New rows follow match_template's shape: no score yet (-7, matching the
-// "unplayed" sentinel other pages check for via `score >= 0`), no winner yet.
+const draftKey = (eventKey) => `scheduleDraft_${eventKey}`;
+
+// New rows follow match_template's shape: no score yet (-1, TBA's "unplayed"
+// value that event-frc checks for), no winner yet.
 function createMatch(matchNumber) {
   return {
     alliances: {
-      blue: { score: -7, team_keys: ["", "", ""] },
-      red: { score: -7, team_keys: ["", "", ""] },
+      blue: { score: -1, team_keys: ["", "", ""] },
+      red: { score: -1, team_keys: ["", "", ""] },
     },
-    key: `${event.key || "manual"}_qm${matchNumber}`,
+    comp_level: "qm",
+    event_key: activeEvent.key,
+    key: `${activeEvent.key}_qm${matchNumber}`,
     match_number: matchNumber,
+    set_number: 1,
     winning_alliance: null,
   };
 }
 
-function loadMatches() {
+// keeps numbering/keys in sync after rows are added or removed
+function normalizeMatches() {
+  matches.forEach((match, index) => {
+    match.match_number = index + 1;
+    match.comp_level ??= "qm";
+    match.set_number ??= 1;
+    match.event_key = activeEvent.key;
+    match.key = `${activeEvent.key}_${match.comp_level}${match.match_number}`;
+  });
+}
+
+function saveDraft() {
+  localStorage.setItem(draftKey(activeEvent.key), JSON.stringify(matches));
+}
+
+function loadDraft(eventKey) {
   try {
-    const stored = JSON.parse(localStorage.getItem(SCHEDULE_STORAGE_KEY));
-    if (Array.isArray(stored) && stored.length) return stored;
+    const stored = JSON.parse(localStorage.getItem(draftKey(eventKey)));
+    if (Array.isArray(stored)) return stored;
   } catch {}
-  return [createMatch(1)];
+  return null;
 }
 
-function saveMatches() {
-  localStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(matches));
-}
+async function openSchedule(eventKey) {
+  try {
+    activeEvent = await getEvent(eventKey);
+  } catch (err) {
+    console.error("Failed to load event:", err);
+    alert(`Couldn't load ${eventKey}: ${err.message}`);
+    return;
+  }
 
-let matches = loadMatches();
+  const saved = activeEvent.matches || [];
+  const draft = loadDraft(eventKey);
+  const restoreDraft = draft && JSON.stringify(draft) !== JSON.stringify(saved) && confirm("This event has unsaved schedule changes on this device. Restore them?");
+  matches = restoreDraft ? draft : structuredClone(saved);
+  if (!restoreDraft) localStorage.removeItem(draftKey(eventKey));
+  if (!matches.length) matches.push(createMatch(1));
+
+  scheduleSubheader.textContent = `${activeEvent.key} | ${activeEvent.location_name} | ${formatDates(activeEvent)}`;
+  renderRows();
+  showView("schedule");
+}
 
 function teamNumberFromKey(key) {
   return (key || "").replace(/^frc/, "");
@@ -241,10 +425,9 @@ const ALLIANCE_CELLS = [
 ];
 
 function renderRows() {
+  normalizeMatches();
   tbody.querySelectorAll("tr:not(#scouter-row-template)").forEach((row) => row.remove());
-  matches.forEach((match, index) => {
-    match.match_number = index + 1;
-
+  matches.forEach((match) => {
     const row = rowTemplate.cloneNode(true);
     row.removeAttribute("id");
     row.classList.remove("hidden");
@@ -255,8 +438,10 @@ function renderRows() {
       const input = row.querySelector(`${selector} input`);
       input.value = teamNumberFromKey(match.alliances[alliance].team_keys[slot]);
       input.addEventListener("input", () => {
+        input.value = input.value.replace(/\D/g, ""); // team numbers only
+        input.classList.remove("invalid");
         match.alliances[alliance].team_keys[slot] = teamKeyFromNumber(input.value);
-        saveMatches();
+        saveDraft();
       });
       input.addEventListener("keydown", (e) => {
         if (e.key !== " ") return;
@@ -273,7 +458,7 @@ function renderRows() {
     row.querySelector(".row-delete-btn").addEventListener("click", () => {
       match.alliances.blue.team_keys = ["", "", ""];
       match.alliances.red.team_keys = ["", "", ""];
-      saveMatches();
+      saveDraft();
       renderRows();
     });
 
@@ -281,51 +466,89 @@ function renderRows() {
   });
 }
 
+// highlights bad cells; errors block saving, emptyMatches only warn
+function validateSchedule() {
+  const rows = tbody.querySelectorAll("tr:not(#scouter-row-template)");
+  const errors = [];
+  const emptyMatches = [];
+
+  matches.forEach((match, index) => {
+    const inputs = ALLIANCE_CELLS.map(([selector]) => rows[index].querySelector(`${selector} input`));
+    const teams = ALLIANCE_CELLS.map(([, alliance, slot]) => match.alliances[alliance].team_keys[slot]);
+
+    if (teams.some((team) => !team)) emptyMatches.push(match.match_number);
+    teams.forEach((team, i) => {
+      const first = teams.indexOf(team);
+      if (team && first !== i) {
+        inputs[i].classList.add("invalid");
+        inputs[first].classList.add("invalid");
+        errors.push(`Match ${match.match_number} has team ${teamNumberFromKey(team)} more than once`);
+      }
+    });
+  });
+  return { errors, emptyMatches };
+}
+
 addMatchBtn.addEventListener("click", () => {
   matches.push(createMatch(matches.length + 1));
-  saveMatches();
+  saveDraft();
   renderRows();
 });
 
-renderRows();
-
-newEventBtn.addEventListener("click", () => {
-  eventsContainer.style.display = "none";
-  formContainer.style.display = "flex";
-  newEventBtn.style.display = "none";
-
-  header.textContent = "New Event";
+deleteLastBtn.addEventListener("click", () => {
+  if (!matches.length) return;
+  matches.pop();
+  saveDraft();
+  renderRows();
 });
 
-cancelBtn.addEventListener("click", () => {
-  eventsContainer.style.display = "flex";
-  formContainer.style.display = "none";
-  newEventBtn.style.display = "flex";
-
-  header.textContent = "Events";
+scheduleBackBtn.addEventListener("click", () => {
+  activeEvent = null;
+  showView("list");
 });
 
-createBtn.addEventListener("click", async () => {
-  var invalid = false;
-  updateEvent();
-  Object.entries(event).forEach(([key, value]) => {
-    if (value == "" || value == null) {
-      invalid = true;
-    }
-  });
-  if (invalid) {
-    confirm("Invalid Parameters: event not created");
+saveScheduleBtn.addEventListener("click", async () => {
+  const { errors, emptyMatches } = validateSchedule();
+  if (errors.length) {
+    alert(`Schedule not saved:\n- ${errors.join("\n- ")}`);
     return;
   }
-  console.log(event);
-  const res = await newEvent(event);
-  if (res.success) {
-    confirm(`Created Event ${res.eventKey}`);
-    cancelBtn.click();
+  if (emptyMatches.length && !confirm(`Match${emptyMatches.length === 1 ? "" : "es"} ${emptyMatches.join(", ")} still have empty slots. Save anyway?`)) return;
+
+  normalizeMatches();
+  saveScheduleBtn.disabled = true;
+  try {
+    await saveEventChanges(activeEvent.key, { matches });
+    activeEvent.matches = structuredClone(matches);
+    localStorage.removeItem(draftKey(activeEvent.key));
+    alert(`Saved ${matches.length} matches for ${activeEvent.name}.`);
+    loadEvents();
+  } catch (err) {
+    console.error("Failed to save schedule:", err);
+    alert(`Schedule not saved: ${err.message}\nYour changes are kept on this device.`);
+  } finally {
+    saveScheduleBtn.disabled = false;
   }
 });
 
-formName.addEventListener("input", updateEvent);
-formStart.addEventListener("input", updateEvent);
-formEnd.addEventListener("input", updateEvent);
-formLocation.addEventListener("input", updateEvent);
+deleteEventBtn.addEventListener("click", async () => {
+  if (!confirm(`Delete ${activeEvent.name} (${activeEvent.key}) and its schedule? This can't be undone.`)) return;
+  deleteEventBtn.disabled = true;
+  try {
+    await deleteEvent(activeEvent.key);
+    localStorage.removeItem(draftKey(activeEvent.key));
+    activeEvent = null;
+    showView("list");
+    loadEvents();
+  } catch (err) {
+    console.error("Failed to delete event:", err);
+    alert(`Event not deleted: ${err.message}`);
+  } finally {
+    deleteEventBtn.disabled = false;
+  }
+});
+
+showView("list");
+readForm();
+loadEvents();
+loadFirstEvents();

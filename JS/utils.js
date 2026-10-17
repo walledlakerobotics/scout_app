@@ -1,7 +1,7 @@
 // ONCE PUBLISHED TO WEBSITE ALL CLOUDFLARE WORKERS MUST BE MOVED TO AN OFFICIAL ACCOUNT
 
 import { questionDB } from "/JS/DB.js";
-import { getDB } from "/JS/DB.js";
+import { getDB, getEvents, getEvent } from "/JS/DB.js";
 
 export async function TBA_GET(endpoint) {
   // fetch the blue alliance with cloudflare auth worker
@@ -14,6 +14,86 @@ export async function TBA_GET(endpoint) {
     // network error? i think
     return false;
   }
+}
+
+// OCCRA/offseason events are made in manage-events and live on our worker instead of TBA
+export function isCustomEventKey(eventKey) {
+  return /^\d{4}wlros-/.test(eventKey || "");
+}
+
+async function getCustomEvents() {
+  try {
+    const events = await getEvents();
+    return Array.isArray(events) ? events : [];
+  } catch (err) {
+    console.error("Error fetching custom events:", err);
+    return [];
+  }
+}
+
+// TBA-shaped rankings built from played matches, since TBA has nothing for custom events.
+// every scheduled team gets an entry (even with 0 played) so the leaderboard lists them before results exist
+export function computeRankings(mData) {
+  const teams = {};
+  for (const match of Array.isArray(mData) ? mData : []) {
+    const blue = match.alliances?.blue;
+    const red = match.alliances?.red;
+    if (!blue || !red) continue;
+    const played = blue.score >= 0 && red.score >= 0;
+
+    for (const [side, alliance] of [["blue", blue], ["red", red]]) {
+      for (const teamKey of alliance.team_keys) {
+        if (!teamKey) continue;
+        const t = (teams[teamKey] ??= { wins: 0, losses: 0, ties: 0, played: 0, totalScore: 0 });
+        if (!played) continue;
+        t.played++;
+        t.totalScore += alliance.score;
+        if (!match.winning_alliance) t.ties++;
+        else if (match.winning_alliance === side) t.wins++;
+        else t.losses++;
+      }
+    }
+  }
+
+  const anyScored = Object.values(teams).some((t) => t.played > 0);
+  const rankings = Object.entries(teams)
+    .map(([team_key, t]) => ({
+      team_key,
+      matches_played: t.played,
+      record: { wins: t.wins, losses: t.losses, ties: t.ties },
+      // [1] is read as the avg match score by the leaderboard's AFC column
+      sort_orders: [t.wins, t.played ? t.totalScore / t.played : 0, t.totalScore],
+    }))
+    .sort((a, b) => b.sort_orders[0] - a.sort_orders[0] || b.sort_orders[1] - a.sort_orders[1] || a.team_key.slice(3) - b.team_key.slice(3))
+    .map((entry, i) => ({ rank: anyScored ? i + 1 : null, ...entry })); // no scores yet -> ranks would just be team order
+
+  return {
+    rankings,
+    sort_order_info: [
+      { name: "Wins", precision: 0 },
+      { name: "Avg Score", precision: 1 },
+      { name: "Total Score", precision: 0 },
+    ],
+    extra_stats_info: [],
+  };
+}
+
+// OCCRA has no live results or accurate match timing, so a match counts as played once anyone has scouted it
+function markScoutedMatches(mData, scoutedRows) {
+  if (!Array.isArray(mData) || !Array.isArray(scoutedRows)) return;
+  const scouted = new Set();
+  for (const row of scoutedRows) {
+    try {
+      const data = JSON.parse(row.data)?.questions?.data ?? {};
+      for (const category in data) {
+        const matchNum = Number(data[category]?.match);
+        if (matchNum) scouted.add(matchNum);
+      }
+    } catch {}
+  }
+  mData.forEach((match) => {
+    if (scouted.has(Number(match.match_number))) match._scouted = true;
+  });
 }
 
 export function isAdmin() {
@@ -38,8 +118,8 @@ export async function isActiveEvent(overrideStr) {
   // returns { isActive: boolean, event: currentevent/nextevent/null}
 
   if (overrideStr) {
-    const event = await TBA_GET(`/event/${overrideStr}`);
-    if (!event) return false;
+    const event = isCustomEventKey(overrideStr) ? await getEvent(overrideStr).catch(() => null) : await TBA_GET(`/event/${overrideStr}`);
+    if (!event || !event.key) return false;
     newEventCache(event.key);
     return { isActive: true, event };
   }
@@ -52,9 +132,10 @@ export async function isActiveEvent(overrideStr) {
     const team = getUserTeam();
     const now = new Date();
 
-    const events = await TBA_GET(`/team/frc${team}/events/${now.getUTCFullYear()}`);
+    const [tbaEvents, customEvents] = await Promise.all([TBA_GET(`/team/frc${team}/events/${now.getUTCFullYear()}`), getCustomEvents()]);
 
-    if (!events) return false;
+    if (!tbaEvents && !customEvents.length) return false;
+    const events = [...(Array.isArray(tbaEvents) ? tbaEvents : []), ...customEvents];
 
     for (const details of events) {
       const start = new Date(details.start_date + "T00:00:00");
@@ -333,7 +414,11 @@ export async function populateQuestions(questions, categoryID, categoryFormEleme
 }
 
 export async function newEventCache(eventKey, questionsFetcher) {
-  let [mData, eventDetails, questionsData, scoutedData] = await Promise.all([TBA_GET(`/event/${eventKey}/matches`), TBA_GET(`/event/${eventKey}`), questionsFetcher ? questionsFetcher() : questionDB("GET"), getDB(`/db?eventKey=${eventKey}`)]);
+  const isCustom = isCustomEventKey(eventKey);
+  const eventFetcher = isCustom
+    ? getEvent(eventKey).then(({ matches, ...details }) => [matches || [], details])
+    : Promise.all([TBA_GET(`/event/${eventKey}/matches`), TBA_GET(`/event/${eventKey}`)]);
+  let [[mData, eventDetails], questionsData, scoutedData] = await Promise.all([eventFetcher, questionsFetcher ? questionsFetcher() : questionDB("GET"), getDB(`/db?eventKey=${eventKey}`)]);
 
   if (mData && mData.length !== 0) {
     mData.sort((a, b) => {
@@ -348,6 +433,8 @@ export async function newEventCache(eventKey, questionsFetcher) {
     });
   }
 
+  if (isCustom) markScoutedMatches(mData, scoutedData?.data);
+
   const lastUpdated = new Date().getTime();
   //sorted, per-team averages. HELL! HELL! HELL!
   const scoutedDataPTAvgs = scoutedData?.data ? getAllTeamAverages(scoutedData.data, questionsData) : {};
@@ -361,6 +448,7 @@ export async function newEventCache(eventKey, questionsFetcher) {
     }
   }
   const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData: scoutedData.data, scoutedDataPTAvgs, scoutedDataPTAvgsFlat };
+  if (isCustom) cache.rankings = computeRankings(mData);
   localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
   localStorage.setItem("currentEventKey", eventKey);
   return cache;
