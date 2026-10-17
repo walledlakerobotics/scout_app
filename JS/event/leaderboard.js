@@ -1,4 +1,4 @@
-import { TBA_GET } from "../utils.js";
+import { TBA_GET, isCustomEventKey, computeRankings } from "../utils.js";
 import { getDB } from "../DB.js";
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -62,8 +62,9 @@ function getQuestionsFlat() {
 async function reorganizeLeaderboardData() {
   if (useOnlineLeaderboardLayout) {
     var evRaw = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)) ?? {};
-    const raw = evRaw.rankings ? evRaw.rankings : await TBA_GET(`/event/${eventKey}/rankings`);
-    if (!raw || !raw.rankings) return { columns: [], rows: [] };
+    // custom (OCCRA) events have no TBA rankings, build them from the schedule instead
+    const raw = evRaw.rankings ?? (isCustomEventKey(eventKey) ? computeRankings(evRaw.mData) : await TBA_GET(`/event/${eventKey}/rankings`));
+    if (!raw || !raw.rankings) return { tbaColumns: [], scoutedColumns: LEADERBOARD_COLUMNS_SCOUTED, rows: [] };
     evRaw.rankings = raw;
     localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(evRaw));
 
@@ -195,17 +196,17 @@ export async function loadLeaderboard() {
       columns.forEach((col, i) => {
         const thisElement = statElTemplate.cloneNode(true);
         const isValid = stats[col.id] || false;
-        const TBASortOrders = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`)).rankings.rankings[stats.rank - 1];
+        const TBASortOrders = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.rankings?.rankings?.[stats.rank - 1];
 
         if (isValid) {
           thisElement.textContent = isValid;
         } else if (col.id === "AFC") {
           const contribution = Number(stats["contribution"]);
-          const avgMatch = TBASortOrders.sort_orders[1];
+          const avgMatch = TBASortOrders?.sort_orders?.[1] ?? 0;
           thisElement.textContent = Math.round((avgMatch / 100) * contribution);
         } else if (col.id === "AAFC") {
           const contribution = Number(stats["contribution"]);
-          const avgMatch = TBASortOrders.sort_orders[2];
+          const avgMatch = TBASortOrders?.sort_orders?.[2] ?? 0;
           thisElement.textContent = Math.round((avgMatch / 100) * contribution);
         } else {
           thisElement.textContent = "0";
@@ -262,7 +263,8 @@ export async function loadLeaderboard() {
   const lbSets = [
     { label: "TBA", columns: tbaColumns },
     { label: "Local", columns: scoutedColumns },
-  ];
+  ].filter(({ label }) => !(label === "TBA" && isCustomEventKey(eventKey))); // OCCRA has no TBA data to show
+  document.getElementById("nextLbBtn").classList.toggle("hidden", lbSets.length < 2);
   let currentLbIndex = 0;
 
   function renderLb() {

@@ -1,7 +1,7 @@
 // ONCE PUBLISHED TO WEBSITE ALL CLOUDFLARE WORKERS MUST BE MOVED TO AN OFFICIAL ACCOUNT
 
 import { questionDB } from "/JS/DB.js";
-import { getDB } from "/JS/DB.js";
+import { getDB, getEvents, getEvent } from "/JS/DB.js";
 
 export async function TBA_GET(endpoint) {
   // fetch the blue alliance with cloudflare auth worker
@@ -14,6 +14,86 @@ export async function TBA_GET(endpoint) {
     // network error? i think
     return false;
   }
+}
+
+// OCCRA/offseason events are made in manage-events and live on our worker instead of TBA
+export function isCustomEventKey(eventKey) {
+  return /^\d{4}wlros-/.test(eventKey || "");
+}
+
+async function getCustomEvents() {
+  try {
+    const events = await getEvents();
+    return Array.isArray(events) ? events : [];
+  } catch (err) {
+    console.error("Error fetching custom events:", err);
+    return [];
+  }
+}
+
+// TBA-shaped rankings built from played matches, since TBA has nothing for custom events.
+// every scheduled team gets an entry (even with 0 played) so the leaderboard lists them before results exist
+export function computeRankings(mData) {
+  const teams = {};
+  for (const match of Array.isArray(mData) ? mData : []) {
+    const blue = match.alliances?.blue;
+    const red = match.alliances?.red;
+    if (!blue || !red) continue;
+    const played = blue.score >= 0 && red.score >= 0;
+
+    for (const [side, alliance] of [["blue", blue], ["red", red]]) {
+      for (const teamKey of alliance.team_keys) {
+        if (!teamKey) continue;
+        const t = (teams[teamKey] ??= { wins: 0, losses: 0, ties: 0, played: 0, totalScore: 0 });
+        if (!played) continue;
+        t.played++;
+        t.totalScore += alliance.score;
+        if (!match.winning_alliance) t.ties++;
+        else if (match.winning_alliance === side) t.wins++;
+        else t.losses++;
+      }
+    }
+  }
+
+  const anyScored = Object.values(teams).some((t) => t.played > 0);
+  const rankings = Object.entries(teams)
+    .map(([team_key, t]) => ({
+      team_key,
+      matches_played: t.played,
+      record: { wins: t.wins, losses: t.losses, ties: t.ties },
+      // [1] is read as the avg match score by the leaderboard's AFC column
+      sort_orders: [t.wins, t.played ? t.totalScore / t.played : 0, t.totalScore],
+    }))
+    .sort((a, b) => b.sort_orders[0] - a.sort_orders[0] || b.sort_orders[1] - a.sort_orders[1] || a.team_key.slice(3) - b.team_key.slice(3))
+    .map((entry, i) => ({ rank: anyScored ? i + 1 : null, ...entry })); // no scores yet -> ranks would just be team order
+
+  return {
+    rankings,
+    sort_order_info: [
+      { name: "Wins", precision: 0 },
+      { name: "Avg Score", precision: 1 },
+      { name: "Total Score", precision: 0 },
+    ],
+    extra_stats_info: [],
+  };
+}
+
+// OCCRA has no live results or accurate match timing, so a match counts as played once anyone has scouted it
+function markScoutedMatches(mData, scoutedRows) {
+  if (!Array.isArray(mData) || !Array.isArray(scoutedRows)) return;
+  const scouted = new Set();
+  for (const row of scoutedRows) {
+    try {
+      const data = JSON.parse(row.data)?.questions?.data ?? {};
+      for (const category in data) {
+        const matchNum = Number(data[category]?.match);
+        if (matchNum) scouted.add(matchNum);
+      }
+    } catch {}
+  }
+  mData.forEach((match) => {
+    if (scouted.has(Number(match.match_number))) match._scouted = true;
+  });
 }
 
 export function isAdmin() {
@@ -34,19 +114,28 @@ export function getUserTeam() {
   return team;
 }
 
-export async function isActiveEvent() {
+export async function isActiveEvent(overrideStr) {
   // returns { isActive: boolean, event: currentevent/nextevent/null}
+
+  if (overrideStr) {
+    const event = isCustomEventKey(overrideStr) ? await getEvent(overrideStr).catch(() => null) : await TBA_GET(`/event/${overrideStr}`);
+    if (!event || !event.key) return false;
+    newEventCache(event.key);
+    return { isActive: true, event };
+  }
 
   let currentEvent = null;
   let nextEvent = null;
   const devOverride = true;
+
   try {
     const team = getUserTeam();
     const now = new Date();
 
-    const events = await TBA_GET(`/team/frc${team}/events/${now.getUTCFullYear()}`);
+    const [tbaEvents, customEvents] = await Promise.all([TBA_GET(`/team/frc${team}/events/${now.getUTCFullYear()}`), getCustomEvents()]);
 
-    if (!events) return false;
+    if (!tbaEvents && !customEvents.length) return false;
+    const events = [...(Array.isArray(tbaEvents) ? tbaEvents : []), ...customEvents];
 
     for (const details of events) {
       const start = new Date(details.start_date + "T00:00:00");
@@ -72,6 +161,7 @@ export async function isActiveEvent() {
   }
 
   if (currentEvent) {
+    newEventCache(currentEvent.key);
     return {
       isActive: true,
       event: currentEvent,
@@ -118,8 +208,217 @@ export function retagResponses(untaggedResponses, questions, offlineEnabled = tr
   return retaggedResponses;
 }
 
+export async function populateQuestions(questions, categoryID, categoryFormElement, responses = {}, dependentElements = [], onResponseChange = () => {}) {
+  const id = categoryID;
+  const categoryData = questions[categoryID];
+  let questionLookup = {};
+  function newTemplateFromID(id) {
+    const templates = Array.from(document.querySelectorAll(".form-template"));
+    const foundEl = templates.find((template) => template.id === id) || null;
+    if (foundEl) {
+      const newEl = foundEl.cloneNode(true);
+      return newEl;
+    }
+    return;
+  }
+  categoryData?.forEach((questionInfo, index) => {
+    const qType = questionInfo.type;
+    const element = newTemplateFromID(qType);
+
+    element.dataset.questionIndex = index; // array position
+    element.dataset.questionId = questionInfo.id;
+
+    const qHeader = element.querySelector("#question-header");
+    qHeader.textContent = questionInfo.header;
+    (responses[id] ??= [])[index] = questionInfo.state;
+
+    if (questionInfo.offline == true) {
+      element.classList.add("offlineQuestion");
+    }
+
+    const infoBtn = element.querySelector(".infobtn");
+    if (questionInfo.info) {
+      infoBtn.addEventListener("click", (e) => {
+        showPopup(true, questionInfo.info.header, questionInfo.info.body);
+      });
+    } else {
+      infoBtn.style.display = "none";
+    }
+
+    if (qType == "toggle") {
+      //toggle
+      const qText = element.querySelector("#question-text");
+      if (!questionInfo.text || questionInfo.text === "") {
+        qText.remove();
+      } else {
+        qText.textContent = questionInfo.text;
+      }
+      const checkbox = element.querySelector("input[type=checkbox]");
+      checkbox.id = `${id}-${index}-toggle`;
+      if (questionInfo.state) {
+        checkbox.checked = true;
+      }
+
+      checkbox.addEventListener("change", (e) => {
+        onResponseChange(e.target.id, e.target.checked);
+      });
+    } else if (qType == "dropdown") {
+      //dropdown
+      const placeholder = element.querySelector("#option-placeholder");
+      const select = element.querySelector("select");
+      select.id = `${id}-${index}-select`;
+
+      for (const optionIndex in questionInfo["dropdown-options"]) {
+        const option = placeholder.cloneNode(true);
+        option.textContent = questionInfo["dropdown-options"][optionIndex];
+        placeholder.parentNode.appendChild(option);
+      }
+      placeholder.textContent = questionInfo.state;
+
+      select.addEventListener("change", (e) => {
+        onResponseChange(e.target.id, e.target.value);
+      });
+      select.value = questionInfo.state;
+    } else if (qType == "text" || qType == "textarea") {
+      //text inputs
+      const input = element.querySelector("#text");
+      input.id = `${id}-${index}-text`;
+      input.placeholder = questionInfo.placeholder;
+      input.value = questionInfo.state;
+
+      input.addEventListener("input", (e) => {
+        onResponseChange(e.target.id, e.target.value);
+      });
+    } else if (qType == "counter") {
+      //counter
+      const count = element.querySelector("#count");
+      count.id = `${id}-${index}-count`;
+      count.value = questionInfo.state;
+      count.textContent = questionInfo.state;
+
+      const decrementBtn = element.querySelector('button[onclick*="decrementCounter"]');
+      const incrementBtn = element.querySelector('button[onclick*="incrementCounter"]');
+
+      if (decrementBtn) {
+        decrementBtn.setAttribute("onclick", `decrementCounter('${count.id}')`);
+      }
+      if (incrementBtn) {
+        incrementBtn.setAttribute("onclick", `incrementCounter('${count.id}')`);
+      }
+    } else if (qType == "slider") {
+      //slider
+      const slider = element.querySelector("#range");
+      const value = element.querySelector("#slider-value");
+      const min = element.querySelector("#min-label");
+      const max = element.querySelector("#max-label");
+
+      slider.id = `${id}-${index}-slider`;
+      value.id = `${id}-${index}-slider-value`;
+
+      slider.min = questionInfo.min;
+      slider.max = questionInfo.max;
+      slider.step = questionInfo.step;
+      slider.value = questionInfo.state;
+      value.textContent = questionInfo.state;
+      min.textContent = questionInfo["label-min"];
+      max.textContent = questionInfo["label-max"];
+
+      slider.addEventListener("input", (e) => {
+        value.textContent = e.target.value;
+        onResponseChange(e.target.id, Number(e.target.value));
+      });
+    } else if (qType == "timer") {
+      //timer
+      const timeInput = element.querySelector("#time");
+      timeInput.id = `${id}-${index}-time`;
+      timeInput.value = questionInfo.state;
+
+      const playPauseBtn = element.querySelector("#play-pause-btn");
+      const restartBtn = element.querySelector("#restart-btn");
+      const playPauseIcon = playPauseBtn.querySelector("ion-icon");
+
+      playPauseBtn.id = `${id}-${index}-play-pause`;
+      restartBtn.id = `${id}-${index}-restart`;
+
+      let isRunning = false;
+      let startTime = 0;
+      let elapsedTime = 0;
+      let intervalId = null;
+
+      playPauseBtn.addEventListener("click", () => {
+        if (isRunning) {
+          // pause
+          clearInterval(intervalId);
+          isRunning = false;
+          onResponseChange(timeInput.id, (elapsedTime / 1000).toFixed(2));
+          playPauseIcon.setAttribute("name", "play");
+        } else {
+          // play
+          startTime = Date.now() - elapsedTime;
+          intervalId = setInterval(() => {
+            elapsedTime = Date.now() - startTime;
+            const seconds = (elapsedTime / 1000).toFixed(2);
+            timeInput.value = seconds;
+            onResponseChange(timeInput.id, seconds, true);
+          }, 10); //ms
+          isRunning = true;
+          playPauseIcon.setAttribute("name", "pause");
+        }
+      });
+
+      restartBtn.addEventListener("click", () => {
+        clearInterval(intervalId);
+        isRunning = false;
+        elapsedTime = 0;
+        timeInput.value = "0.00";
+        playPauseIcon.setAttribute("name", "play");
+        onResponseChange(timeInput.id, "0.00");
+      });
+
+      timeInput.addEventListener("input", (e) => {
+        // this'll prob lag like hell so might have to change later
+        if (isRunning) {
+          clearInterval(intervalId);
+          isRunning = false;
+          playPauseIcon.setAttribute("name", "play");
+        }
+        // oh lord idk here
+        const manualValue = parseFloat(e.target.value) || 0;
+        elapsedTime = manualValue * 1000;
+        onResponseChange(e.target.id, e.target.value, true);
+      });
+    } else {
+      console.warn("missing case or element for type:", qType);
+    }
+
+    if (questionInfo.id) {
+      questionLookup[questionInfo.id] = {
+        defaultState: questions[id][index].state,
+        hideDependencies: questions[id][index]["hide-dependencies"] ?? null,
+        categoryId: id,
+        questionIndex: index,
+      };
+    }
+    if (questionInfo.depends || questionInfo.offline) {
+      dependentElements.push({
+        element,
+        depends: questionInfo.depends || [],
+        isOffline: questionInfo.offline === true,
+      });
+    }
+
+    categoryFormElement.appendChild(element);
+    element.classList.remove("form-template");
+  });
+  return { responses, questionLookup };
+}
+
 export async function newEventCache(eventKey, questionsFetcher) {
-  let [mData, eventDetails, questionsData, scoutedData] = await Promise.all([TBA_GET(`/event/${eventKey}/matches`), TBA_GET(`/event/${eventKey}`), questionsFetcher ? questionsFetcher() : questionDB("GET"), getDB(`/db?eventKey=${eventKey}`)]);
+  const isCustom = isCustomEventKey(eventKey);
+  const eventFetcher = isCustom
+    ? getEvent(eventKey).then(({ matches, ...details }) => [matches || [], details])
+    : Promise.all([TBA_GET(`/event/${eventKey}/matches`), TBA_GET(`/event/${eventKey}`)]);
+  let [[mData, eventDetails], questionsData, scoutedData] = await Promise.all([eventFetcher, questionsFetcher ? questionsFetcher() : questionDB("GET"), getDB(`/db?eventKey=${eventKey}`)]);
 
   if (mData && mData.length !== 0) {
     mData.sort((a, b) => {
@@ -134,6 +433,8 @@ export async function newEventCache(eventKey, questionsFetcher) {
     });
   }
 
+  if (isCustom) markScoutedMatches(mData, scoutedData?.data);
+
   const lastUpdated = new Date().getTime();
   //sorted, per-team averages. HELL! HELL! HELL!
   const scoutedDataPTAvgs = scoutedData?.data ? getAllTeamAverages(scoutedData.data, questionsData) : {};
@@ -147,6 +448,7 @@ export async function newEventCache(eventKey, questionsFetcher) {
     }
   }
   const cache = { mData, eventDetails, lastUpdated, questionsData, scoutedData: scoutedData.data, scoutedDataPTAvgs, scoutedDataPTAvgsFlat };
+  if (isCustom) cache.rankings = computeRankings(mData);
   localStorage.setItem(`eventCache_${eventKey}`, JSON.stringify(cache));
   localStorage.setItem("currentEventKey", eventKey);
   return cache;
@@ -246,6 +548,48 @@ export function getAllTeamAverages(scoutedData, questionsData) {
 
 export async function getAllScoutedLbColums() {}
 
+// #choice-popup used in /admin files
+// [{ label, onClick }]
+export function showChoicePopup(headerText, choices) {
+  const popup = document.getElementById("choice-popup");
+  const header = document.getElementById("choice-header");
+  const list = popup.querySelector(".c-list");
+  const template = document.getElementById("choice-btn-template");
+  const closeBtn = document.getElementById("close-frame-btn");
+
+  header.textContent = headerText;
+  list.querySelectorAll(".choice-btn").forEach((el) => el.remove());
+
+  choices.forEach(({ label, icon, onClick }) => {
+    const btn = template.cloneNode(true);
+    const thing = btn.querySelector(".btn-icon");
+    btn.removeAttribute("id");
+    btn.classList.remove("hidden");
+    if (icon == "none") {
+      thing.remove();
+    }
+    thing.name = icon || "add-circle";
+    btn.classList.add("choice-btn");
+    btn.lastChild.textContent = label;
+    btn.addEventListener("click", () => {
+      hideChoicePopup();
+      onClick?.();
+    });
+    list.appendChild(btn);
+  });
+
+  if (!closeBtn.dataset.wired) {
+    closeBtn.addEventListener("click", hideChoicePopup);
+    closeBtn.dataset.wired = "true";
+  }
+
+  popup.classList.remove("choice-hidden");
+}
+
+export function hideChoicePopup() {
+  document.getElementById("choice-popup")?.classList.add("choice-hidden");
+}
+
 window.reloadPage = function () {
   const eventKey = localStorage.getItem("currentEventKey");
   const CACHE_KEY = `eventCache_${eventKey}`;
@@ -255,14 +599,14 @@ window.reloadPage = function () {
 
 window.logout = (param) => {
   if (param === "redirect=scout") {
-    // Switch profile without re-login — keep auth token
+    // switch profile
     localStorage.removeItem("userProfile");
     const eventKey = localStorage.getItem("currentEventKey");
     const eventParam = eventKey ? `&eventKey=${eventKey}` : "";
-    window.location = `../HTML/profiles.html?redirect=scout${eventParam}`;
+    window.location = `/HTML/profiles.html?redirect=scout${eventParam}`;
     return;
   }
   localStorage.removeItem("scoutingAuthToken");
   localStorage.removeItem("userProfile");
-  window.location = `../HTML/login.html`;
+  window.location = `/HTML/login.html`;
 };

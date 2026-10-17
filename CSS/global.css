@@ -49,6 +49,12 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
+.footer button {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
 :root {
   --font: "Nunito Sans", "Trebuchet MS", "Segoe UI", Helvetica, Arial, sans-serif;
   --grid-size: 25px;
@@ -136,6 +142,14 @@ a {
   display: none !important;
 }
 
+.vr {
+  height: 100%;
+  background-color: var(--theme-main-border-color);
+  border: none;
+  width: 1px;
+  margin: 0 20px 0 20px;
+}
+
 .themed-frosted {
   transition: border 0.5s cubic-bezier(0, 0.31, 0.1, 1.01);
   display: flex;
@@ -183,9 +197,10 @@ a {
 ion-icon,
 .ionicon {
   max-width: 60%;
-  max-height: 60%;
+
+  max-height: 100%; /* 60%; */
   width: 60%;
-  height: 60%;
+  height: 100%;
   color: var(--theme-main-text);
 }
 ion-icon svg {
@@ -195,6 +210,9 @@ ion-icon svg {
   color: #3f51b5;
   border-color: #3f51b5;
   filter: invert(33%) sepia(100%) saturate(2826%) hue-rotate(200deg) brightness(97%);
+}
+img.ionicon {
+  max-height: 60% !important;
 }
 
 .tc-formatted {

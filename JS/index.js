@@ -7,6 +7,7 @@ const setupBtn = document.getElementById("setupBtn");
 const adminBtn = document.getElementById("adminBtn");
 
 const msg = urlParams.get("msg");
+const debugID = urlParams.get("dbID") || null;
 if (msg) {
   const msgBox = document.getElementById("errMsg");
   msgBox.textContent = decodeURIComponent(msg);
@@ -25,8 +26,8 @@ var validEvent = false;
 var nextValidEvent = null;
 //hemmy boy!!!!
 
-(async () => {
-  const { isActive, event } = await isActiveEvent(); // horrendous naming
+async function reload() {
+  const { isActive, event } = await isActiveEvent(debugID); // horrendous naming
 
   if (isActive) {
     console.log(event);
@@ -46,7 +47,7 @@ var nextValidEvent = null;
       showBrackets = !showBrackets;
     }, 1000);
   }
-})();
+}
 
 eventBtn.addEventListener("click", () => {
   // add admin features + secure identification in cloudflare worker later
@@ -71,3 +72,10 @@ setupBtn.addEventListener("click", () => {
   setupBtn.innerHTML = `<ion-icon class="ionicon" name="cloud-download-outline"></ion-icon> Please Wait...`;
   location.href = `/HTML/scout.html?eventKey=${validEvent.key}&setupComplete=true`;
 });
+
+function toggleDebug() {
+  location.href = location.pathname + "?dbID=2026misal";
+}
+
+reload();
+window.toggleDebug = toggleDebug;
