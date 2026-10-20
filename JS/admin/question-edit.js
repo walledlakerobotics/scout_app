@@ -563,7 +563,8 @@ submitChangesBtn.addEventListener("click", async () => {
 
 deleteChangesBtn.addEventListener("click", async () => {
   if (!confirm("Discard all local changes and reload the last saved questions from the server?")) return;
-
+  if (!confirm("Are you sure? (2/3)")) return;
+  if (!confirm("Are you sure? Final warning. (3/3)")) return;
   const data = await questionDB("GET");
   const cache = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`) ?? "null");
   if (!cache) return;
