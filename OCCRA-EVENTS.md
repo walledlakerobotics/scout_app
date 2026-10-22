@@ -28,12 +28,14 @@ Status as of 2026-10-16. Tracks the work to let admins create OCCRA events in th
   - Save Schedule (`PUT`) and Delete Event.
 - [x] New matches use `-1` as the "unplayed" score (TBA's convention; this was previously `-7`, which showed every match as completed).
 - [x] Fixed the duplicate `add-match-btn` id and the swapped FIRST/OCCRA list ids.
+- [x] Teams per alliance (`teams_per_alliance`, 2 or 3, default 3): set with the "Teams / Alliance" button in the new event form and in the schedule editor. In 2v2 mode the Blue 3 / Red 3 columns are hidden and every match's `team_keys` has 2 entries. Switching an existing schedule to 2v2 asks before clearing any filled 3rd slots. The event list shows `2v2` or `3v3`.
 
 ### App integration
 - [x] `JS/DB.js`: added `getEvents`, `getEvent`, `updateEvent` and `deleteEvent`.
 - [x] `isActiveEvent()` combines TBA events with worker events, so OCCRA events appear on the home page.
 - [x] `newEventCache()` fetches custom events and their matches from the worker, and marks scouted matches (`_scouted: true`) using each submission's Match Number.
 - [x] `computeRankings()` builds TBA-style rankings from scored matches. Every team on the schedule is listed, and ranks show N/A until any match has scores.
+- [x] Event page (`JS/event/event-frc.js`): match cards show as many teams as each alliance has (2 or 3).
 - [x] Event page (`JS/event/event-frc.js`): scouted matches show as done. A match that is scouted but has no scores shows both **Review** and **Scout** buttons, so the other scouters can still submit.
 - [x] Leaderboard (`JS/event/leaderboard.js`):
   - OCCRA events show only the Local (scouted) board.
@@ -61,6 +63,7 @@ Event (stored in the `data` column):
   key: "2026wlros-oxf", name: "2026 OCCRA Oxford Event", short_name: "Oxford", year: 2026,
   start_date: "2026-10-24", end_date: "2026-10-25", location_name: "Oxford Highschool",
   event_type_string: "Offseason", district: { abbreviation: "occra", display_name: "OCCRA" },
+  teams_per_alliance: 3, // 2 or 3; missing means 3
   matches: [ /* see below */ ]
 }
 ```
@@ -69,7 +72,7 @@ Match:
 ```js
 {
   key: "2026wlros-oxf_qm1", event_key: "2026wlros-oxf", comp_level: "qm", match_number: 1, set_number: 1,
-  alliances: { blue: { score: -1, team_keys: ["frc308", "frc7178", ""] }, red: { score: -1, team_keys: [...] } },
+  alliances: { blue: { score: -1, team_keys: ["frc308", "frc7178", ""] /* length = teams_per_alliance */ }, red: { score: -1, team_keys: [...] } },
   winning_alliance: null,
   _scouted: true // added on the device when the event data is fetched, never stored
 }

@@ -13,7 +13,7 @@ const formName = document.getElementById("event-name");
 const formStart = document.getElementById("event-start-date");
 const formEnd = document.getElementById("event-end-date");
 const formLocation = document.getElementById("event-location");
-const formAllianceSizeBtn = document.getElementById("event-alliance-size-btn");
+const formAllianceSizeBtn = document.getElementById("form-alliance-size-btn");
 
 const readoutName = document.getElementById("ro-name");
 const readoutKey = document.getElementById("ro-key");
@@ -47,6 +47,14 @@ let matches = [];
 let allianceSize = DEFAULT_ALLIANCE_SIZE; // teams per alliance in the open schedule (2 or 3)
 let formAllianceSize = DEFAULT_ALLIANCE_SIZE;
 var draftEvent = {};
+let formTeamsPerAlliance = 3;
+
+// events made before this setting existed (and every TBA event) are 3v3
+const teamsPerAlliance = (ev) => (ev?.teams_per_alliance === 2 ? 2 : 3);
+
+function setAllianceSizeLabel(btn, size) {
+  btn.querySelector(".alliance-size-label").textContent = `${size} Teams / Alliance`;
+}
 
 localStorage.removeItem("manageEventsSchedule"); // old global schedule, now stored per event
 
@@ -102,7 +110,8 @@ async function loadEvents() {
   customEvents.sort((a, b) => (a.start_date || "").localeCompare(b.start_date || ""));
   customEvents.forEach((ev) => {
     const hasSchedule = ev.matches?.length > 0;
-    const subText = hasSchedule ? `${formatDates(ev)} | ${ev.matches.length} matches` : "! UNSET SCHEDULE !!! TAP TO ADD !";
+    const size = teamsPerAlliance(ev);
+    const subText = hasSchedule ? `${formatDates(ev)} | ${ev.matches.length} matches | ${size}v${size}` : "! UNSET SCHEDULE !!! TAP TO ADD !";
     const btn = createEventButton(ev, subText, hasSchedule ? "calendar" : "alert-circle");
     if (!hasSchedule) btn.classList.add("striped-bg-img");
     btn.addEventListener("click", () => openSchedule(ev.key));
@@ -158,6 +167,7 @@ function readForm() {
     alliance_size: formAllianceSize,
     event_type_string: "Offseason",
     district: { abbreviation: "occra", display_name: "OCCRA" },
+    teams_per_alliance: formTeamsPerAlliance,
     matches: [],
   };
 
@@ -175,14 +185,14 @@ function readForm() {
 
 function resetForm() {
   [formName, formStart, formEnd, formLocation].forEach((input) => (input.value = ""));
-  formAllianceSize = DEFAULT_ALLIANCE_SIZE;
-  setAllianceSizeLabel(formAllianceSizeBtn, formAllianceSize);
+  formTeamsPerAlliance = 3;
+  setAllianceSizeLabel(formAllianceSizeBtn, formTeamsPerAlliance);
   readForm();
 }
 
 formAllianceSizeBtn.addEventListener("click", () => {
-  formAllianceSize = formAllianceSize === 3 ? 2 : 3;
-  setAllianceSizeLabel(formAllianceSizeBtn, formAllianceSize);
+  formTeamsPerAlliance = formTeamsPerAlliance === 3 ? 2 : 3;
+  setAllianceSizeLabel(formAllianceSizeBtn, formTeamsPerAlliance);
   readForm();
 });
 
@@ -370,10 +380,11 @@ const emptyAlliance = () => Array(allianceSize).fill("");
 // New rows follow match_template's shape: no score yet (-1, TBA's "unplayed"
 // value that event-frc checks for), no winner yet.
 function createMatch(matchNumber) {
+  const size = teamsPerAlliance(activeEvent);
   return {
     alliances: {
-      blue: { score: -1, team_keys: emptyAlliance() },
-      red: { score: -1, team_keys: emptyAlliance() },
+      blue: { score: -1, team_keys: Array(size).fill("") },
+      red: { score: -1, team_keys: Array(size).fill("") },
     },
     comp_level: "qm",
     event_key: activeEvent.key,
@@ -384,11 +395,13 @@ function createMatch(matchNumber) {
   };
 }
 
-// keeps numbering/keys in sync after rows are added or removed
+// keeps numbering/keys and alliance sizes in sync after rows are added or removed
 function normalizeMatches() {
+  const size = teamsPerAlliance(activeEvent);
   matches.forEach((match, index) => {
-    for (const alliance of [match.alliances.blue, match.alliances.red]) {
-      alliance.team_keys = Array.from({ length: allianceSize }, (_, slot) => alliance.team_keys[slot] || "");
+    for (const alliance of ["blue", "red"]) {
+      const keys = match.alliances[alliance].team_keys;
+      match.alliances[alliance].team_keys = Array.from({ length: size }, (_, i) => keys[i] || "");
     }
     match.match_number = index + 1;
     match.comp_level ??= "qm";
@@ -399,13 +412,15 @@ function normalizeMatches() {
 }
 
 function saveDraft() {
-  localStorage.setItem(draftKey(activeEvent.key), JSON.stringify(matches));
+  localStorage.setItem(draftKey(activeEvent.key), JSON.stringify({ teams_per_alliance: teamsPerAlliance(activeEvent), matches }));
 }
 
+// older drafts are just the matches array
 function loadDraft(eventKey) {
   try {
     const stored = JSON.parse(localStorage.getItem(draftKey(eventKey)));
-    if (Array.isArray(stored)) return stored;
+    if (Array.isArray(stored)) return { matches: stored };
+    if (Array.isArray(stored?.matches)) return stored;
   } catch {}
   return null;
 }
@@ -421,8 +436,10 @@ async function openSchedule(eventKey) {
 
   const saved = activeEvent.matches || [];
   const draft = loadDraft(eventKey);
-  const restoreDraft = draft && JSON.stringify(draft) !== JSON.stringify(saved) && confirm("This event has unsaved schedule changes on this device. Restore them?");
-  matches = restoreDraft ? draft : structuredClone(saved);
+  const draftChanged = draft && (JSON.stringify(draft.matches) !== JSON.stringify(saved) || (draft.teams_per_alliance && draft.teams_per_alliance !== teamsPerAlliance(activeEvent)));
+  const restoreDraft = draftChanged && confirm("This event has unsaved schedule changes on this device. Restore them?");
+  matches = restoreDraft ? draft.matches : structuredClone(saved);
+  if (restoreDraft && draft.teams_per_alliance) activeEvent.teams_per_alliance = draft.teams_per_alliance;
   if (!restoreDraft) localStorage.removeItem(draftKey(eventKey));
   // a restored draft may have been made with the other alliance size, so trust its rows
   const savedSize = activeEvent.alliance_size || DEFAULT_ALLIANCE_SIZE;
@@ -452,10 +469,14 @@ const ALL_ALLIANCE_CELLS = [
 ];
 const allianceCells = () => ALL_ALLIANCE_CELLS.filter(([, , slot]) => slot < allianceSize);
 
+// slot 3 cells are hidden (and skipped) for 2v2 events
+const activeCells = () => ALLIANCE_CELLS.filter(([, , slot]) => slot < teamsPerAlliance(activeEvent));
+
 function renderRows() {
   normalizeMatches();
-  scheduleTable.classList.toggle("two-team", allianceSize === 2);
-  setAllianceSizeLabel(scheduleAllianceSizeBtn, allianceSize);
+  const size = teamsPerAlliance(activeEvent);
+  scheduleTable.classList.toggle("two-per-alliance", size === 2);
+  setAllianceSizeLabel(scheduleAllianceSizeBtn, size);
   tbody.querySelectorAll("tr:not(#scouter-row-template)").forEach((row) => row.remove());
   matches.forEach((match) => {
     const row = rowTemplate.cloneNode(true);
@@ -464,7 +485,7 @@ function renderRows() {
 
     row.querySelector(".r-round-num").textContent = match.match_number;
 
-    allianceCells().forEach(([selector, alliance, slot]) => {
+    activeCells().forEach(([selector, alliance, slot]) => {
       const input = row.querySelector(`${selector} input`);
       input.value = teamNumberFromKey(match.alliances[alliance].team_keys[slot]);
       input.addEventListener("input", () => {
@@ -486,8 +507,8 @@ function renderRows() {
     });
 
     row.querySelector(".row-delete-btn").addEventListener("click", () => {
-      match.alliances.blue.team_keys = emptyAlliance();
-      match.alliances.red.team_keys = emptyAlliance();
+      match.alliances.blue.team_keys = Array(size).fill("");
+      match.alliances.red.team_keys = Array(size).fill("");
       saveDraft();
       renderRows();
     });
@@ -503,8 +524,9 @@ function validateSchedule() {
   const emptyMatches = [];
 
   matches.forEach((match, index) => {
-    const inputs = allianceCells().map(([selector]) => rows[index].querySelector(`${selector} input`));
-    const teams = allianceCells().map(([, alliance, slot]) => match.alliances[alliance].team_keys[slot]);
+    const cells = activeCells();
+    const inputs = cells.map(([selector]) => rows[index].querySelector(`${selector} input`));
+    const teams = cells.map(([, alliance, slot]) => match.alliances[alliance].team_keys[slot]);
 
     if (teams.some((team) => !team)) emptyMatches.push(match.match_number);
     teams.forEach((team, i) => {
@@ -518,6 +540,15 @@ function validateSchedule() {
   });
   return { errors, emptyMatches };
 }
+
+scheduleAllianceSizeBtn.addEventListener("click", () => {
+  const next = teamsPerAlliance(activeEvent) === 3 ? 2 : 3;
+  const filledSlot3 = matches.filter((m) => m.alliances.blue.team_keys[2] || m.alliances.red.team_keys[2]).map((m) => m.match_number);
+  if (next === 2 && filledSlot3.length && !confirm(`Switching to 2 teams per alliance clears Blue 3 / Red 3 in match${filledSlot3.length === 1 ? "" : "es"} ${filledSlot3.join(", ")}. Continue?`)) return;
+  activeEvent.teams_per_alliance = next;
+  renderRows(); // resizes every match's team_keys
+  saveDraft();
+});
 
 addMatchBtn.addEventListener("click", () => {
   matches.push(createMatch(matches.length + 1));
@@ -557,7 +588,7 @@ saveScheduleBtn.addEventListener("click", async () => {
   normalizeMatches();
   saveScheduleBtn.disabled = true;
   try {
-    await saveEventChanges(activeEvent.key, { matches, alliance_size: allianceSize });
+    await saveEventChanges(activeEvent.key, { teams_per_alliance: teamsPerAlliance(activeEvent), matches });
     activeEvent.matches = structuredClone(matches);
     activeEvent.alliance_size = allianceSize;
     localStorage.removeItem(draftKey(activeEvent.key));

@@ -55,12 +55,13 @@ async function renderMatches(mData) {
     }
     matchIdEl.textContent = matchNum < 10 ? `0${matchNum}` : matchNum;
 
-    // OCCRA events can be 2v2, so drop any slot past the alliance's size
+    // TBA matches are 3v3, OCCRA events can be 2v2 (teams_per_alliance) BUT IDK IF THEYLL CHANGE IT NEXT SEASON!!
+    const teamsPerAlliance = Math.max(match.alliances.blue.team_keys.length, match.alliances.red.team_keys.length);
     for (let i = 0; i < 3; i++) {
       const blueTeamEl = matchEl.querySelector("#m-blue").querySelector(`#team${i + 1}`);
       const redTeamEl = matchEl.querySelector("#m-red").querySelector(`#team${i + 1}`);
 
-      if (i >= match.alliances.blue.team_keys.length && i >= match.alliances.red.team_keys.length) {
+      if (i >= teamsPerAlliance) {
         blueTeamEl.remove();
         redTeamEl.remove();
         continue;
@@ -68,6 +69,7 @@ async function renderMatches(mData) {
       blueTeamEl.textContent = (match.alliances.blue.team_keys[i] || "").slice(3);
       redTeamEl.textContent = (match.alliances.red.team_keys[i] || "").slice(3);
     }
+    matchEl.classList.toggle("two-per-alliance", teamsPerAlliance === 2);
 
     const redScoreEl = matchEl.querySelector("#match-red-score");
     const blueScoreEl = matchEl.querySelector("#match-blue-score");
