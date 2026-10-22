@@ -1,5 +1,5 @@
 import { getUsers } from "../DB.js";
-import { TBA_GET, newEventCache } from "/JS/utils.js";
+import { TBA_GET, newEventCache, isCustomEventKey } from "/JS/utils.js";
 
 const eventTitle = document.getElementById("eventNameHeader");
 
@@ -234,11 +234,13 @@ async function loadHero(key, teamData, scouter = "N/A") {
     document.getElementById("hero-scouter").textContent = scouter;
   }
 
-  const [teamInfo, rankings] = await Promise.all([TBA_GET(`/team/frc${key}`), TBA_GET(`/event/${eventKey}/rankings`)]);
+  // custom (OCCRA) events have no TBA rankings; newEventCache computes them into the cache instead
+  const cachedRankings = JSON.parse(localStorage.getItem(`eventCache_${eventKey}`))?.rankings;
+  const [teamInfo, rankings] = await Promise.all([TBA_GET(`/team/frc${key}`), isCustomEventKey(eventKey) ? cachedRankings : TBA_GET(`/event/${eventKey}/rankings`)]);
   if (teamInfo?.nickname) document.getElementById("team-name").textContent = teamInfo.nickname;
   if (rankings?.rankings) {
     const entry = rankings.rankings.find((r) => r.team_key === teamKeyFull);
-    if (entry) {
+    if (entry?.rank) {
       const r = entry.rank;
       const suffix = r === 1 ? "st" : r === 2 ? "nd" : r === 3 ? "rd" : "th";
       document.getElementById("hero-rank").textContent = `${r}${suffix}`;
@@ -261,7 +263,8 @@ function renderStats(teamData) {
   for (const categoryID in teamData) {
     for (const questionID in teamData[categoryID]) {
       const lb = questionLookup[questionID];
-      if (!lb) continue;
+      // spreading leaves lb truthy even with no leaderboard config, so check for titles instead
+      if (!lb || (!lb["title-avg"] && !lb["title-single"])) continue;
 
       if (lb.visibility === "avg" && !isAvgMode) continue;
       if (lb.visibility === "single" && isAvgMode) continue;

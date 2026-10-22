@@ -7,6 +7,73 @@ export async function getUsers() {
   return users;
 }
 
+export async function updateUser(id, updates) {
+  const res = await fetch("https://data.bheitz780.workers.dev/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, ...updates }),
+  });
+  if (!res.ok) throw new Error(`Failed to update user (${res.status})`);
+  return res.json();
+}
+
+export async function addUser(data) {
+  const res = await fetch("https://data.bheitz780.workers.dev/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`Failed to add user (${res.status})`);
+  return res.json();
+}
+
+export async function deleteUser(id) {
+  const res = await fetch(`https://data.bheitz780.workers.dev/users?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(`Failed to delete user (${res.status})`);
+}
+
+export async function newEvent(data) {
+  const res = await fetch("https://data.bheitz780.workers.dev/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`Failed to add new event (${res.status})`);
+  return res.json();
+}
+
+// custom (OCCRA) events stored on the worker, shaped like TBA events + a `matches` array
+export async function getEvents() {
+  const res = await fetch("https://data.bheitz780.workers.dev/events", { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to get events (${res.status})`);
+  return res.json();
+}
+
+export async function getEvent(key) {
+  const res = await fetch(`https://data.bheitz780.workers.dev/events?key=${encodeURIComponent(key)}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to get event ${key} (${res.status})`);
+  return res.json();
+}
+
+export async function updateEvent(key, updates) {
+  const res = await fetch("https://data.bheitz780.workers.dev/events", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, ...updates }),
+  });
+  if (!res.ok) throw new Error(`Failed to update event ${key} (${res.status})`);
+  return res.json();
+}
+
+export async function deleteEvent(key) {
+  const res = await fetch(`https://data.bheitz780.workers.dev/events?key=${encodeURIComponent(key)}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(`Failed to delete event ${key} (${res.status})`);
+}
+
 export async function questionDB(method, data, fetchOptions = {}) {
   if (method === "GET") {
     const res = await fetch("https://data.bheitz780.workers.dev/questions", fetchOptions);

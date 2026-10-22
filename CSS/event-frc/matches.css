@@ -242,6 +242,20 @@
   pointer-events: none;
 }
 
+.action-group {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9999;
+  display: flex;
+  gap: 8px;
+}
+.action-group .action-btn {
+  position: static;
+  transform: none;
+}
+
 .mr-score {
   color: rgba(var(--rgb-alliance-red), 1);
 }
