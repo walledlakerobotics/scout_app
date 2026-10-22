@@ -55,12 +55,18 @@ async function renderMatches(mData) {
     }
     matchIdEl.textContent = matchNum < 10 ? `0${matchNum}` : matchNum;
 
+    // OCCRA events can be 2v2, so drop any slot past the alliance's size
     for (let i = 0; i < 3; i++) {
       const blueTeamEl = matchEl.querySelector("#m-blue").querySelector(`#team${i + 1}`);
       const redTeamEl = matchEl.querySelector("#m-red").querySelector(`#team${i + 1}`);
 
-      blueTeamEl.textContent = match.alliances.blue.team_keys[i].slice(3);
-      redTeamEl.textContent = match.alliances.red.team_keys[i].slice(3);
+      if (i >= match.alliances.blue.team_keys.length && i >= match.alliances.red.team_keys.length) {
+        blueTeamEl.remove();
+        redTeamEl.remove();
+        continue;
+      }
+      blueTeamEl.textContent = (match.alliances.blue.team_keys[i] || "").slice(3);
+      redTeamEl.textContent = (match.alliances.red.team_keys[i] || "").slice(3);
     }
 
     const redScoreEl = matchEl.querySelector("#match-red-score");

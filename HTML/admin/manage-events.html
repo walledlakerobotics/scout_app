@@ -42,16 +42,16 @@
       <div class="schedule-editor hidden" id="schedule-editor">
         <h4 class="noneditable" id="schedule-subheader" style="text-align: center;"></h4>
         <div class="scouters-table-wrapper themed-frosted">
-          <table class="scouters-table">
+          <table class="scouters-table" id="schedule-table">
             <thead>
               <tr>
                 <th>#</th>
                 <th>BLUE 1</th>
                 <th>BLUE 2</th>
-                <th>BLUE 3</th>
+                <th class="slot3">BLUE 3</th>
                 <th>RED 1</th>
                 <th>RED 2</th>
-                <th>RED 3</th>
+                <th class="slot3">RED 3</th>
                 <th></th>
               </tr>
             </thead>
@@ -62,13 +62,13 @@
                     placeholder="-" /></td>
                 <td class="r-blue2 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
                     placeholder="-" /></td>
-                <td class="r-blue3"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                <td class="r-blue3 slot3"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
                     placeholder="-" /></td>
                 <td class="r-red1 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
                     placeholder="-" /></td>
                 <td class="r-red2"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
                     placeholder="-" /></td>
-                <td class="r-red3 sh"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
+                <td class="r-red3 sh slot3"><input type="text" class="team-input" inputmode="numeric" maxlength="6"
                     placeholder="-" /></td>
                 <td class="r-actions">
                   <button class="row-delete-btn" type="button">
@@ -87,6 +87,10 @@
           <button class="mainBtn" id="delete-last-btn">
             <ion-icon name="remove-circle"></ion-icon>
             Delete Last
+          </button>
+          <button class="mainBtn" id="schedule-alliance-size-btn">
+            <ion-icon name="people"></ion-icon>
+            <span class="alliance-size-label">3 Teams / Alliance</span>
           </button>
         </div>
         <div class="schedule-actions">
@@ -127,6 +131,13 @@
           <div>
             <h4>EVENT LOCATION</h4>
             <input type="text" id="event-location" placeholder="i.e: 'Oxford Highschool'" maxlength="35" />
+          </div>
+          <div>
+            <h4>TEAMS PER ALLIANCE</h4>
+            <button class="mainBtn" id="event-alliance-size-btn" type="button">
+              <ion-icon name="people"></ion-icon>
+              <span class="alliance-size-label">3 Teams / Alliance</span>
+            </button>
           </div>
           <div style="display: flex; flex-direction: row;">
             <div class="readout" style="align-items: flex-start;">
