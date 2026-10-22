@@ -372,7 +372,8 @@ if (inspectType == "team") {
   const match = mData.find((m) => m.key == inspectKey);
   const matchNumber = match?.match_number?.toString();
 
-  const teams = [...match.alliances.blue.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Blue ${i + 1}` })), ...match.alliances.red.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Red ${i + 1}` }))];
+  // works for 2 or 3 teams per alliance; empty slots in custom schedules are skipped
+  const teams = [...match.alliances.blue.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Blue ${i + 1}` })), ...match.alliances.red.team_keys.map((k, i) => ({ teamNum: k.slice(3), label: `Red ${i + 1}` }))].filter((t) => t.teamNum);
 
   let currentIndex = 0;
 
