@@ -150,6 +150,10 @@
   width: 33.33%;
 }
 
+.match.two-per-alliance th {
+  width: 50%;
+}
+
 .match-teams-table {
   display: table;
   table-layout: fixed;
